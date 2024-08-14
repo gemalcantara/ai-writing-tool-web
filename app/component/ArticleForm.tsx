@@ -195,7 +195,7 @@ const handleInputChangeStatic = (event) => {
     if (loading) return <p>Loading...</p>;
     if (error) return <p>{error}</p>;
   return (
-    <Box component="main"  sx={{ width: '100vh',height: '90vh'}}>
+    <Box component="main"  sx={{ width: '100vh',height: '90vh', flexGrow: 1, p: 3}}>
       <Toolbar />
       <Card sx={{ minWidth: '100vh',height: '80vh',overflowY: 'scroll' }} >
         <CardContent>
