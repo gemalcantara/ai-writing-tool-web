@@ -1,0 +1,51 @@
+/*
+ * @NOTE: Prepend a `~` to css file paths that are in your node_modules
+ *        See https://github.com/webpack-contrib/sass-loader#imports
+ */
+body {
+  position: relative;
+  color: white;
+  height: 100vh;
+  background: linear-gradient(
+    200.96deg,
+    #4fbc85 -29.09%,
+    #4f75bc 51.77%,
+    #113662 129.35%
+  );
+  font-family: 'IBM Plex Sans', sans-serif;
+  overflow-y: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+space-between {
+  justify-content: space-between;
+}
+
+textarea {
+  box-sizing: border-box;
+  width: 320px;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.5;
+  padding: 8px 12px;
+  border-radius: 8px;
+  color: #000000;
+  background: #fff;
+  border: 1px solid #000000;
+  width: 100%;
+}
+textarea:focus {
+  border-color: #000000;
+  outline: none;
+}
+/* textarea:hover {
+  border-color: #3399FF;
+}
+
+textarea:focus {
+  border-color: #3399FF;
+  box-shadow: 0 0 0 3px #0072E5;
+} */

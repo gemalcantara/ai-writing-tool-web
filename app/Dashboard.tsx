@@ -1,0 +1,339 @@
+/* eslint-disable no-use-before-define */
+"use client"
+import {
+  MemoryRouter as Router,
+  Routes,
+  Route,
+  useNavigate,
+  Navigate,
+  Link,
+  Outlet
+} from 'react-router-dom';
+import * as React from 'react';
+import Box from '@mui/material/Box';
+import Drawer from '@mui/material/Drawer';
+import AppBar from '@mui/material/AppBar';
+import CssBaseline from '@mui/material/CssBaseline';
+import Toolbar from '@mui/material/Toolbar';
+import List from '@mui/material/List';
+import Typography from '@mui/material/Typography';
+import Divider from '@mui/material/Divider';
+import ListSubheader from '@mui/material/ListSubheader';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+import {
+  Person,
+  Article,
+  PermContactCalendar,
+  Pages,
+  Logout,
+} from '@mui/icons-material';
+import ExpandLess from '@mui/icons-material/ExpandLess';
+import ExpandMore from '@mui/icons-material/ExpandMore';
+import Collapse from '@mui/material/Collapse';
+import { ListItem } from '@mui/material';
+import { useState, useEffect } from 'react';
+import useLogout from './component/Logout';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  'https://xmocweluatwitidfqkym.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhtb2N3ZWx1YXR3aXRpZGZxa3ltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjMyMDY2NTYsImV4cCI6MjAzODc4MjY1Nn0.iGSi5Obo80XXd1_g_H8_uczeCVe-294cI1cfXMuH788',
+);
+
+const drawerWidth = 240;
+
+
+interface PagesList {
+  id: number;
+  name: string;
+}
+interface ClientsList {
+  id: number;
+  name: string;
+}
+function SidebarList() {
+  const [page, setPage] = React.useState(true);
+  const [client, setClient] = React.useState(true);
+  const [selectedIndex, setSelectedIndex] = React.useState(1);
+  const navigate = useNavigate();
+  const logout = useLogout();
+  // selectedIndex == 0 ? navigate('/dashboard/users');
+  const handleListItemClick = (
+    event: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    index: number,
+  ) => {
+    setSelectedIndex(index);
+  };
+  const handleClickPage = () => {
+    setPage(!page);
+  };
+  const handleClickClient = () => {
+    setClient(!client);
+  };
+  return (
+    <List
+      sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}
+      component="nav"
+      aria-labelledby="nested-list-subheader"
+      subheader={
+        <ListSubheader component="div" id="nested-list-subheader">
+          Dashboard
+        </ListSubheader>
+      }
+    >
+      <ListItemButton
+        selected={selectedIndex === 0}
+        onClick={(event) => handleListItemClick(event, 0)}
+        component={Link}
+        to="users"
+      >
+        <ListItemIcon>
+          <Person />
+        </ListItemIcon>
+        <ListItemText primary="Users" />
+      </ListItemButton>
+      <Divider />
+
+      <ListItemButton
+        selected={selectedIndex === 1}
+        onClick={(event) => {
+          handleClickPage();
+          handleListItemClick(event, 1);
+        }}
+      >
+        <ListItemIcon>
+          <Pages />
+        </ListItemIcon>
+        <ListItemText primary="Page Type" />
+        {page ? <ExpandLess /> : <ExpandMore />}
+      </ListItemButton>
+      <Collapse in={page} timeout="auto" unmountOnExit>
+        <PageList />
+      </Collapse>
+      <ListItemButton
+        selected={selectedIndex === 2}
+        onClick={(event) => {
+          console.log('hekki');
+          handleClickClient();
+          handleListItemClick(event, 2);
+        }}
+      >
+        <ListItemIcon>
+          <PermContactCalendar />
+        </ListItemIcon>
+        <ListItemText primary="Client" />
+        {client ? <ExpandLess /> : <ExpandMore />}
+      </ListItemButton>
+      <Collapse in={client} timeout="auto" unmountOnExit>
+        <ClientList />
+      </Collapse>
+      <Divider />
+      <ListItemButton
+        selected={selectedIndex === 4}
+        onClick={(event) => {
+          handleListItemClick(event, 4)
+        }}
+        component={Link}
+        to="articles/create"
+      >
+        <ListItemIcon>
+          <Article />
+        </ListItemIcon>
+        <ListItemText primary="Create Article" />
+      </ListItemButton>
+      <Divider />
+      <ListItemButton
+        selected={selectedIndex === 5}
+        onClick={logout}
+      >
+        <ListItemIcon>
+          <Logout />
+        </ListItemIcon>
+        <ListItemText primary="Logout" />
+      </ListItemButton>
+    </List>
+  );
+}
+function ClientList() {
+  const [selectedIndex, setSelectedIndex] = React.useState(1);
+  const [clients, setClients] = useState<ClientsList[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const handleListItemClick = (
+    event: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    index: number,
+  ) => {
+    setSelectedIndex(index);
+  };
+
+
+  useEffect(() => {
+      const fetchUsers = async () => {
+        try {
+          // Fetch data from Supabase
+          const { data, error } = await supabase
+            .from('clients') // Replace 'users' with your table name
+            .select('*');
+  
+          if (error) throw error;
+  
+          // Update state with fetched data
+          setClients(data || []);
+        } catch (error) {
+          // Handle error
+          setError('Failed to fetch clients');
+        } finally {
+          setLoading(false);
+        }
+      };
+  
+      fetchUsers();
+    }, []);
+    if (loading) return <p>Loading...</p>;
+    if (error) return <p>{error}</p>;
+    let rows = [];
+    clients.map((client) => (
+      rows.push( { id: client.id, name: client.name })
+    ));
+  return (
+    <List component="div" disablePadding>
+       <ListItem key='Create Client' disablePadding>
+          <ListItemButton sx={{ pl: 4 }} 
+            selected={selectedIndex === 0}
+            onClick={(event) => handleListItemClick(event, 0)}
+            component={Link}
+            to="clients/create"
+                        >
+          <ListItemIcon>
+            <AddCircleOutlineIcon />
+          </ListItemIcon>
+            <ListItemText primary="Create Client" />
+          </ListItemButton>
+        </ListItem>
+      <Divider />
+
+      {clients.map((client, index) => (
+        <ListItem key={client.name} disablePadding>
+          <ListItemButton sx={{ pl: 4 }} 
+            selected={selectedIndex === client.id}
+            onClick={(event) => {handleListItemClick(event, client.id); navigate(`clients/view/${client.id}`)}}
+          >
+            <ListItemText primary={client.name} />
+          </ListItemButton >
+        </ListItem>
+      ))}
+    </List>
+  );
+}
+function PageList() {
+  const [selectedIndex, setSelectedIndex] = React.useState(1);
+  const [pages, setPages] = useState<PagesList[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const handleListItemClick = (
+    event: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    index: number,
+  ) => {
+    setSelectedIndex(index);
+  };
+
+
+  useEffect(() => {
+      const fetchUsers = async () => {
+        try {
+          // Fetch data from Supabase
+          const { data, error } = await supabase
+            .from('pages') // Replace 'users' with your table name
+            .select('*');
+  
+          if (error) throw error;
+  
+          // Update state with fetched data
+          setPages(data || []);
+        } catch (error) {
+          // Handle error
+          setError('Failed to fetch pages');
+        } finally {
+          setLoading(false);
+        }
+      };
+  
+      fetchUsers();
+    }, []);
+    if (loading) return <p>Loading...</p>;
+    if (error) return <p>{error}</p>;
+    let rows = [];
+    pages.map((pages) => (
+      rows.push( { id: pages.id, name: pages.name })
+    ));
+  return (
+    <List component="div" disablePadding>
+       <ListItem key='Create Page' disablePadding>
+          <ListItemButton sx={{ pl: 4 }} 
+            selected={selectedIndex === 0}
+            onClick={(event) => handleListItemClick(event, 0)}
+            component={Link}
+            to="pages/create"
+                        >
+          <ListItemIcon>
+            <AddCircleOutlineIcon />
+          </ListItemIcon>
+            <ListItemText primary="Create Page" />
+          </ListItemButton>
+        </ListItem>
+      <Divider />
+
+      {pages.map((page, index) => (
+        <ListItem key={page.name} disablePadding>
+          <ListItemButton sx={{ pl: 4 }} 
+            selected={selectedIndex === page.id}
+            onClick={(event) => {handleListItemClick(event, page.id); navigate(`pages/view/${page.id}`)}}
+          >
+            <ListItemText primary={page.name} />
+          </ListItemButton >
+        </ListItem>
+      ))}
+    </List>
+  );
+}
+export default function ClippedDrawer() {
+
+  return (
+    <Box sx={{ display: 'flex' }}>
+      <CssBaseline />
+      <AppBar
+        position="fixed"
+        sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+      >
+        <Toolbar>
+          <Typography variant="h6" noWrap component="div">
+            AI Writing Tool
+          </Typography>
+        </Toolbar>
+      </AppBar>
+      <Drawer
+        variant="permanent"
+        sx={{
+          width: drawerWidth,
+          flexShrink: 0,
+          [`& .MuiDrawer-paper`]: {
+            width: drawerWidth,
+            boxSizing: 'border-box',
+          },
+        }}
+      >
+        <Toolbar />
+        <Box sx={{ overflow: 'auto' }}>
+          <SidebarList />
+          <Divider />
+        </Box>
+      </Drawer>
+      <Outlet />
+    </Box>
+  );
+}
