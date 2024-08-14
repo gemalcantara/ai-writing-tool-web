@@ -18,9 +18,13 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 import { CookiesProvider, useCookies  } from 'react-cookie';
 import { useNavigate } from 'react-router-dom';
 import Sections from './Sections';
+
+const supaBaseLink = process.env.NEXT_PUBLIC_SUPABASE_LINK;
+const supaBaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY
+
 const supabase = createClient(
-  'https://xmocweluatwitidfqkym.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhtb2N3ZWx1YXR3aXRpZGZxa3ltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjMyMDY2NTYsImV4cCI6MjAzODc4MjY1Nn0.iGSi5Obo80XXd1_g_H8_uczeCVe-294cI1cfXMuH788',
+  supaBaseLink,
+  supaBaseKey
 );
 
 interface PagesList {
@@ -56,37 +60,38 @@ const getPageGuideline = (event) => {
     setPageDetails(value);
 }
 useEffect(() => {
-    const getGuideline = async () => {
-      try {
-        // Fetch data from Supabase
-        const { data, error } = await supabase
-          .from('clients')
-          .select('*')
-          .eq('id',parseInt(clientDetails))
-          .single();
-
-        if (error) throw error;
-
-        // Update state with fetched data
-          setInputFieldStatic({
-            ...inputFieldStatic,
-            ['selectedClient']: data.id, // Only update the specific field that changed
-            ['clientName']: data.name, // Only update the specific field that changed
-            ['clientGuideline']: data.guideline,
-        });
-        // setClientDetails(data || []);
-      } catch (error) {
-        // Handle error
-        // setError('Failed to fetch clients');
-      } finally {
-        setLoading(false);
-      }
-    };
-    getGuideline();
-}, [clientDetails]);
-
-
+    if (clientDetails) {
+      const getGuideline = async () => {
+        try {
+          // Fetch data from Supabase
+          const { data, error } = await supabase
+            .from('clients')
+            .select('*')
+            .eq('id',parseInt(clientDetails))
+            .single();
+  
+          if (error) throw error;
+  
+          // Update state with fetched data
+            setInputFieldStatic({
+              ...inputFieldStatic,
+              ['selectedClient']: data.id, // Only update the specific field that changed
+              ['clientName']: data.name, // Only update the specific field that changed
+              ['clientGuideline']: data.guideline,
+          });
+          // setClientDetails(data || []);
+        } catch (error) {
+          // Handle error
+          // setError('Failed to fetch clients');
+        } finally {
+          setLoading(false);
+        }
+      };
+      getGuideline();
+    }
+  }, [clientDetails]);
 useEffect(() => {
+  if (pageDetails) {
     const getGuideline = async () => {
       try {
         // Fetch data from Supabase
@@ -114,7 +119,10 @@ useEffect(() => {
       }
     };
     getGuideline();
+  }
 }, [pageDetails]);
+
+
 
 
 const handleAddFields = () => {

@@ -13,9 +13,13 @@ import { useState, useEffect } from 'react';
 import { Grid, TextField } from '@mui/material';
 import { DeleteForeverRounded } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+
+const supaBaseLink = process.env.NEXT_PUBLIC_SUPABASE_LINK;
+const supaBaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY
+
 const supabase = createClient(
-  'https://xmocweluatwitidfqkym.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhtb2N3ZWx1YXR3aXRpZGZxa3ltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjMyMDY2NTYsImV4cCI6MjAzODc4MjY1Nn0.iGSi5Obo80XXd1_g_H8_uczeCVe-294cI1cfXMuH788',
+  supaBaseLink,
+  supaBaseKey
 );
 
 interface PagesList {
