@@ -151,10 +151,10 @@ const handleInputChangeStatic = (event: React.ChangeEvent<any>) => {
   };
   const handleInputChange = (index: number, event: React.ChangeEvent<any>) => {
     const values = [...inputFields];
-    values[index][event.target.name] = event.target.value;
+    values[index][event.target.name as any] = event.target.value;
     setInputFields(values);
   };
-
+  
   const handleSubmit = async () => {
     event.preventDefault();
     let formData = {sections:inputFields, main:inputFieldStatic};
