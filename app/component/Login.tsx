@@ -26,10 +26,9 @@ const supabase = createClient(
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  // const [error, setError] = useState(null);
   const [cookies, setCookie] = useCookies(['user']);
   const navigate = useNavigate();
-  console.log(cookies);
   useEffect(() => {
     // Check for the cookie
     if (cookies.user) { 
@@ -41,13 +40,14 @@ export default function Login() {
   }, [navigate]);
   
   const handleSubmit = async () => {
+    event.preventDefault();
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
     if (error) {
       alert(error.message);
-      setError(error.message);
+      // setError(error.message);
     } else {
       let loginDate = {
         user: data.session.user,

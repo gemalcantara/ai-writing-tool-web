@@ -49,7 +49,6 @@ export default function PagesForm() {
     createPage(data);
   };
   const session = supabase.auth.getSession();
-  session.then(e => console.log(e));
   return (
     <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
       <Toolbar />
