@@ -66,7 +66,7 @@ function SidebarList() {
   const logout = useLogout();
   // selectedIndex == 0 ? navigate('/dashboard/users');
   const handleListItemClick = (
-    event: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    event: React.MouseEvent<Element, MouseEvent>,
     index: number,
   ) => {
     setSelectedIndex(index);
