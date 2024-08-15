@@ -57,12 +57,12 @@ const [pageDetails, setPageDetails] = useState(0);
 const [inputFields, setInputFields] = useState([{instruction: '',title: '', details: ''}]);
 const [inputFieldStatic, setInputFieldStatic] = useState({instruction:'',clientGuideline: '',articleGuideline: '',selectedClient: '',clientName: '',pageName: '',selectedPage: '',keywords: ''});
 
-const getClientGuideline = (event) => {
+const getClientGuideline = (event: React.ChangeEvent<any>) => {
     const { name, value } = event.target;
     setClientDetails(value);
 }
 
-const getPageGuideline = (event) => {
+const getPageGuideline = (event: React.ChangeEvent<any>) => {
     const { name, value } = event.target;
     setPageDetails(value);
 }
