@@ -26,7 +26,7 @@ const supabase = createClient(
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState(null);
+  const [error, setError] = useState('');
   const [cookies, setCookie] = useCookies(['user']);
   const navigate = useNavigate();
   console.log(cookies);
@@ -47,7 +47,7 @@ export default function Login() {
     });
     if (error) {
       alert(error.message);
-      // setError(error.message);
+      setError(error.message);
     } else {
       let loginDate = {
         user: data.session.user,

@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { TextField, Button, Grid, Divider } from '@mui/material';
 
-const Sections = ({ inputFields, handleInputChange, handleAddFields, handleRemoveFields }) => {
+const Sections = ({ inputFields, handleInputChange, handleAddFields, handleRemoveFields } :any) => {
 
   const handleSubmit = (event: any) => {
     event.preventDefault();
