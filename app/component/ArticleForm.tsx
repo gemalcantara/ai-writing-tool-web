@@ -54,7 +54,7 @@ interface PagesList {
 const [clientDetails, setClientDetails] = useState(0);
 const [pageDetails, setPageDetails] = useState(0);
 
-const [inputFields, setInputFields] = useState([{instruction: '',title: '', details: '', linkOne: '' , linkTwo: '', linkThree: ''}]);
+const [inputFields, setInputFields] = useState([{instruction: '',title: '', details: ''}]);
 const [inputFieldStatic, setInputFieldStatic] = useState({instruction:'',clientGuideline: '',articleGuideline: '',selectedClient: '',clientName: '',pageName: '',selectedPage: '',keywords: ''});
 
 const getClientGuideline = (event) => {
@@ -133,7 +133,7 @@ useEffect(() => {
 
 
 const handleAddFields = () => {
-  setInputFields([...inputFields, { instruction: '',title: '', details: '', linkOne: '' , linkTwo: '', linkThree: '' }]);
+  setInputFields([...inputFields, { instruction: '',title: '', details: '' }]);
 };
 
 const handleRemoveFields = (index) => {

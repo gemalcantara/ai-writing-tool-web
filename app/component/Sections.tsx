@@ -37,36 +37,6 @@ const Sections = ({ inputFields, handleInputChange, handleAddFields, handleRemov
             />
           </Grid>
           <Grid item xs={12}>
-            <TextField
-              name="linkOne"
-              label="Link"
-              variant="outlined"
-              fullWidth
-              value={inputField.linkOne}
-              onChange={(event) => handleInputChange(index, event)}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              name="linkTwo"
-              label="Link"
-              variant="outlined"
-              fullWidth
-              value={inputField.linkTwo}
-              onChange={(event) => handleInputChange(index, event)}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              name="linkThree"
-              label="Link"
-              variant="outlined"
-              fullWidth
-              value={inputField.linkThree}
-              onChange={(event) => handleInputChange(index, event)}
-            />
-          </Grid>
-          <Grid item xs={12}>
             <Button
               variant="outlined"
               color="secondary"
