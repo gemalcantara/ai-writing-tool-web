@@ -17,22 +17,14 @@ import '@fontsource/roboto/700.css';
 import Users from './component/Users';
 import Pages from './component/PagesIndex';
 import Client from './component/Client';
-import Articles from './component/ArticlesIndex';
 import Login from './component/Login';
 import UsersForm from './component/UsersForm';
 import PagesForm from './component/PagesForm';
 import ClientsForm from './component/ClientForm';
 import ArticlesForm from './component/ArticleForm';
+import ArticlesIndex from './component/ArticlesIndex';
+import ArticlesResult from './component/ArticlesResult';
 
-const supabase = createClient("https://xmocweluatwitidfqkym.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhtb2N3ZWx1YXR3aXRpZGZxa3ltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjMyMDY2NTYsImV4cCI6MjAzODc4MjY1Nn0.iGSi5Obo80XXd1_g_H8_uczeCVe-294cI1cfXMuH788");
-
-
-// async function createUser(params:type) {
-//   const { user, error } = await supabase.auth.signUp({
-//     email: 'gem.alcantara.ga@gmail.com',
-//     password: 'gem.alcantara.ga@gmail.com',
-//   })
-// }
 export default function App() {
   // console.log(createUser());
   return (
@@ -49,7 +41,7 @@ export default function App() {
           <Route path="/dashboard/clients/create" element={ <ClientsForm /> } />
           <Route path="/dashboard/clients/view/:clientId" element={ <Client /> } />
           <Route path="/dashboard/articles/create" element={< ArticlesForm /> } />
-          <Route path="/dashboard/articles" element={< Articles /> } />
+          <Route path="/dashboard/articles" element={< ArticlesResult /> } />
         </Route>
       </Routes>
     </Router>

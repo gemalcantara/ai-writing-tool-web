@@ -18,6 +18,8 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 import { CookiesProvider, useCookies  } from 'react-cookie';
 import { useNavigate } from 'react-router-dom';
 import Sections from './Sections';
+import ArticlesResult from './ArticlesResult';
+import { useRouter } from 'next/navigation';
 
 const supaBaseLink = process.env.NEXT_PUBLIC_SUPABASE_LINK;
 const supaBaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY
@@ -36,8 +38,9 @@ interface PagesList {
     name: string;
   }
 
-  
-  export default function ArticlesForm() {
+ const ArticlesForm: React.FC = () => {
+  const router = useRouter();
+  const navigate = useNavigate();
       
 
 // sections
@@ -47,9 +50,6 @@ const [pageDetails, setPageDetails] = useState(0);
 const [inputFields, setInputFields] = useState([{instruction: '',title: '', details: '', linkOne: '' , linkTwo: '', linkThree: ''}]);
 const [inputFieldStatic, setInputFieldStatic] = useState({instruction:'',clientGuideline: '',articleGuideline: '',selectedClient: '',clientName: '',pageName: '',selectedPage: '',keywords: ''});
 
-const sendArticle = (articleDataStatic,articleSection) => {
-    console.log(articleDataStatic,articleSection);
-}
 const getClientGuideline = (event) => {
     const { name, value } = event.target;
     setClientDetails(value);
@@ -126,7 +126,7 @@ useEffect(() => {
 
 
 const handleAddFields = () => {
-  setInputFields([...inputFields, { title: '', details: '', linkOne: '' , linkTwo: '', linkThree: '' }]);
+  setInputFields([...inputFields, { instruction: '',title: '', details: '', linkOne: '' , linkTwo: '', linkThree: '' }]);
 };
 
 const handleRemoveFields = (index) => {
@@ -150,8 +150,13 @@ const handleInputChangeStatic = (event) => {
 
   const handleSubmit = async () => {
     event.preventDefault();
-    let data = inputFields;
-    createLawClient(data);
+    let formData = {sections:inputFields, main:inputFieldStatic};
+    console.log(formData);
+    // Store the object in session storage
+    sessionStorage.setItem('articleResult', JSON.stringify(formData));
+
+    // Redirect to the result page
+    navigate('/dashboard/articles')
   };
   const [clients, setClients] = useState<ClientsList[]>([]);
   const [pages, setPages] = useState<PagesList[]>([]);
@@ -303,7 +308,6 @@ const handleInputChangeStatic = (event) => {
             />
           </Grid>
             </Grid>
-          </form>
           <br />
           <Divider />
           <br />
@@ -318,12 +322,15 @@ const handleInputChangeStatic = (event) => {
         color="primary"
         style={{ marginTop: '16px' }}
         fullWidth
-        onClick={(event) => sendArticle(inputFields,inputFieldStatic)}
+        type='submit'
       >
         Submit
       </Button>
+      </form>
         </CardContent>
       </Card>
     </Box>
   );
 }
+
+export default ArticlesForm;
