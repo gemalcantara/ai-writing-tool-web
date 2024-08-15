@@ -41,7 +41,8 @@ async function createPage(pageData: any) {
 export default function PagesForm() {
   const [name, setName] = useState('');
   const [guideline, setGuideline] = useState('');
-  const handleSubmit = async () => {
+  const handleSubmit = async (event: any) => {
+    event.preventDefault();
     let data = {
       name,
       guideline

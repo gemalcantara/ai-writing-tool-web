@@ -39,7 +39,7 @@ export default function Login() {
     }
   }, [navigate]);
   
-  const handleSubmit = async () => {
+  const handleSubmit = async (event: any) => {
     event.preventDefault();
     const { data, error } = await supabase.auth.signInWithPassword({
       email,

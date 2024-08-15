@@ -54,7 +54,8 @@ export default function UsersForm() {
   const handleChange = (event: SelectChangeEvent) => {
     setUserType(event.target.value);
   };
-  const handleSubmit = async () => {
+  const handleSubmit = async (event: any) => {
+    event.preventDefault();
     let data = {
       email,
       password,

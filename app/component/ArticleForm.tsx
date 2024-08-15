@@ -174,7 +174,8 @@ const handleInputChangeStatic = (event: any) => {
     setInputFields(values);
   };
   
-  const handleSubmit = async () => {
+  const handleSubmit = async (event: any) => {
+    event.preventDefault();
     let formData = {sections:inputFields, main:inputFieldStatic};
     console.log(formData);
     // Store the object in session storage

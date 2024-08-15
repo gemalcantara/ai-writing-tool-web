@@ -41,7 +41,8 @@ async function createLawClient(clientData: any) {
 export default function ClientsForm() {
   const [name, setName] = useState('');
   const [guideline, setGuideline] = useState('');
-  const handleSubmit = async () => {
+  const handleSubmit = async (event: any) => {
+    event.preventDefault();
     let data = {
       name,
       guideline
