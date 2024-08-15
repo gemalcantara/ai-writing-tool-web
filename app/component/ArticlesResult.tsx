@@ -20,7 +20,7 @@ const openai = new OpenAI({
   apiKey,
   dangerouslyAllowBrowser: true
 });
-async function sendRequest(formData) {
+async function sendRequest(formData: any) {
   const completion = await openai.chat.completions.create({
     messages: [{ role: "user", content: `Create an article using there parameters lorem ipsum` }],
     model: "gpt-4o",
@@ -30,7 +30,7 @@ async function sendRequest(formData) {
 
 export default function ArticlesResult() {
   const [formData, setFormData] = useState<any>(null);
-  const [response, setResponse] = useState('');
+  const [response, setResponse] = useState<any>('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

@@ -4,7 +4,7 @@ import { TextField, Button, Grid, Divider } from '@mui/material';
 
 const Sections = ({ inputFields, handleInputChange, handleAddFields, handleRemoveFields }) => {
 
-  const handleSubmit = (event) => {
+  const handleSubmit = (event: React.ChangeEvent<any>) => {
     event.preventDefault();
     console.log('Input Fields:', inputFields);
     // Handle form submission logic here
@@ -12,7 +12,7 @@ const Sections = ({ inputFields, handleInputChange, handleAddFields, handleRemov
 
   return (
     <div >
-      {inputFields.map((inputField, index) => (
+      {inputFields.map((inputField: any, index: number) => (
         <Grid container spacing={2} key={index}>
           <Grid item xs={12}>
             <TextField

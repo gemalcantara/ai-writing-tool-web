@@ -1,5 +1,4 @@
 "use client"
-import * as React from 'react';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
@@ -20,6 +19,7 @@ import { useNavigate } from 'react-router-dom';
 import Sections from './Sections';
 import ArticlesResult from './ArticlesResult';
 import { useRouter } from 'next/navigation';
+import { ChangeEvent } from 'react';
 
 const apiKey = process.env.NEXT_PUBLIC_CHAT_GPT_API_KEY;;
 const organization = process.env.NEXT_PUBLIC_CHAT_GPT_PROJECT_ID;
@@ -41,28 +41,44 @@ interface PagesList {
     id: number;
     name: string;
   }
-
+  interface InputFields {
+    instruction: string;
+    title: string;
+    details: string;
+  }
+  interface InputStaticFields {
+   instruction:string ;
+   clientGuideline: string ;
+   articleGuideline: string ;
+   selectedClient: string ;
+   clientName: string ;
+   pageName: string ;
+   selectedPage: string ;
+   keywords: string;
+  }
   export default function ArticlesForm() {
-    console.log(apiKey,
-      organization,
-      project)
+
   const router = useRouter();
   const navigate = useNavigate();
       
 
-// sections
-const [clientDetails, setClientDetails] = useState(0);
-const [pageDetails, setPageDetails] = useState(0);
+  // sections
+  const [clientDetails, setClientDetails] = useState(0);
+  const [pageDetails, setPageDetails] = useState(0);
 
-const [inputFields, setInputFields] = useState([{instruction: '',title: '', details: ''}]);
-const [inputFieldStatic, setInputFieldStatic] = useState({instruction:'',clientGuideline: '',articleGuideline: '',selectedClient: '',clientName: '',pageName: '',selectedPage: '',keywords: ''});
+  const [inputFields, setInputFields] = useState<InputFields[]>([{instruction: '',title: '', details: ''}]);
+  const [inputFieldStatic, setInputFieldStatic] = useState<InputStaticFields>({instruction:'',clientGuideline: '',articleGuideline: '',selectedClient: '',clientName: '',pageName: '',selectedPage: '',keywords: ''});
+  const [clients, setClients] = useState<ClientsList[]>([]);
+  const [pages, setPages] = useState<PagesList[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-const getClientGuideline = (event) => {
+const getClientGuideline = (event: any) => {
     const { name, value } = event.target;
     setClientDetails(value);
 }
 
-const getPageGuideline = (event) => {
+const getPageGuideline = (event: any) => {
     const { name, value } = event.target;
     setPageDetails(value);
 }
@@ -74,7 +90,7 @@ useEffect(() => {
           const { data, error } = await supabase
             .from('clients')
             .select('*')
-            .eq('id',parseInt(clientDetails))
+            .eq('id',clientDetails)
             .single();
   
           if (error) throw error;
@@ -105,7 +121,7 @@ useEffect(() => {
         const { data, error } = await supabase
           .from('pages')
           .select('*')
-          .eq('id',parseInt(pageDetails))
+          .eq('id',pageDetails)
           .single();
 
         if (error) throw error;
@@ -136,12 +152,12 @@ const handleAddFields = () => {
   setInputFields([...inputFields, { instruction: '',title: '', details: '' }]);
 };
 
-const handleRemoveFields = (index) => {
+const handleRemoveFields = (index: number) => {
   const values = [...inputFields];
   values.splice(index, 1);
   setInputFields(values);
 };
-const handleInputChangeStatic = (event) => {
+const handleInputChangeStatic = (event: any) => {
     const { name, value } = event.target;
     setInputFieldStatic({
       ...inputFieldStatic,
@@ -149,14 +165,16 @@ const handleInputChangeStatic = (event) => {
     });
     // console.log(inputFieldStatic)
   };
-  const handleInputChange = (index, event) => {
+  const handleInputChange = (index: number, event: any) => {
     const values = [...inputFields];
-    values[index][event.target.name] = event.target.value;
+    values[index] = {
+      ...values[index],
+      [event.target.name]: event.target.value
+    };
     setInputFields(values);
   };
-
+  
   const handleSubmit = async () => {
-    event.preventDefault();
     let formData = {sections:inputFields, main:inputFieldStatic};
     console.log(formData);
     // Store the object in session storage
@@ -165,10 +183,7 @@ const handleInputChangeStatic = (event) => {
     // Redirect to the result page
     navigate('/dashboard/articles')
   };
-  const [clients, setClients] = useState<ClientsList[]>([]);
-  const [pages, setPages] = useState<PagesList[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+
 
   useEffect(() => {
       const fetchClients = async () => {
