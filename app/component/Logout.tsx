@@ -26,7 +26,7 @@ const useLogout = () => {
       }
 
       // Remove cookies
-      removeCookie('user'); // Replace with your actual cookie name
+      removeCookie('user',{path:'/'}); // Replace with your actual cookie name
 
      alert('Logout Success');
       navigate('/');
