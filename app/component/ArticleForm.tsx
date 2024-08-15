@@ -165,6 +165,7 @@ const handleInputChangeStatic = (event: any) => {
     });
     // console.log(inputFieldStatic)
   };
+  
   const handleInputChange = (index: number, event: any) => {
     const values = [...inputFields];
     values[index] = {
