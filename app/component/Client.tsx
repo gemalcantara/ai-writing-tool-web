@@ -51,7 +51,7 @@ export default function Client() {
         const { data, error } = await supabase
           .from('clients') // Replace 'users' with your table name
           .select('*') 
-          .eq('id', parseInt(clientId))
+          .eq('id', parseInt(clientId!))
           .single(); // Ensure that only one row is returned
 
         if (error) throw error;
