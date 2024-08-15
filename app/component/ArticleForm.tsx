@@ -21,6 +21,10 @@ import Sections from './Sections';
 import ArticlesResult from './ArticlesResult';
 import { useRouter } from 'next/navigation';
 
+const apiKey = process.env.NEXT_PUBLIC_CHAT_GPT_API_KEY;;
+const organization = process.env.NEXT_PUBLIC_CHAT_GPT_PROJECT_ID;
+const project = process.env.NEXT_PUBLIC_CHAT_GPT_organization;
+
 const supaBaseLink = process.env.NEXT_PUBLIC_SUPABASE_LINK;
 const supaBaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY
 
@@ -38,7 +42,10 @@ interface PagesList {
     name: string;
   }
 
- const ArticlesForm: React.FC = () => {
+  export default function ArticlesForm() {
+    console.log(apiKey,
+      organization,
+      project)
   const router = useRouter();
   const navigate = useNavigate();
       
@@ -235,7 +242,7 @@ const handleInputChangeStatic = (event) => {
                 >
                 {
                     clients.map((client) => (
-                        <MenuItem value={client.id}>{client.name}</MenuItem>
+                        <MenuItem key={client.id} value={client.id}>{client.name}</MenuItem>
                     ))
                 }
                 </Select>
@@ -254,7 +261,7 @@ const handleInputChangeStatic = (event) => {
                 >
                 {
                     pages.map((page) => (
-                        <MenuItem value={page.id}>{page.name}</MenuItem>
+                        <MenuItem key={page.id} value={page.id}>{page.name}</MenuItem>
                     ))
                 }
                 </Select>
@@ -332,5 +339,3 @@ const handleInputChangeStatic = (event) => {
     </Box>
   );
 }
-
-export default ArticlesForm;

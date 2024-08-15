@@ -22,7 +22,6 @@ import UsersForm from './component/UsersForm';
 import PagesForm from './component/PagesForm';
 import ClientsForm from './component/ClientForm';
 import ArticlesForm from './component/ArticleForm';
-import ArticlesIndex from './component/ArticlesIndex';
 import ArticlesResult from './component/ArticlesResult';
 
 export default function App() {

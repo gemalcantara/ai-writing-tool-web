@@ -11,7 +11,7 @@ const Sections = ({ inputFields, handleInputChange, handleAddFields, handleRemov
   };
 
   return (
-    <form >
+    <div >
       {inputFields.map((inputField, index) => (
         <Grid container spacing={2} key={index}>
           <Grid item xs={12}>
@@ -89,7 +89,7 @@ const Sections = ({ inputFields, handleInputChange, handleAddFields, handleRemov
       >
         Add More Section
       </Button>
-    </form>
+    </div>
   );
 };
 
