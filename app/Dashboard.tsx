@@ -66,7 +66,6 @@ function SidebarList() {
   const logout = useLogout();
   // selectedIndex == 0 ? navigate('/dashboard/users');
   const handleListItemClick = (
-    event: React.MouseEvent<Element, MouseEvent>,
     index: number,
   ) => {
     setSelectedIndex(index);
@@ -90,7 +89,7 @@ function SidebarList() {
     >
       <ListItemButton
         selected={selectedIndex === 0}
-        onClick={(event) => handleListItemClick(event, 0)}
+        onClick={(event) => handleListItemClick( 0)}
         component={Link}
         to="users"
       >
@@ -105,7 +104,7 @@ function SidebarList() {
         selected={selectedIndex === 1}
         onClick={(event) => {
           handleClickPage();
-          handleListItemClick(event, 1);
+          handleListItemClick( 1);
         }}
       >
         <ListItemIcon>
@@ -122,7 +121,7 @@ function SidebarList() {
         onClick={(event) => {
           console.log('hekki');
           handleClickClient();
-          handleListItemClick(event, 2);
+          handleListItemClick( 2);
         }}
       >
         <ListItemIcon>
@@ -138,7 +137,7 @@ function SidebarList() {
       <ListItemButton
         selected={selectedIndex === 4}
         onClick={(event) => {
-          handleListItemClick(event, 4)
+          handleListItemClick( 4)
         }}
         component={Link}
         to="articles/create"
@@ -208,7 +207,7 @@ function ClientList() {
        <ListItem key='Create Client' disablePadding>
           <ListItemButton sx={{ pl: 4 }} 
             selected={selectedIndex === 0}
-            onClick={(event) => handleListItemClick(event, 0)}
+            onClick={(event) => handleListItemClick( 0)}
             component={Link}
             to="clients/create"
                         >
@@ -224,7 +223,7 @@ function ClientList() {
         <ListItem key={client.name} disablePadding>
           <ListItemButton sx={{ pl: 4 }} 
             selected={selectedIndex === client.id}
-            onClick={(event) => {handleListItemClick(event, client.id); navigate(`clients/view/${client.id}`)}}
+            onClick={(event) => {handleListItemClick( client.id); navigate(`clients/view/${client.id}`)}}
           >
             <ListItemText primary={client.name} />
           </ListItemButton >
@@ -280,7 +279,7 @@ function PageList() {
        <ListItem key='Create Page' disablePadding>
           <ListItemButton sx={{ pl: 4 }} 
             selected={selectedIndex === 0}
-            onClick={(event) => handleListItemClick(event, 0)}
+            onClick={(event) => handleListItemClick( 0)}
             component={Link}
             to="pages/create"
                         >
@@ -296,7 +295,7 @@ function PageList() {
         <ListItem key={page.name} disablePadding>
           <ListItemButton sx={{ pl: 4 }} 
             selected={selectedIndex === page.id}
-            onClick={(event) => {handleListItemClick(event, page.id); navigate(`pages/view/${page.id}`)}}
+            onClick={(event) => {handleListItemClick( page.id); navigate(`pages/view/${page.id}`)}}
           >
             <ListItemText primary={page.name} />
           </ListItemButton >
