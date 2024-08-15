@@ -26,7 +26,7 @@ const supabase = createClient(
   supaBaseKey
 );
 
-async function createPage(pageData) {
+async function createPage(pageData: any) {
   const { error } = await supabase.from('pages').insert({
     name: pageData.name,
     guideline: pageData.guideline,
@@ -35,14 +35,13 @@ async function createPage(pageData) {
     alert(error.message);
   }
   alert(`${pageData.name} has been created.`);
-  window.location.reload(true)
+  window.location.reload()
 }
 
 export default function PagesForm() {
   const [name, setName] = useState('');
   const [guideline, setGuideline] = useState('');
   const handleSubmit = async () => {
-    event.preventDefault();
     let data = {
       name,
       guideline

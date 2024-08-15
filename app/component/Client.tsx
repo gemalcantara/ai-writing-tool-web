@@ -29,7 +29,7 @@ interface ClientsList {
 
 
 export default function Client() {
-  const { clientId } = useParams();
+  const  { clientId } = useParams();
   const [client, setClient] = useState<ClientsList[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -38,10 +38,10 @@ export default function Client() {
 
   const navigate = useNavigate();
 
-  const handleChangeName = (event) => {
+  const handleChangeName = (event:any) => {
     setName(event.target.value);
   };
-  const handleChangeGuideline = (event) => {
+  const handleChangeGuideline = (event:any) => {
     setGuideline(event.target.value);
   };
   useEffect(() => {
@@ -88,7 +88,7 @@ export default function Client() {
         if (error) throw error;
 
         alert('Page updated successfully!');
-        window.location.reload(false);
+        window.location.reload();
       } catch (error) {
         setError(error.message);
       }

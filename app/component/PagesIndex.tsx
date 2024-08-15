@@ -39,10 +39,10 @@ export default function PagesIndex() {
 
   const navigate = useNavigate();
 
-  const handleChangeName = (event) => {
+  const handleChangeName = (event: any) => {
     setName(event.target.value);
   };
-  const handleChangeGuideline = (event) => {
+  const handleChangeGuideline = (event: any) => {
     setGuideline(event.target.value);
   };
   useEffect(() => {
@@ -89,7 +89,7 @@ export default function PagesIndex() {
         if (error) throw error;
 
         alert('Page updated successfully!');
-        window.location.reload(false);
+        window.location.reload();
       } catch (error) {
         setError(error.message);
       }

@@ -12,7 +12,6 @@ import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 import { createClient } from '@supabase/supabase-js';
-import { session, Session } from 'electron';
 import { CookiesProvider, useCookies  } from 'react-cookie';
 import { useNavigate  } from 'react-router-dom';
 
@@ -42,7 +41,6 @@ export default function Login() {
   }, [navigate]);
   
   const handleSubmit = async () => {
-    event.preventDefault();
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
