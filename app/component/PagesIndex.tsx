@@ -52,7 +52,7 @@ export default function PagesIndex() {
         const { data, error } = await supabase
           .from('pages') // Replace 'users' with your table name
           .select('*') 
-          .eq('id', parseInt(pageId))
+          .eq('id', parseInt(pageId!))
           .single(); // Ensure that only one row is returned
 
         if (error) throw error;
@@ -91,7 +91,9 @@ export default function PagesIndex() {
         alert('Page updated successfully!');
         window.location.reload();
       } catch (error) {
-        setError(error.message);
+        if (error instanceof Error) {
+          setError(error.message);
+        }
       }
     }
   };
@@ -113,7 +115,9 @@ export default function PagesIndex() {
         alert('Page deleted successfully!');
         navigate('/'); // Redirect after deletion
       } catch (error) {
-        setError(error.message);
+        if (error instanceof Error) {
+          setError(error.message);
+        }
       }
     }
   };

@@ -4,7 +4,7 @@ import { TextField, Button, Grid, Divider } from '@mui/material';
 
 const Sections = ({ inputFields, handleInputChange, handleAddFields, handleRemoveFields }) => {
 
-  const handleSubmit = (event: React.ChangeEvent<any>) => {
+  const handleSubmit = (event: any) => {
     event.preventDefault();
     console.log('Input Fields:', inputFields);
     // Handle form submission logic here

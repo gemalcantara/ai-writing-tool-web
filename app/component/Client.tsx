@@ -90,7 +90,9 @@ export default function Client() {
         alert('Page updated successfully!');
         window.location.reload();
       } catch (error) {
-        setError(error.message);
+        if (error instanceof Error) {
+          setError(error.message);
+        }
       }
     }
   };
@@ -112,7 +114,9 @@ export default function Client() {
         alert('Client deleted successfully!');
         navigate('/'); // Redirect after deletion
       } catch (error) {
-        setError(error.message);
+        if (error instanceof Error) {
+          setError(error.message);
+        }
       }
     }
   };

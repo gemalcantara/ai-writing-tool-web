@@ -62,7 +62,7 @@ export default function Users() {
       }, []);
       if (loading) return <p>Loading...</p>;
       if (error) return <p>{error}</p>;
-      let rows = [];
+      let rows: any[] | undefined = [];
       users.map((user) => (
         rows.push( { id: user.id, name: user.name, email: user.email, user_type: user.user_type })
       ));

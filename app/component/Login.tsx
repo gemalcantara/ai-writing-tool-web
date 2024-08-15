@@ -47,7 +47,7 @@ export default function Login() {
     });
     if (error) {
       alert(error.message);
-      setError(error.message);
+      // setError(error.message);
     } else {
       let loginDate = {
         user: data.session.user,

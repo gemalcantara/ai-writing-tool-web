@@ -36,7 +36,7 @@ async function registerUser(userData: any) {
     const { error } = await supabase.from('users').insert({
       name: userData.name,
       email: userData.email,
-      supabase_id: data.user.id,
+      supabase_id: data.user!.id,
       user_type: userData.userType,
     });
     if (error) {
