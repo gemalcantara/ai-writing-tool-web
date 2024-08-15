@@ -74,7 +74,7 @@ useEffect(() => {
           const { data, error } = await supabase
             .from('clients')
             .select('*')
-            .eq('id',parseInt(clientDetails))
+            .eq('id',clientDetails)
             .single();
   
           if (error) throw error;
@@ -105,7 +105,7 @@ useEffect(() => {
         const { data, error } = await supabase
           .from('pages')
           .select('*')
-          .eq('id',parseInt(pageDetails))
+          .eq('id',pageDetails)
           .single();
 
         if (error) throw error;
@@ -136,12 +136,12 @@ const handleAddFields = () => {
   setInputFields([...inputFields, { instruction: '',title: '', details: '' }]);
 };
 
-const handleRemoveFields = (index) => {
+const handleRemoveFields = (index: number) => {
   const values = [...inputFields];
   values.splice(index, 1);
   setInputFields(values);
 };
-const handleInputChangeStatic = (event) => {
+const handleInputChangeStatic = (event: React.ChangeEvent<any>) => {
     const { name, value } = event.target;
     setInputFieldStatic({
       ...inputFieldStatic,
@@ -149,7 +149,7 @@ const handleInputChangeStatic = (event) => {
     });
     // console.log(inputFieldStatic)
   };
-  const handleInputChange = (index, event) => {
+  const handleInputChange = (index: number, event: React.ChangeEvent<any>) => {
     const values = [...inputFields];
     values[index][event.target.name] = event.target.value;
     setInputFields(values);
