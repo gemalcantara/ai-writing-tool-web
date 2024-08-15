@@ -10,7 +10,7 @@ import Button from '@mui/material/Button';
 import { useEffect, useState } from 'react';
 
 
-export default function ChatComponent(formData) {
+export default function ChatComponent(formData: any) {
   const [articleData, setArticleData] = useState(formData);
   
   console.log(formData);

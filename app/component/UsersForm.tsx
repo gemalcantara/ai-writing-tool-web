@@ -24,7 +24,7 @@ const supabase = createClient(
   supaBaseKey
 );
 
-async function registerUser(userData) {
+async function registerUser(userData: any) {
   const { data, error } = await supabase.auth.signUp({
     email: userData.email,
     password: userData.password,
@@ -55,7 +55,6 @@ export default function UsersForm() {
     setUserType(event.target.value);
   };
   const handleSubmit = async () => {
-    event.preventDefault();
     let data = {
       email,
       password,

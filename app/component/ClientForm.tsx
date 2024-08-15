@@ -26,7 +26,7 @@ const supabase = createClient(
   supaBaseKey
 );
 
-async function createLawClient(clientData) {
+async function createLawClient(clientData: any) {
   const { error } = await supabase.from('clients').insert({
     name: clientData.name,
     guideline: clientData.guideline,
@@ -35,14 +35,13 @@ async function createLawClient(clientData) {
     alert(error.message);
   }
   alert(`${clientData.name} has been created.`);
-  window.location.reload(true)
+  window.location.reload()
 }
 
 export default function ClientsForm() {
   const [name, setName] = useState('');
   const [guideline, setGuideline] = useState('');
   const handleSubmit = async () => {
-    event.preventDefault();
     let data = {
       name,
       guideline
