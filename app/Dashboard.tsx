@@ -167,7 +167,6 @@ function ClientList() {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const handleListItemClick = (
-    event: React.MouseEvent<HTMLDivElement, MouseEvent>,
     index: number,
   ) => {
     setSelectedIndex(index);
@@ -239,7 +238,6 @@ function PageList() {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const handleListItemClick = (
-    event: React.MouseEvent<HTMLDivElement, MouseEvent>,
     index: number,
   ) => {
     setSelectedIndex(index);
