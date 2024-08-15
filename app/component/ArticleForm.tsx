@@ -157,7 +157,7 @@ const handleRemoveFields = (index: number) => {
   values.splice(index, 1);
   setInputFields(values);
 };
-const handleInputChangeStatic = (event: ChangeEvent<HTMLInputElement>) => {
+const handleInputChangeStatic = (event: any) => {
     const { name, value } = event.target;
     setInputFieldStatic({
       ...inputFieldStatic,
@@ -165,7 +165,7 @@ const handleInputChangeStatic = (event: ChangeEvent<HTMLInputElement>) => {
     });
     // console.log(inputFieldStatic)
   };
-  const handleInputChange = (index: number, event: ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (index: number, event: any) => {
     const values = [...inputFields];
     values[index] = {
       ...values[index],
