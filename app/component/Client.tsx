@@ -125,7 +125,7 @@ export default function Client() {
   return (
     <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
       <Toolbar />
-      <Card sx={{ minWidth: 600 }}>
+      <Card sx={{ minWidth: "120vh",minHeight: "80vh" }}>
         <CardContent>
 
         <Grid container spacing={2} marginBottom={3}>
@@ -162,7 +162,7 @@ export default function Client() {
             multiline
             fullWidth
             value={guideline}
-            rows={10}
+            rows={20}
           />
         </CardContent>
         <CardActions style={{ float: 'right' }}>

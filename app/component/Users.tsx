@@ -70,7 +70,7 @@ export default function Users() {
   return (
     <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
       <Toolbar />
-      <Card sx={{ minWidth: 600 }}>
+      <Card sx={{ minWidth: "120vh",minHeight: "80vh" }}>
         <CardContent>
           <Grid container spacing={2}>
             <Grid item xs={8}>

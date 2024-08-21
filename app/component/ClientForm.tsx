@@ -54,7 +54,7 @@ export default function ClientsForm() {
   return (
     <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
       <Toolbar />
-      <Card sx={{ minWidth: 600 }}>
+      <Card sx={{ minWidth: "120vh",minHeight: "80vh" }}s>
         <CardContent>
           <Typography
             variant="h4"
@@ -83,7 +83,7 @@ export default function ClientsForm() {
                   onChange={(e) => setGuideline(e.target.value)}
                   multiline
                   fullWidth
-                  rows={10}
+                  rows={20}
                 />
               </Grid>
               <Grid item xs={12}>

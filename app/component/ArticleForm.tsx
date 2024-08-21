@@ -248,7 +248,7 @@ const handleInputChangeStatic = (event: any) => {
             <Grid container spacing={2}>
               <Grid item xs={12}>
               <FormControl fullWidth>
-                <InputLabel id="clientLabel">Client Type</InputLabel>
+                <InputLabel id="clientLabel">Select Client</InputLabel>
                 <Select
                 labelId="clientLabel"
                 id="selectedClient"
@@ -267,7 +267,7 @@ const handleInputChangeStatic = (event: any) => {
               </Grid>
               <Grid item xs={12}>
               <FormControl fullWidth>
-                <InputLabel id="pageLabel">Page Type</InputLabel>
+                <InputLabel id="pageLabel">Page Template</InputLabel>
                 <Select
                 name="selectedPage"
                 labelId="pageLabel"
@@ -288,7 +288,7 @@ const handleInputChangeStatic = (event: any) => {
               <TextField
                 name="clientGuideline"
                   id="clientGuideline"
-                  label="Client Guideline"
+                  label="Client Guidelines"
                   value={inputFieldStatic.clientGuideline}
                   onChange={(event) => handleInputChangeStatic(event)}
                   multiline
@@ -299,7 +299,7 @@ const handleInputChangeStatic = (event: any) => {
               <Grid item xs={12}>
               <TextField
                   id="articleGuideline"
-                  label="Article Guideline"
+                  label="Article Guidelines"
                   name="articleGuideline"
                   value={inputFieldStatic.articleGuideline}
                   onChange={(event) => handleInputChangeStatic(event)}
@@ -322,7 +322,7 @@ const handleInputChangeStatic = (event: any) => {
               <Grid item xs={12}>
             <TextField
               name="instruction"
-              label="Article Instruction"
+              label="Article Instructions"
               variant="outlined"
                 multiline
               fullWidth

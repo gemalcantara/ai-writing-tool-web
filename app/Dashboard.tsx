@@ -110,7 +110,7 @@ function SidebarList() {
         <ListItemIcon>
           <Pages />
         </ListItemIcon>
-        <ListItemText primary="Page Type" />
+        <ListItemText primary="Page Templates" />
         {page ? <ExpandLess /> : <ExpandMore />}
       </ListItemButton>
       <Collapse in={page} timeout="auto" unmountOnExit>
@@ -274,7 +274,7 @@ function PageList() {
     ));
   return (
     <List component="div" disablePadding>
-       <ListItem key='Create Page' disablePadding>
+       <ListItem key='Create Page Template' disablePadding>
           <ListItemButton sx={{ pl: 4 }} 
             selected={selectedIndex === 0}
             onClick={(event) => handleListItemClick( 0)}
@@ -284,7 +284,7 @@ function PageList() {
           <ListItemIcon>
             <AddCircleOutlineIcon />
           </ListItemIcon>
-            <ListItemText primary="Create Page" />
+            <ListItemText primary="Create Page Template" />
           </ListItemButton>
         </ListItem>
       <Divider />
