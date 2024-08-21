@@ -54,7 +54,7 @@ export default function ClientsForm() {
   return (
     <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
       <Toolbar />
-      <Card sx={{ minWidth: "120vh",minHeight: "80vh" }}s>
+      <Card sx={{ minWidth: "120vh",minHeight: "80vh" }}>
         <CardContent>
           <Typography
             variant="h4"
