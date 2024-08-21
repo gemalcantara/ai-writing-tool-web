@@ -12,6 +12,7 @@ import { useEffect, useState } from 'react';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import OpenAI from "openai";
 import ChatComponent from './ChatComponent';
+import '../App.css';
 
 const apiKey = process.env.NEXT_PUBLIC_CHAT_GPT_API_KEY;;
 const organization = process.env.NEXT_PUBLIC_CHAT_GPT_PROJECT_ID;
@@ -20,36 +21,59 @@ const openai = new OpenAI({
   apiKey,
   dangerouslyAllowBrowser: true
 });
-async function sendRequest(formData: any) {
+async function sendRequest(formData: any,sectionData: string) {
+  let finalResult = new Array();
+
   const completion = await openai.chat.completions.create({
-    messages: [{ role: "user", content: `Create an article using there parameters lorem ipsum` }],
+    messages: [{ role: "user", content: formData }],
     model: "gpt-4o",
   });
-  return completion.choices[0];
+  finalResult.push(completion.choices[0].message.content);
+  let sections = JSON.parse(sectionData);
+  await sections.forEach(async (section: any,index: number) => {
+    const completion = await openai.chat.completions.create({
+      messages: [{ role: "user", content: section }],
+      model: "gpt-4o",
+    });
+    finalResult.push(completion.choices[0].message.content);
+  });
+  return finalResult;
 }
 
 export default function ArticlesResult() {
   const [formData, setFormData] = useState<any>(null);
+  // const [articleResult, setArticleResult] = useState<any>(null);
+  const [sectionData, setSectionData] = useState<any>(null);
   const [response, setResponse] = useState<any>('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Retrieve the object from session storage
-    const storedData = sessionStorage.getItem('articleResult');
-    if (storedData) {
-      setFormData(JSON.parse(storedData));
+    const storedData = sessionStorage.getItem('articleResultPrompt');
+    const sectionData = sessionStorage.getItem('articleResultSections');
+    // const articleData = sessionStorage.getItem('articleResultAll');
+    setFormData(storedData);
+    setSectionData(sectionData);
+    if (formData && sectionData) {
+      // setArticleResult(articleResult);
     }
   }, []);
 
   useEffect(() => {
+    console.log(formData,sectionData);
+    
     // Retrieve the object from session storage
     const sendArticle = async () => {
       if (formData) {
         try {
-          let res = sendRequest(formData)
-    
+          let res = sendRequest(formData,sectionData)
           const data = await res;
-          setResponse(data || 'No response');
+          let articleResult = new String('');
+          data.forEach(result => {
+            articleResult = articleResult.concat(result);
+          });
+          console.log(articleResult);
+          setResponse(articleResult || 'No response');
         } catch (error) {
           console.log(error);
           setResponse(error);
@@ -67,7 +91,7 @@ export default function ArticlesResult() {
   return (
     <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
       <Toolbar />
-      <Card sx={{ minWidth: '100vh',height: '80vh',overflowY: 'scroll' }} >
+      <Card sx={{ minWidth: '100vh',maxWidth: '100vh',height: '80vh',overflowY: 'scroll' }} >
         <CardContent>
           {/* < ChatComponent 
             formData = {formData}
@@ -77,7 +101,14 @@ export default function ArticlesResult() {
        { 
        loading ?? <p>Loading...</p>
         }
-        <p>{response.message.content}</p>
+        <pre>
+        {
+          // response.forEach((element: any) => {
+            //   <div><p>{element}</p><br /></div>
+            // })
+            response
+          }
+          </pre>
          </CardContent>
       </Card>
     </Box>

@@ -20,6 +20,7 @@ import Sections from './Sections';
 import ArticlesResult from './ArticlesResult';
 import { useRouter } from 'next/navigation';
 import { ChangeEvent } from 'react';
+import OpenAI from "openai";
 
 const apiKey = process.env.NEXT_PUBLIC_CHAT_GPT_API_KEY;;
 const organization = process.env.NEXT_PUBLIC_CHAT_GPT_PROJECT_ID;
@@ -32,7 +33,10 @@ const supabase = createClient(
   supaBaseLink,
   supaBaseKey
 );
-
+const openai = new OpenAI({
+  apiKey,
+  dangerouslyAllowBrowser: true
+});
 interface PagesList {
     id: number;
     name: string;
@@ -42,7 +46,6 @@ interface PagesList {
     name: string;
   }
   interface InputFields {
-    instruction: string;
     title: string;
     details: string;
   }
@@ -50,6 +53,7 @@ interface PagesList {
    instruction:string ;
    clientGuideline: string ;
    articleGuideline: string ;
+   articlePrompt: string ;
    selectedClient: string ;
    clientName: string ;
    pageName: string ;
@@ -66,8 +70,8 @@ interface PagesList {
   const [clientDetails, setClientDetails] = useState(0);
   const [pageDetails, setPageDetails] = useState(0);
 
-  const [inputFields, setInputFields] = useState<InputFields[]>([{instruction: '',title: '', details: ''}]);
-  const [inputFieldStatic, setInputFieldStatic] = useState<InputStaticFields>({instruction:'',clientGuideline: '',articleGuideline: '',selectedClient: '',clientName: '',pageName: '',selectedPage: '',keywords: ''});
+  const [inputFields, setInputFields] = useState<InputFields[]>([{title: '', details: ''}]);
+  const [inputFieldStatic, setInputFieldStatic] = useState<InputStaticFields>({instruction:'',articlePrompt: '',clientGuideline: '',articleGuideline: '',selectedClient: '',clientName: '',pageName: '',selectedPage: '',keywords: ''});
   const [clients, setClients] = useState<ClientsList[]>([]);
   const [pages, setPages] = useState<PagesList[]>([]);
   const [loading, setLoading] = useState(true);
@@ -131,7 +135,8 @@ useEffect(() => {
             ...inputFieldStatic,
             ['selectedPage']: data.id, // Only update the specific field that changed
             ['pageName']: data.name, // Only update the specific field that changed
-            ['articleGuideline']: data.guideline,
+            ['articlePrompt']: data.guideline,
+            // ['articleGuideline']: data.guideline,
         });
         // setClientDetails(data || []);
       } catch (error) {
@@ -149,7 +154,7 @@ useEffect(() => {
 
 
 const handleAddFields = () => {
-  setInputFields([...inputFields, { instruction: '',title: '', details: '' }]);
+  setInputFields([...inputFields, { title: '', details: '' }]);
 };
 
 const handleRemoveFields = (index: number) => {
@@ -181,7 +186,41 @@ const handleInputChangeStatic = (event: any) => {
     console.log(formData);
     // Store the object in session storage
     sessionStorage.setItem('articleResult', JSON.stringify(formData));
+    
+    let prompt = formData.main.articlePrompt;
+    // variable to replace 
+    // {{client_guidelines}}
+    // {{article_guidelines}}
+    //  {{key_words}}
+    prompt = prompt.replace("{{client_guidelines}}", formData.main.clientGuideline);
+    prompt = prompt.replace("{{article_guidelines}}", formData.main.articleGuideline);
+    prompt = prompt.replace("{{key_words}}", formData.main.keywords);
+    let articleSections = new Array();
+    // let finalResult = new Array();
+    // const completion = await openai.chat.completions.create({
+    //   messages: [{ role: "user", content: prompt }],
+    //   model: "gpt-4o",
+    // });
+    // console.log(completion.choices[0].message.content);
+    // finalResult.push(completion.choices[0].message.content);
+    // finalResult = finalResult + completion.choices[0].message.content;
+    formData.sections.forEach(async (section,index) => {
+      let sectionTemoplate = `\n\nSection ${index +1} \nSection Title: ${section.title} \nSection Details: ${section.details} \n`
+      articleSections.push(sectionTemoplate);
+      // const completion = await openai.chat.completions.create({
+      //   messages: [{ role: "user", content: sectionTemoplate }],
+      //   model: "gpt-4o",
+      // });
+      // finalResult.push(completion.choices[0].message.content);
+    });
 
+    // console.log(finalResult);
+    sessionStorage.setItem('articleResultPrompt', prompt);
+    sessionStorage.setItem('articleResultSections', JSON.stringify(articleSections));
+ 
+
+
+    // return;
     // Redirect to the result page
     navigate('/dashboard/articles')
   };
@@ -232,9 +271,9 @@ const handleInputChangeStatic = (event: any) => {
     if (loading) return <p>Loading...</p>;
     if (error) return <p>{error}</p>;
   return (
-    <Box component="main"  sx={{ width: '100vh',height: '90vh', flexGrow: 1, p: 3}}>
+    <Box component="main"  sx={{ width: '120vh',height: '90vh', flexGrow: 1, p: 3}}>
       <Toolbar />
-      <Card sx={{ minWidth: '100vh',height: '80vh',overflowY: 'scroll' }} >
+      <Card sx={{ minWidth: '120vh',height: '80vh',overflowY: 'scroll' }} >
         <CardContent>
           <Typography
             variant="h4"
@@ -284,7 +323,7 @@ const handleInputChangeStatic = (event: any) => {
                 </Select>
             </FormControl>
               </Grid>
-              <Grid item xs={12}>
+              <Grid item xs={12} hidden>
               <TextField
                 name="clientGuideline"
                   id="clientGuideline"
@@ -294,10 +333,11 @@ const handleInputChangeStatic = (event: any) => {
                   multiline
                   fullWidth
                   rows={5}
+                  
                 />
               </Grid>
-              <Grid item xs={12}>
-              <TextField
+              <Grid item xs={12} hidden>
+              <TextField 
                   id="articleGuideline"
                   label="Article Guidelines"
                   name="articleGuideline"
@@ -306,17 +346,6 @@ const handleInputChangeStatic = (event: any) => {
                   multiline
                   fullWidth
                   rows={5}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  id="keywords"
-                  label="Keywords"
-                  name="keywords"
-                  value={inputFieldStatic.keywords}
-                  variant="outlined"
-                  onChange={(event) => handleInputChangeStatic(event)}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -331,6 +360,18 @@ const handleInputChangeStatic = (event: any) => {
               onChange={(event) => handleInputChangeStatic(event)}
             />
           </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  id="keywords"
+                  label="Keywords"
+                  name="keywords"
+                  value={inputFieldStatic.keywords}
+                  variant="outlined"
+                  onChange={(event) => handleInputChangeStatic(event)}
+                />
+              </Grid>
+
             </Grid>
           <br />
           <Divider />
