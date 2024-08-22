@@ -196,6 +196,7 @@ const handleInputChangeStatic = (event: any) => {
     prompt = prompt.replace("{{article_guidelines}}", formData.main.instruction);
     prompt = prompt.replace("{{article_instructions}}", formData.main.instruction);
     prompt = prompt.replace("{{key_words}}", formData.main.keywords);
+    prompt = prompt.replace("{{keywords}}", formData.main.keywords);
     let articleSections = new Array();
     // let messages = [{ role: "user", content: prompt }];
     // const completion = await openai.chat.completions.create({

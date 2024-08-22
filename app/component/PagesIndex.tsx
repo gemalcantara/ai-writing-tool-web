@@ -174,7 +174,7 @@ export default function PagesIndex() {
             color="text.primary"
             gutterBottom
             >
-            {"{{"}key_words{"}}"}
+            {"{{"}keywords{"}}"}
           </Typography>
           <br />
           <br />

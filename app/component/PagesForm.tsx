@@ -91,7 +91,7 @@ export default function PagesForm() {
             color="text.primary"
             gutterBottom
             >
-            {"{{"}key_words{"}}"}
+            {"{{"}keywords{"}}"}
           </Typography>
           <br />
           <br />
