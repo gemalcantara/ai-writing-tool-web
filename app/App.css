@@ -49,6 +49,17 @@ pre {
   white-space: -o-pre-wrap;    /* Opera 7 */
   word-wrap: break-word;       /* Internet Explorer 5.5+ */
 }
+
+.info {
+  background-color: rgba(75, 75, 231, 0.1); /* Blue color with 50% opacity */
+  padding: 20px;
+  border-radius: 10px;
+  color: white; /* Text color */
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  max-width: 500px;
+  margin: 20px auto; /* Center the div */
+}
 /* textarea:hover {
   border-color: #3399FF;
 }

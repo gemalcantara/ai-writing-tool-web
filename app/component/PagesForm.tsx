@@ -63,6 +63,39 @@ export default function PagesForm() {
           >
             Create Page Type
           </Typography>
+            <Typography
+            variant="h6"
+            color="text.primary"
+            gutterBottom
+            >
+            Variable to use:
+          </Typography>
+          <Typography
+            variant="caption"
+            color="text.primary"
+            gutterBottom
+            >
+            {"{{"}client_guidelines{"}}"}
+          </Typography>
+          <br />
+          <Typography
+            variant="caption"
+            color="text.primary"
+            gutterBottom
+            >
+            {"{{"}article_instructions{"}}"}
+          </Typography>
+          <br />
+          <Typography
+            variant="caption"
+            color="text.primary"
+            gutterBottom
+            >
+            {"{{"}key_words{"}}"}
+          </Typography>
+          <br />
+          <br />
+          
           <form onSubmit={handleSubmit}>
             <Grid container spacing={2}>
               <Grid item xs={12}>

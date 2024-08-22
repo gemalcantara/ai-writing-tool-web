@@ -194,6 +194,7 @@ const handleInputChangeStatic = (event: any) => {
     //  {{key_words}}
     prompt = prompt.replace("{{client_guidelines}}", formData.main.clientGuideline);
     prompt = prompt.replace("{{article_guidelines}}", formData.main.instruction);
+    prompt = prompt.replace("{{article_instructions}}", formData.main.instruction);
     prompt = prompt.replace("{{key_words}}", formData.main.keywords);
     let articleSections = new Array();
     // let messages = [{ role: "user", content: prompt }];

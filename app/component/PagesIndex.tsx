@@ -137,13 +137,48 @@ export default function PagesIndex() {
           >
             Article Guidelines
           </Typography>
-            </Grid>
+          </Grid>
             <Grid item xs={4}>
               <Button style={{float: 'right'}} variant="outlined" color='error'
                 onClick={(event) => handleDelete()}
                 >
                 <DeleteForeverRounded /> Delete Page
               </Button>
+            </Grid>
+            <Grid item xs={12}>
+            <Typography
+            variant="h6"
+            color="text.primary"
+            gutterBottom
+            >
+            Variable to use:
+          </Typography>
+          <Typography
+            variant="caption"
+            color="text.primary"
+            gutterBottom
+            >
+            {"{{"}client_guidelines{"}}"}
+          </Typography>
+          <br />
+          <Typography
+            variant="caption"
+            color="text.primary"
+            gutterBottom
+            >
+            {"{{"}article_instructions{"}}"}
+          </Typography>
+          <br />
+          <Typography
+            variant="caption"
+            color="text.primary"
+            gutterBottom
+            >
+            {"{{"}key_words{"}}"}
+          </Typography>
+          <br />
+          <br />
+          
             </Grid>
             <Grid item xs={12}>
           <TextField 
