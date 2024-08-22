@@ -193,10 +193,10 @@ const handleInputChangeStatic = (event: any) => {
     // {{article_guidelines}}
     //  {{key_words}}
     prompt = prompt.replace("{{client_guidelines}}", formData.main.clientGuideline);
-    prompt = prompt.replace("{{article_guidelines}}", formData.main.articleGuideline);
+    prompt = prompt.replace("{{article_guidelines}}", formData.main.instruction);
     prompt = prompt.replace("{{key_words}}", formData.main.keywords);
     let articleSections = new Array();
-    // let finalResult = new Array();
+    // let messages = [{ role: "user", content: prompt }];
     // const completion = await openai.chat.completions.create({
     //   messages: [{ role: "user", content: prompt }],
     //   model: "gpt-4o",
@@ -211,15 +211,21 @@ const handleInputChangeStatic = (event: any) => {
       //   messages: [{ role: "user", content: sectionTemoplate }],
       //   model: "gpt-4o",
       // });
-      // finalResult.push(completion.choices[0].message.content);
+      // messages.push({ role: "user", content: sectionTemoplate });
     });
-
-    // console.log(finalResult);
+    // const emptyThread = await openai.beta.threads.create();
+    // messages.push({ role: "user", content: "merge all into one article" });
+    // const completion = await openai.chat.completions.create({
+    //   messages,
+    //   model: "gpt-4o",
+    // });
+    // console.log(messages,completion);
+    // sessionStorage.setItem('threadId', emptyThread);
     sessionStorage.setItem('articleResultPrompt', prompt);
     sessionStorage.setItem('articleResultSections', JSON.stringify(articleSections));
  
 
-
+    
     // return;
     // Redirect to the result page
     navigate('/dashboard/articles')

@@ -21,23 +21,32 @@ const openai = new OpenAI({
   apiKey,
   dangerouslyAllowBrowser: true
 });
+
+interface ArticlePromt {
+  role: string;
+  content: string;
+}
 async function sendRequest(formData: any,sectionData: string) {
   let finalResult = new Array();
-
-  const completion = await openai.chat.completions.create({
-    messages: [{ role: "user", content: formData }],
-    model: "gpt-4o",
-  });
-  finalResult.push(completion.choices[0].message.content);
+let articlePrompt: ArticlePromt[] = [{role: "user", content: formData}]
+  
+  // finalResult.push(completion.choices[0].message.content);
   let sections = JSON.parse(sectionData);
-  await sections.forEach(async (section: any,index: number) => {
-    const completion = await openai.chat.completions.create({
-      messages: [{ role: "user", content: section }],
-      model: "gpt-4o",
-    });
-    finalResult.push(completion.choices[0].message.content);
+   sections.forEach((section: any,index: number) => {
+    articlePrompt.push({ role: "user", content: section });
+    // const completion = await openai.chat.completions.create({
+    //   messages: [{ role: "user", content: section }],
+    //   model: "gpt-4o",
+    // });
+    // finalResult.push(completion.choices[0].message.content);
   });
-  return finalResult;
+  articlePrompt.push({ role: "user", content: "merge all into one article" });
+  const completion = await openai.chat.completions.create({
+    model: "gpt-4o",
+     // @ts-ignore
+    messages: articlePrompt,
+  });
+  return completion.choices[0].message.content;
 }
 
 export default function ArticlesResult() {
@@ -68,12 +77,12 @@ export default function ArticlesResult() {
         try {
           let res = sendRequest(formData,sectionData)
           const data = await res;
-          let articleResult = new String('');
-          data.forEach(result => {
-            articleResult = articleResult.concat(result);
-          });
-          console.log(articleResult);
-          setResponse(articleResult || 'No response');
+          // let articleResult = new String('');
+          // data.forEach(result => {
+          //   articleResult = articleResult.concat(result);
+          // });
+          // console.log(articleResult);
+          setResponse(data || 'No response');
         } catch (error) {
           console.log(error);
           setResponse(error);

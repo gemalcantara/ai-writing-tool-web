@@ -42,6 +42,7 @@ textarea:focus {
   outline: none;
 }
 pre {
+  font-family: 'IBM Plex Sans', sans-serif;
   white-space: pre-wrap;       /* Since CSS 2.1 */
   white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
   white-space: -pre-wrap;      /* Opera 4-6 */
