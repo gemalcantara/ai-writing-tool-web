@@ -87,8 +87,20 @@ function SidebarList() {
         </ListSubheader>
       }
     >
+      <ListItemButton
+        selected={selectedIndex === 4}
+        onClick={(event) => {
+          handleListItemClick( 4)
+        }}
+        component={Link}
+        to="articles/create"
+      >
+        <ListItemIcon>
+          <Article />
+        </ListItemIcon>
+        <ListItemText classes={{primary: "awt-font-large"}} primary="Create Article" />
+      </ListItemButton>
       <Divider />
-
       <ListItemButton
         selected={selectedIndex === 1}
         onClick={(event) => {
@@ -122,20 +134,6 @@ function SidebarList() {
       <Collapse in={client} timeout="auto" unmountOnExit>
         <ClientList />
       </Collapse>
-      <Divider />
-      <ListItemButton
-        selected={selectedIndex === 4}
-        onClick={(event) => {
-          handleListItemClick( 4)
-        }}
-        component={Link}
-        to="articles/create"
-      >
-        <ListItemIcon>
-          <Article />
-        </ListItemIcon>
-        <ListItemText primary="Create Article" />
-      </ListItemButton>
       <Divider />
       <ListItemButton
         selected={selectedIndex === 0}

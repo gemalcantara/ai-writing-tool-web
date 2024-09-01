@@ -67,6 +67,11 @@ pre {
   max-width: 500px;
   margin: 20px auto; /* Center the div */
 }
+
+.awt-font-large {
+  font-size: x-large;
+  font-weight: 500;
+}
 /* textarea:hover {
   border-color: #3399FF;
 }

@@ -53,11 +53,13 @@ let articlePrompt: ArticlePromt[] = [{role: "user", content: formData}]
 }
 
 export default function ArticlesResult() {
+  const removeMd = require('remove-markdown');
   const [formData, setFormData] = useState<any>(null);
   // const [articleResult, setArticleResult] = useState<any>(null);
   const [sectionData, setSectionData] = useState<any>(null);
   const [pageTitle, setPageTitle] = useState<any>('');
   const [response, setResponse] = useState<any>('');
+  const [toCopy, settoCopy] = useState<any>('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -69,13 +71,10 @@ export default function ArticlesResult() {
     setPageTitle(pageTitleData);
     setFormData(storedData);
     setSectionData(sectionData);
-    if (formData && sectionData) {
-      // setArticleResult(articleResult);
-    }
   }, []);
 
   useEffect(() => {
-    console.log(formData,sectionData);
+    // console.log(formData,sectionData);
     
     // Retrieve the object from session storage
     const sendArticle = async () => {
@@ -88,6 +87,8 @@ export default function ArticlesResult() {
           //   articleResult = articleResult.concat(result);
           // });
           // console.log(articleResult);
+          const plainText = removeMd(data);
+          settoCopy(plainText)
           setResponse(data || 'No response');
         } catch (error) {
           console.log(error);
@@ -99,7 +100,7 @@ export default function ArticlesResult() {
     }
     sendArticle();
 
-  }, [formData]);
+  }, [formData, removeMd, sectionData]);
   if (loading) return <p>Loading...</p>;
   console.log(response);
 
@@ -114,7 +115,7 @@ export default function ArticlesResult() {
         </Grid>
         <Grid item xs={2}>
         <Button variant="outlined" sx={{float: 'right'}} onClick={() => {
-          navigator.clipboard.writeText(response)
+          navigator.clipboard.writeText(toCopy)
           alert('result copied')
         }}>Copy Result</Button>
         </Grid>
