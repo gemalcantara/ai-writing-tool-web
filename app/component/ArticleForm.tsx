@@ -59,6 +59,7 @@ interface PagesList {
    pageName: string ;
    selectedPage: string ;
    keywords: string;
+   pageTitle: string;
   }
   export default function ArticlesForm() {
 
@@ -71,7 +72,7 @@ interface PagesList {
   const [pageDetails, setPageDetails] = useState(0);
 
   const [inputFields, setInputFields] = useState<InputFields[]>([{title: '', details: ''}]);
-  const [inputFieldStatic, setInputFieldStatic] = useState<InputStaticFields>({instruction:'',articlePrompt: '',clientGuideline: '',articleGuideline: '',selectedClient: '',clientName: '',pageName: '',selectedPage: '',keywords: ''});
+  const [inputFieldStatic, setInputFieldStatic] = useState<InputStaticFields>({instruction:'',articlePrompt: '',clientGuideline: '',articleGuideline: '',selectedClient: '',clientName: '',pageName: '',selectedPage: '',keywords: '',pageTitle:''});
   const [clients, setClients] = useState<ClientsList[]>([]);
   const [pages, setPages] = useState<PagesList[]>([]);
   const [loading, setLoading] = useState(true);
@@ -225,6 +226,7 @@ const handleInputChangeStatic = (event: any) => {
     // sessionStorage.setItem('threadId', emptyThread);
     sessionStorage.setItem('articleResultPrompt', prompt);
     sessionStorage.setItem('articleResultSections', JSON.stringify(articleSections));
+    sessionStorage.setItem('pageTitle', JSON.stringify(formData.main.pageTitle));
  
 
     
@@ -293,6 +295,17 @@ const handleInputChangeStatic = (event: any) => {
           </Typography>
           <form onSubmit={handleSubmit}>
             <Grid container spacing={2}>
+            <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  id="pageTitle"
+                  label="Page Title"
+                  name="pageTitle"
+                  value={inputFieldStatic.pageTitle}
+                  variant="outlined"
+                  onChange={(event) => handleInputChangeStatic(event)}
+                />
+              </Grid>
               <Grid item xs={12}>
               <FormControl fullWidth>
                 <InputLabel id="clientLabel">Select Client</InputLabel>

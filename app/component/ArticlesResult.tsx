@@ -13,6 +13,9 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import OpenAI from "openai";
 import ChatComponent from './ChatComponent';
 import '../App.css';
+import Grid from '@mui/material/Grid';
+import Markdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 const apiKey = process.env.NEXT_PUBLIC_CHAT_GPT_API_KEY;;
 const organization = process.env.NEXT_PUBLIC_CHAT_GPT_PROJECT_ID;
@@ -53,6 +56,7 @@ export default function ArticlesResult() {
   const [formData, setFormData] = useState<any>(null);
   // const [articleResult, setArticleResult] = useState<any>(null);
   const [sectionData, setSectionData] = useState<any>(null);
+  const [pageTitle, setPageTitle] = useState<any>('');
   const [response, setResponse] = useState<any>('');
   const [loading, setLoading] = useState(true);
 
@@ -60,7 +64,9 @@ export default function ArticlesResult() {
     // Retrieve the object from session storage
     const storedData = sessionStorage.getItem('articleResultPrompt');
     const sectionData = sessionStorage.getItem('articleResultSections');
+    const pageTitleData = sessionStorage.getItem('pageTitle');
     // const articleData = sessionStorage.getItem('articleResultAll');
+    setPageTitle(pageTitleData);
     setFormData(storedData);
     setSectionData(sectionData);
     if (formData && sectionData) {
@@ -102,22 +108,26 @@ export default function ArticlesResult() {
       <Toolbar />
       <Card sx={{ minWidth: '100vh',maxWidth: '100vh',height: '80vh',overflowY: 'scroll' }} >
         <CardContent>
-          {/* < ChatComponent 
-            formData = {formData}
-          /> */}
+        <Grid container spacing={2}>
+        <Grid item xs={10}>
+        <h3>{pageTitle}</h3>
+        </Grid>
+        <Grid item xs={2}>
+        <Button variant="outlined" sx={{float: 'right'}} onClick={() => {
+          navigator.clipboard.writeText(response)
+          alert('result copied')
+        }}>Copy Result</Button>
+        </Grid>
+      </Grid>
 
-        <h3>Response:</h3>
+
        { 
        loading ?? <p>Loading...</p>
         }
-        <pre>
-        {
-          // response.forEach((element: any) => {
-            //   <div><p>{element}</p><br /></div>
-            // })
-            response
-          }
-          </pre>
+         <Markdown className="process-text" remarkPlugins={[remarkGfm]}>{response}
+
+         </Markdown>
+
          </CardContent>
       </Card>
     </Box>

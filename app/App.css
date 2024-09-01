@@ -49,7 +49,14 @@ pre {
   white-space: -o-pre-wrap;    /* Opera 7 */
   word-wrap: break-word;       /* Internet Explorer 5.5+ */
 }
-
+.process-text {
+  font-family: 'IBM Plex Sans', sans-serif;
+  white-space: pre-wrap;       /* Since CSS 2.1 */
+  white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+  white-space: -pre-wrap;      /* Opera 4-6 */
+  white-space: -o-pre-wrap;    /* Opera 7 */
+  word-wrap: break-word;       /* Internet Explorer 5.5+ */
+}
 .info {
   background-color: rgba(75, 75, 231, 0.1); /* Blue color with 50% opacity */
   padding: 20px;

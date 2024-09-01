@@ -87,17 +87,6 @@ function SidebarList() {
         </ListSubheader>
       }
     >
-      <ListItemButton
-        selected={selectedIndex === 0}
-        onClick={(event) => handleListItemClick( 0)}
-        component={Link}
-        to="users"
-      >
-        <ListItemIcon>
-          <Person />
-        </ListItemIcon>
-        <ListItemText primary="Users" />
-      </ListItemButton>
       <Divider />
 
       <ListItemButton
@@ -148,6 +137,17 @@ function SidebarList() {
         <ListItemText primary="Create Article" />
       </ListItemButton>
       <Divider />
+      <ListItemButton
+        selected={selectedIndex === 0}
+        onClick={(event) => handleListItemClick( 0)}
+        component={Link}
+        to="users"
+      >
+        <ListItemIcon>
+          <Person />
+        </ListItemIcon>
+        <ListItemText primary="Users" />
+      </ListItemButton>
       <ListItemButton
         selected={selectedIndex === 5}
         onClick={logout}
@@ -203,7 +203,18 @@ function ClientList() {
     ));
   return (
     <List component="div" disablePadding>
-       <ListItem key='Create Client' disablePadding>
+      {clients.map((client, index) => (
+        <ListItem key={client.name} disablePadding>
+          <ListItemButton sx={{ pl: 4 }} 
+            selected={selectedIndex === client.id}
+            onClick={(event) => {handleListItemClick( client.id); navigate(`clients/view/${client.id}`)}}
+          >
+            <ListItemText primary={client.name} />
+          </ListItemButton >
+        </ListItem>
+      ))}
+      <Divider />
+      <ListItem key='Create Client' disablePadding>
           <ListItemButton sx={{ pl: 4 }} 
             selected={selectedIndex === 0}
             onClick={(event) => handleListItemClick( 0)}
@@ -216,18 +227,6 @@ function ClientList() {
             <ListItemText primary="Create Client" />
           </ListItemButton>
         </ListItem>
-      <Divider />
-
-      {clients.map((client, index) => (
-        <ListItem key={client.name} disablePadding>
-          <ListItemButton sx={{ pl: 4 }} 
-            selected={selectedIndex === client.id}
-            onClick={(event) => {handleListItemClick( client.id); navigate(`clients/view/${client.id}`)}}
-          >
-            <ListItemText primary={client.name} />
-          </ListItemButton >
-        </ListItem>
-      ))}
     </List>
   );
 }
@@ -274,20 +273,6 @@ function PageList() {
     ));
   return (
     <List component="div" disablePadding>
-       <ListItem key='Create Page Template' disablePadding>
-          <ListItemButton sx={{ pl: 4 }} 
-            selected={selectedIndex === 0}
-            onClick={(event) => handleListItemClick( 0)}
-            component={Link}
-            to="pages/create"
-                        >
-          <ListItemIcon>
-            <AddCircleOutlineIcon />
-          </ListItemIcon>
-            <ListItemText primary="Create Page Template" />
-          </ListItemButton>
-        </ListItem>
-      <Divider />
 
       {pages.map((page, index) => (
         <ListItem key={page.name} disablePadding>
@@ -299,6 +284,20 @@ function PageList() {
           </ListItemButton >
         </ListItem>
       ))}
+      <Divider />
+      <ListItem key='Create Template' disablePadding>
+          <ListItemButton sx={{ pl: 4 }} 
+            selected={selectedIndex === 0}
+            onClick={(event) => handleListItemClick( 0)}
+            component={Link}
+            to="pages/create"
+                        >
+          <ListItemIcon>
+            <AddCircleOutlineIcon />
+          </ListItemIcon>
+            <ListItemText primary="Create Template" />
+          </ListItemButton>
+        </ListItem>
     </List>
   );
 }
