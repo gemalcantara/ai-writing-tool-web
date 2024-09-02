@@ -58,7 +58,7 @@ async function createHistory(output: string | null,article_title: string | null,
   if (error) {
     alert(error.message);
   }
-  alert(`${article_title} has been created.`);
+  alert(`${article_title} has been saved.`);
 }
 
 async function sendRequest(formData: any,sectionData: string) {
