@@ -16,10 +16,22 @@ import '../App.css';
 import Grid from '@mui/material/Grid';
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import { createClient } from '@supabase/supabase-js';
+import { CookiesProvider, useCookies  } from 'react-cookie';
+
 
 const apiKey = process.env.NEXT_PUBLIC_CHAT_GPT_API_KEY;;
 const organization = process.env.NEXT_PUBLIC_CHAT_GPT_PROJECT_ID;
 const project = process.env.NEXT_PUBLIC_CHAT_GPT_organization;
+
+const supaBaseLink = process.env.NEXT_PUBLIC_SUPABASE_LINK;
+const supaBaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY
+
+const supabase = createClient(
+  supaBaseLink,
+  supaBaseKey
+);
+
 const openai = new OpenAI({
   apiKey,
   dangerouslyAllowBrowser: true
@@ -29,6 +41,26 @@ interface ArticlePromt {
   role: string;
   content: string;
 }
+interface History {
+  id: string;
+  created_by: string;
+  created_at: string;
+  article_title: string;
+  article_output: string;
+}
+async function createHistory(output: string | null,article_title: string | null,created_by: string | null) {
+  const { data, error } = await supabase.from('history').insert({
+    created_by: created_by,
+    article_output: output,
+    article_title: article_title,
+  });
+
+  if (error) {
+    alert(error.message);
+  }
+  alert(`${article_title} has been created.`);
+}
+
 async function sendRequest(formData: any,sectionData: string) {
   let finalResult = new Array();
 let articlePrompt: ArticlePromt[] = [{role: "user", content: formData}]
@@ -61,6 +93,7 @@ export default function ArticlesResult() {
   const [response, setResponse] = useState<any>('');
   const [toCopy, settoCopy] = useState<any>('');
   const [loading, setLoading] = useState(true);
+  const [cookies, setCookie] = useCookies(['user']);
 
   useEffect(() => {
     // Retrieve the object from session storage
@@ -82,11 +115,7 @@ export default function ArticlesResult() {
         try {
           let res = sendRequest(formData,sectionData)
           const data = await res;
-          // let articleResult = new String('');
-          // data.forEach(result => {
-          //   articleResult = articleResult.concat(result);
-          // });
-          // console.log(articleResult);
+          createHistory(data,pageTitle,cookies.user.user.email);
           const plainText = removeMd(data);
           settoCopy(plainText)
           setResponse(data || 'No response');

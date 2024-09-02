@@ -28,6 +28,7 @@ import {
   PermContactCalendar,
   Pages,
   Logout,
+  TableChart,
 } from '@mui/icons-material';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
@@ -102,6 +103,19 @@ function SidebarList() {
       </ListItemButton>
       <Divider />
       <ListItemButton
+        selected={selectedIndex === 7}
+        onClick={(event) => {
+          handleListItemClick(7)
+        }}
+        component={Link}
+        to="articles/view"
+      >
+        <ListItemIcon>
+          <TableChart />
+        </ListItemIcon>
+        <ListItemText primary="Article Output Lists" />
+      </ListItemButton>
+      <ListItemButton
         selected={selectedIndex === 1}
         onClick={(event) => {
           handleClickPage();
@@ -120,7 +134,6 @@ function SidebarList() {
       <ListItemButton
         selected={selectedIndex === 2}
         onClick={(event) => {
-          console.log('hekki');
           handleClickClient();
           handleListItemClick( 2);
         }}

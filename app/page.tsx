@@ -23,6 +23,8 @@ import PagesForm from './component/PagesForm';
 import ClientsForm from './component/ClientForm';
 import ArticlesForm from './component/ArticleForm';
 import ArticlesResult from './component/ArticlesResult';
+import ArticleHistory from './component/ArticleHistory';
+import ArticleHistoryView from './component/ArticlesHistoryView';
 
 export default function App() {
   // console.log(createUser());
@@ -40,7 +42,8 @@ export default function App() {
           <Route path="/dashboard/clients/create" element={ <ClientsForm /> } />
           <Route path="/dashboard/clients/view/:clientId" element={ <Client /> } />
           <Route path="/dashboard/articles/create" element={< ArticlesForm /> } />
-          <Route path="/dashboard/articles" element={< ArticlesResult /> } />
+          <Route path="/dashboard/articles/view" element={< ArticleHistory /> } />
+          <Route path="/dashboard/articles/view/:articleId" element={< ArticleHistoryView /> } />
         </Route>
       </Routes>
     </Router>
