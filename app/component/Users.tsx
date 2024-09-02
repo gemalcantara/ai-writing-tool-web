@@ -103,7 +103,6 @@ export default function Users() {
                 },
               }}
               pageSizeOptions={[5, 10]}
-              checkboxSelection
             />
           </div>
         </CardContent>
