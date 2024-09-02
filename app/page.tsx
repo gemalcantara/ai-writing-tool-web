@@ -41,6 +41,7 @@ export default function App() {
           <Route path="/dashboard/clients" element={ <Client /> } />
           <Route path="/dashboard/clients/create" element={ <ClientsForm /> } />
           <Route path="/dashboard/clients/view/:clientId" element={ <Client /> } />
+          <Route path="/dashboard/articles" element={< ArticlesResult /> } />
           <Route path="/dashboard/articles/create" element={< ArticlesForm /> } />
           <Route path="/dashboard/articles/view" element={< ArticleHistory /> } />
           <Route path="/dashboard/articles/view/:articleId" element={< ArticleHistoryView /> } />
