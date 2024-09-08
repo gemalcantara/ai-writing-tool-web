@@ -50,6 +50,7 @@ pre {
   word-wrap: break-word;       /* Internet Explorer 5.5+ */
 }
 .process-text {
+  margin-left: 1rem;
   font-family: 'IBM Plex Sans', sans-serif;
   white-space: pre-wrap;       /* Since CSS 2.1 */
   white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */

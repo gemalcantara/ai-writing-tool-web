@@ -62,18 +62,10 @@ async function createHistory(output: string | null,article_title: string | null,
 }
 
 async function sendRequest(formData: any,sectionData: string) {
-  let finalResult = new Array();
 let articlePrompt: ArticlePromt[] = [{role: "user", content: formData}]
-  
-  // finalResult.push(completion.choices[0].message.content);
   let sections = JSON.parse(sectionData);
    sections.forEach((section: any,index: number) => {
     articlePrompt.push({ role: "user", content: section });
-    // const completion = await openai.chat.completions.create({
-    //   messages: [{ role: "user", content: section }],
-    //   model: "gpt-4o",
-    // });
-    // finalResult.push(completion.choices[0].message.content);
   });
   articlePrompt.push({ role: "user", content: "merge all into one article" });
   const completion = await openai.chat.completions.create({
@@ -87,7 +79,6 @@ let articlePrompt: ArticlePromt[] = [{role: "user", content: formData}]
 export default function ArticlesResult() {
   const removeMd = require('remove-markdown');
   const [formData, setFormData] = useState<any>(null);
-  // const [articleResult, setArticleResult] = useState<any>(null);
   const [sectionData, setSectionData] = useState<any>(null);
   const [pageTitle, setPageTitle] = useState<any>('');
   const [response, setResponse] = useState<any>('');
@@ -96,20 +87,15 @@ export default function ArticlesResult() {
   const [cookies, setCookie] = useCookies(['user']);
 
   useEffect(() => {
-    // Retrieve the object from session storage
     const storedData = sessionStorage.getItem('articleResultPrompt');
     const sectionData = sessionStorage.getItem('articleResultSections');
     const pageTitleData = sessionStorage.getItem('pageTitle');
-    // const articleData = sessionStorage.getItem('articleResultAll');
     setPageTitle(pageTitleData);
     setFormData(storedData);
     setSectionData(sectionData);
   }, []);
 
   useEffect(() => {
-    // console.log(formData,sectionData);
-    
-    // Retrieve the object from session storage
     const sendArticle = async () => {
       if (formData) {
         try {
@@ -128,17 +114,14 @@ export default function ArticlesResult() {
       }
     }
     sendArticle();
-
-  }, [formData, removeMd, sectionData]);
+  }, [formData]);
   if (loading) return <p>Loading...</p>;
   console.log(response);
 
   return (
-    <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-      <Toolbar />
-      <Card sx={{ minWidth: '100vh',maxWidth: '100vh',height: '80vh',overflowY: 'scroll' }} >
-        <CardContent>
-        <Grid container spacing={2}>
+    <div>
+      <h1>Article Result:</h1>
+      <Grid container spacing={2}>
         <Grid item xs={10}>
         <h3>{pageTitle}</h3>
         </Grid>
@@ -158,8 +141,7 @@ export default function ArticlesResult() {
 
          </Markdown>
 
-         </CardContent>
-      </Card>
-    </Box>
+    </div>
+
   );
 }

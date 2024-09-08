@@ -22,278 +22,23 @@ import { useRouter } from 'next/navigation';
 import { ChangeEvent } from 'react';
 import OpenAI from "openai";
 
-const apiKey = process.env.NEXT_PUBLIC_CHAT_GPT_API_KEY;;
-const organization = process.env.NEXT_PUBLIC_CHAT_GPT_PROJECT_ID;
-const project = process.env.NEXT_PUBLIC_CHAT_GPT_organization;
-
-const supaBaseLink = process.env.NEXT_PUBLIC_SUPABASE_LINK;
-const supaBaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY
-
-const supabase = createClient(
-  supaBaseLink,
-  supaBaseKey
-);
-const openai = new OpenAI({
-  apiKey,
-  dangerouslyAllowBrowser: true
-});
-interface PagesList {
-    id: number;
-    name: string;
-  }
-  interface ClientsList {
-    id: number;
-    name: string;
-  }
-  interface InputFields {
-    title: string;
-    details: string;
-  }
-  interface InputStaticFields {
-   instruction:string ;
-   clientGuideline: string ;
-   articleGuideline: string ;
-   articlePrompt: string ;
-   selectedClient: string ;
-   clientName: string ;
-   pageName: string ;
-   selectedPage: string ;
-   keywords: string;
-   pageTitle: string;
-  }
-  export default function ArticlesForm() {
-
-  const router = useRouter();
-  const navigate = useNavigate();
-      
-
-  // sections
-  const [clientDetails, setClientDetails] = useState(0);
-  const [pageDetails, setPageDetails] = useState(0);
-
-  const [inputFields, setInputFields] = useState<InputFields[]>([{title: '', details: ''}]);
-  const [inputFieldStatic, setInputFieldStatic] = useState<InputStaticFields>({instruction:'',articlePrompt: '',clientGuideline: '',articleGuideline: '',selectedClient: '',clientName: '',pageName: '',selectedPage: '',keywords: '',pageTitle:''});
-  const [clients, setClients] = useState<ClientsList[]>([]);
-  const [pages, setPages] = useState<PagesList[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-const getClientGuideline = (event: any) => {
-    const { name, value } = event.target;
-    setClientDetails(value);
-}
-
-const getPageGuideline = (event: any) => {
-    const { name, value } = event.target;
-    setPageDetails(value);
-}
-useEffect(() => {
-    if (clientDetails) {
-      const getGuideline = async () => {
-        try {
-          // Fetch data from Supabase
-          const { data, error } = await supabase
-            .from('clients')
-            .select('*')
-            .eq('id',clientDetails)
-            .single();
-  
-          if (error) throw error;
-  
-          // Update state with fetched data
-            setInputFieldStatic({
-              ...inputFieldStatic,
-              ['selectedClient']: data.id, // Only update the specific field that changed
-              ['clientName']: data.name, // Only update the specific field that changed
-              ['clientGuideline']: data.guideline,
-          });
-          // setClientDetails(data || []);
-        } catch (error) {
-          // Handle error
-          // setError('Failed to fetch clients');
-        } finally {
-          setLoading(false);
-        }
-      };
-      getGuideline();
-    }
-  }, [clientDetails]);
-useEffect(() => {
-  if (pageDetails) {
-    const getGuideline = async () => {
-      try {
-        // Fetch data from Supabase
-        const { data, error } = await supabase
-          .from('pages')
-          .select('*')
-          .eq('id',pageDetails)
-          .single();
-
-        if (error) throw error;
-
-        // Update state with fetched data
-          setInputFieldStatic({
-            ...inputFieldStatic,
-            ['selectedPage']: data.id, // Only update the specific field that changed
-            ['pageName']: data.name, // Only update the specific field that changed
-            ['articlePrompt']: data.guideline,
-            // ['articleGuideline']: data.guideline,
-        });
-        // setClientDetails(data || []);
-      } catch (error) {
-        // Handle error
-        // setError('Failed to fetch clients');
-      } finally {
-        setLoading(false);
-      }
-    };
-    getGuideline();
-  }
-}, [pageDetails]);
-
-
-
-
-const handleAddFields = () => {
-  setInputFields([...inputFields, { title: '', details: '' }]);
-};
-
-const handleRemoveFields = (index: number) => {
-  const values = [...inputFields];
-  values.splice(index, 1);
-  setInputFields(values);
-};
-const handleInputChangeStatic = (event: any) => {
-    const { name, value } = event.target;
-    setInputFieldStatic({
-      ...inputFieldStatic,
-      [name]: value, // Only update the specific field that changed
-    });
-    // console.log(inputFieldStatic)
-  };
-  
-  const handleInputChange = (index: number, event: any) => {
-    const values = [...inputFields];
-    values[index] = {
-      ...values[index],
-      [event.target.name]: event.target.value
-    };
-    setInputFields(values);
-  };
-  
-  const handleSubmit = async (event: any) => {
-    event.preventDefault();
-    let formData = {sections:inputFields, main:inputFieldStatic};
-    console.log(formData);
-    // Store the object in session storage
-    sessionStorage.setItem('articleResult', JSON.stringify(formData));
-    
-    let prompt = formData.main.articlePrompt;
-    // variable to replace 
-    // {{client_guidelines}}
-    // {{article_guidelines}}
-    //  {{key_words}}
-    prompt = prompt.replace("{{client_guidelines}}", formData.main.clientGuideline);
-    prompt = prompt.replace("{{article_guidelines}}", formData.main.instruction);
-    prompt = prompt.replace("{{article_instructions}}", formData.main.instruction);
-    prompt = prompt.replace("{{key_words}}", formData.main.keywords);
-    prompt = prompt.replace("{{keywords}}", formData.main.keywords);
-    let articleSections = new Array();
-    // let messages = [{ role: "user", content: prompt }];
-    // const completion = await openai.chat.completions.create({
-    //   messages: [{ role: "user", content: prompt }],
-    //   model: "gpt-4o",
-    // });
-    // console.log(completion.choices[0].message.content);
-    // finalResult.push(completion.choices[0].message.content);
-    // finalResult = finalResult + completion.choices[0].message.content;
-    formData.sections.forEach(async (section,index) => {
-      let sectionTemoplate = `\n\nSection ${index +1} \nSection Title: ${section.title} \nSection Details: ${section.details} \n`
-      articleSections.push(sectionTemoplate);
-      // const completion = await openai.chat.completions.create({
-      //   messages: [{ role: "user", content: sectionTemoplate }],
-      //   model: "gpt-4o",
-      // });
-      // messages.push({ role: "user", content: sectionTemoplate });
-    });
-    // const emptyThread = await openai.beta.threads.create();
-    // messages.push({ role: "user", content: "merge all into one article" });
-    // const completion = await openai.chat.completions.create({
-    //   messages,
-    //   model: "gpt-4o",
-    // });
-    // console.log(messages,completion);
-    // sessionStorage.setItem('threadId', emptyThread);
-    sessionStorage.setItem('articleResultPrompt', prompt);
-    sessionStorage.setItem('articleResultSections', JSON.stringify(articleSections));
-    sessionStorage.setItem('pageTitle', JSON.stringify(formData.main.pageTitle));
- 
-
-    
-    // return;
-    // Redirect to the result page
-    navigate('/dashboard/articles')
-  };
-
-
-  useEffect(() => {
-      const fetchClients = async () => {
-        try {
-          // Fetch data from Supabase
-          const { data, error } = await supabase
-            .from('clients')
-            .select('*');
-  
-          if (error) throw error;
-  
-          // Update state with fetched data
-          setClients(data || []);
-        } catch (error) {
-          // Handle error
-          setError('Failed to fetch clients');
-        } finally {
-          setLoading(false);
-        }
-      };
-      fetchClients();
-    }, []);
-    useEffect(() => {
-        const fetchPages = async () => {
-          try {
-            // Fetch data from Supabase
-            const { data, error } = await supabase
-              .from('pages')
-              .select('*');
-    
-            if (error) throw error;
-    
-            // Update state with fetched data
-            setPages(data || []);
-          } catch (error) {
-            // Handle error
-            setError('Failed to fetch pages');
-          } finally {
-            setLoading(false);
-          }
-        };
-        fetchPages();
-      }, []);
-    if (loading) return <p>Loading...</p>;
-    if (error) return <p>{error}</p>;
+  export default function ArticlesForm({
+    handleSubmitArticle,
+    inputFieldStaticArticle,
+    handleInputChangeStaticArticle,
+    getClientGuideline,
+    clients,
+    getPageGuideline,
+    pages,
+    inputFields,
+    handleInputChange,
+    handleAddFields,
+    handleRemoveFields}: any) {
   return (
-    <Box component="main"  sx={{ width: '120vh',height: '90vh', flexGrow: 1, p: 3}}>
-      <Toolbar />
-      <Card sx={{ minWidth: '120vh',height: '80vh',overflowY: 'scroll' }} >
-        <CardContent>
-          <Typography
-            variant="h4"
-            fontWeight="bold"
-            color="text.primary"
-            gutterBottom
-          >
-            Create Article
-          </Typography>
-          <form onSubmit={handleSubmit}>
+     
+    <div>
+      <h1>Create Outline</h1>
+      <form onSubmit={handleSubmitArticle}>
             <Grid container spacing={2}>
             <Grid item xs={12}>
                 <TextField
@@ -301,9 +46,9 @@ const handleInputChangeStatic = (event: any) => {
                   id="pageTitle"
                   label="Page Title"
                   name="pageTitle"
-                  value={inputFieldStatic.pageTitle}
+                  value={inputFieldStaticArticle.pageTitle}
                   variant="outlined"
-                  onChange={(event) => handleInputChangeStatic(event)}
+                  onChange={(event) => handleInputChangeStaticArticle(event)}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -313,12 +58,12 @@ const handleInputChangeStatic = (event: any) => {
                 labelId="clientLabel"
                 id="selectedClient"
                 name="selectedClient"
-                value={inputFieldStatic.selectedClient}
+                value={inputFieldStaticArticle.selectedClient}
                 label="client"
                 onChange={(event) => getClientGuideline(event)}
                 >
                 {
-                    clients.map((client) => (
+                    clients.map((client :any) => (
                         <MenuItem key={client.id} value={client.id}>{client.name}</MenuItem>
                     ))
                 }
@@ -332,12 +77,12 @@ const handleInputChangeStatic = (event: any) => {
                 name="selectedPage"
                 labelId="pageLabel"
                 id="page"
-                value={inputFieldStatic.selectedPage}
+                value={inputFieldStaticArticle.selectedPage}
                 label="page"
                 onChange={(event) => getPageGuideline(event)}
                 >
                 {
-                    pages.map((page) => (
+                    pages.map((page : any) => (
                         <MenuItem key={page.id} value={page.id}>{page.name}</MenuItem>
                     ))
                 }
@@ -349,8 +94,8 @@ const handleInputChangeStatic = (event: any) => {
                 name="clientGuideline"
                   id="clientGuideline"
                   label="Client Guidelines"
-                  value={inputFieldStatic.clientGuideline}
-                  onChange={(event) => handleInputChangeStatic(event)}
+                  value={inputFieldStaticArticle.clientGuideline}
+                  onChange={(event) => handleInputChangeStaticArticle(event)}
                   multiline
                   fullWidth
                   rows={5}
@@ -362,8 +107,8 @@ const handleInputChangeStatic = (event: any) => {
                   id="articleGuideline"
                   label="Article Guidelines"
                   name="articleGuideline"
-                  value={inputFieldStatic.articleGuideline}
-                  onChange={(event) => handleInputChangeStatic(event)}
+                  value={inputFieldStaticArticle.articleGuideline}
+                  onChange={(event) => handleInputChangeStaticArticle(event)}
                   multiline
                   fullWidth
                   rows={5}
@@ -377,19 +122,19 @@ const handleInputChangeStatic = (event: any) => {
                 multiline
               fullWidth
               rows={5}
-              value={inputFieldStatic.instruction}
-              onChange={(event) => handleInputChangeStatic(event)}
+              value={inputFieldStaticArticle.instruction}
+              onChange={(event) => handleInputChangeStaticArticle(event)}
             />
-          </Grid>
+              </Grid>
               <Grid item xs={12}>
                 <TextField
                   fullWidth
                   id="keywords"
                   label="Keywords"
                   name="keywords"
-                  value={inputFieldStatic.keywords}
+                  value={inputFieldStaticArticle.keywords}
                   variant="outlined"
-                  onChange={(event) => handleInputChangeStatic(event)}
+                  onChange={(event) => handleInputChangeStaticArticle(event)}
                 />
               </Grid>
 
@@ -413,8 +158,7 @@ const handleInputChangeStatic = (event: any) => {
         Submit
       </Button>
       </form>
-        </CardContent>
-      </Card>
-    </Box>
+    </div>
+    
   );
 }

@@ -39,18 +39,14 @@ export default function ArticleHistory() {
 
     const fetchHistory = async () => {
       try {
-        // Fetch data from Supabase
         const { data, error } = await supabase
-          .from('history') // Replace 'users' with your table name
+          .from('history')
           .select('*');
 
         if (error) throw error;
-
-        // Update state with fetched data
         setHistories(data as History[]);
         setFilteredArticles(data);
       } catch (error) {
-        // Handle error
         setError('Failed to fetch history');
       } finally {
         setLoading(false);
@@ -59,8 +55,6 @@ export default function ArticleHistory() {
     useEffect(() => {
         fetchHistory();
       }, []);
-      // if (loading) return <p>Loading...</p>;
-      // if (error) return <p>{error}</p>;
       let rows: any[] | undefined = [];
       histories.map((history) => (
         rows.push( { id: history.id, created_by: history.created_by, article_title: history.article_title })
