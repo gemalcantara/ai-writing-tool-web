@@ -41,7 +41,7 @@ export default function ArticleHistory() {
       try {
         const { data, error } = await supabase
           .from('history')
-          .select('*');
+          .select('*') .order('id', { ascending: false });
 
         if (error) throw error;
         setHistories(data as History[]);
@@ -127,7 +127,7 @@ export default function ArticleHistory() {
             </Grid>
           </Grid>
 
-          <div style={{ height: 500, width: '100%', backgroundColor: '#fff' }}>
+          <div style={{ height: 650, width: '100%', backgroundColor: '#fff' }}>
             <DataGrid
               rows={filteredArticles}
               columns={columns}
