@@ -19,105 +19,8 @@ import remarkGfm from 'remark-gfm'
 import { createClient } from '@supabase/supabase-js';
 import { CookiesProvider, useCookies  } from 'react-cookie';
 
-
-const apiKey = process.env.NEXT_PUBLIC_CHAT_GPT_API_KEY;;
-const organization = process.env.NEXT_PUBLIC_CHAT_GPT_PROJECT_ID;
-const project = process.env.NEXT_PUBLIC_CHAT_GPT_organization;
-
-const supaBaseLink = process.env.NEXT_PUBLIC_SUPABASE_LINK;
-const supaBaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY
-
-const supabase = createClient(
-  supaBaseLink,
-  supaBaseKey
-);
-
-const openai = new OpenAI({
-  apiKey,
-  dangerouslyAllowBrowser: true
-});
-
-interface ArticlePromt {
-  role: string;
-  content: string;
-}
-interface History {
-  id: string;
-  created_by: string;
-  created_at: string;
-  article_title: string;
-  article_output: string;
-}
-async function createHistory(output: string | null,article_title: string | null,created_by: string | null) {
-  const { data, error } = await supabase.from('history').insert({
-    created_by: created_by,
-    article_output: output,
-    article_title: article_title,
-  });
-
-  if (error) {
-    alert(error.message);
-  }
-  alert(`${article_title} has been saved.`);
-}
-
-async function sendRequest(formData: any,sectionData: string) {
-let articlePrompt: ArticlePromt[] = [{role: "user", content: formData}]
-  let sections = JSON.parse(sectionData);
-   sections.forEach((section: any,index: number) => {
-    articlePrompt.push({ role: "user", content: section });
-  });
-  articlePrompt.push({ role: "user", content: "merge all into one article" });
-  const completion = await openai.chat.completions.create({
-    model: "gpt-4o",
-     // @ts-ignore
-    messages: articlePrompt,
-  });
-  return completion.choices[0].message.content;
-}
-
-export default function ArticlesResult() {
-  const removeMd = require('remove-markdown');
-  const [formData, setFormData] = useState<any>(null);
-  const [sectionData, setSectionData] = useState<any>(null);
-  const [pageTitle, setPageTitle] = useState<any>('');
-  const [response, setResponse] = useState<any>('');
-  const [toCopy, settoCopy] = useState<any>('');
-  const [loading, setLoading] = useState(true);
-  const [cookies, setCookie] = useCookies(['user']);
-
-  useEffect(() => {
-    const storedData = sessionStorage.getItem('articleResultPrompt');
-    const sectionData = sessionStorage.getItem('articleResultSections');
-    const pageTitleData = sessionStorage.getItem('pageTitle');
-    setPageTitle(pageTitleData);
-    setFormData(storedData);
-    setSectionData(sectionData);
-  }, []);
-
-  useEffect(() => {
-    const sendArticle = async () => {
-      if (formData) {
-        try {
-          let res = sendRequest(formData,sectionData)
-          const data = await res;
-          createHistory(data,pageTitle,cookies.user.user.email);
-          const plainText = removeMd(data);
-          settoCopy(plainText)
-          setResponse(data || 'No response');
-        } catch (error) {
-          console.log(error);
-          setResponse(error);
-        } finally {
-          setLoading(false);
-        }
-      }
-    }
-    sendArticle();
-  }, [formData]);
-  if (loading) return <p>Loading...</p>;
-  console.log(response);
-
+export default function ArticlesResult({pageTitle,toCopy,response,loadingResult}:any) {
+ 
   return (
     <div>
       <h1>Article Result:</h1>
@@ -135,7 +38,7 @@ export default function ArticlesResult() {
 
 
        { 
-       loading ?? <p>Loading...</p>
+       loadingResult ?? <p>Loading...</p>
         }
          <Markdown className="process-text" remarkPlugins={[remarkGfm]}>{response}
 

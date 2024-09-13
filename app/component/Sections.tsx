@@ -26,13 +26,13 @@ const Sections = ({ inputFields, handleInputChange, handleAddFields, handleRemov
           </Grid>
           <Grid item xs={12}>
             <TextField
-              name="details"
+              name="description"
               label="Section Details"
               variant="outlined"
                   multiline
               fullWidth
               rows={5}
-              value={inputField.details}
+              value={inputField.description}
               onChange={(event) => handleInputChange(index, event)}
             />
           </Grid>

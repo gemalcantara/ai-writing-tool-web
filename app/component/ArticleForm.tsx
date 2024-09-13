@@ -33,7 +33,7 @@ import OpenAI from "openai";
     inputFields,
     handleInputChange,
     handleAddFields,
-    handleRemoveFields}: any) {
+    handleRemoveFields,loadingResult}: any) {
   return (
      
     <div>
@@ -153,9 +153,11 @@ import OpenAI from "openai";
         color="primary"
         style={{ marginTop: '16px' }}
         fullWidth
+        disabled={loadingResult}
         type='submit'
       >
-        Submit
+        {loadingResult ? 'Generating...' : 'Generate Article'}
+
       </Button>
       </form>
     </div>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { use, useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import Stepper from '@mui/material/Stepper';
 import Step from '@mui/material/Step';
@@ -8,9 +8,11 @@ import Typography from '@mui/material/Typography';
 import { Card, CardActions, CardContent, Toolbar } from '@mui/material';
 import ArticleOutlineForm from './ArticleOutlineForm';
 import { createClient } from '@supabase/supabase-js';
-import { generateOutline } from '../helpers/openaiApi';
+import { generateArticle, generateOutline } from '../helpers/openaiApi';
 import ArticlesForm from './ArticleForm';
 import ArticlesResult from './ArticlesResult';
+import { CookiesProvider, useCookies  } from 'react-cookie';
+
 const steps = ['Create Outline', 'Create Article', 'Article Result'];
 const supaBaseLink = process.env.NEXT_PUBLIC_SUPABASE_LINK;
 const supaBaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY
@@ -33,6 +35,7 @@ interface ClientsList {
   selectedClient: string ;
   internalLinks: string;
   authorityLinks: string;
+  competitorLinks: string;
   selectedPage: string ;
   clientName: string;
   pageName: string;
@@ -55,9 +58,40 @@ interface ClientsList {
  }
  interface InputFields {
   title: string;
-  details: string;
+  description: string;
 }
+
+interface ArticlePromt {
+  role: string;
+  content: string;
+}
+async function createHistory(output: string | null,article_title: string | null,created_by: string | null) {
+  const { data, error } = await supabase.from('history').insert({
+    created_by: created_by,
+    article_output: output,
+    article_title: article_title,
+  });
+
+  if (error) {
+    alert(error.message);
+  }
+  alert(`${article_title} has been saved.`);
+}
+
+async function sendRequest(formData: any,sectionData: string) {
+let articlePrompt: ArticlePromt[] = [{role: "user", content: formData}]
+  let sections = JSON.parse(sectionData);
+   sections.forEach((section: any,index: number) => {
+    articlePrompt.push({ role: "user", content: section });
+  });
+  articlePrompt.push({ role: "user", content: "merge all into one article" });
+  const completion = await generateArticle(articlePrompt);
+  return completion;
+}
+
 export default function ArticleSteps() {
+  const removeMd = require('remove-markdown');
+
   const [activeStep, setActiveStep] = React.useState(0);
 
   const [completed, setCompleted] = React.useState<{
@@ -113,12 +147,12 @@ export default function ArticleSteps() {
   const [clientDetails, setClientDetails] = useState(0);
   const [pageDetails, setPageDetails] = useState(0);
   const [pageType, setPageType] = useState('');
-  const [outline, setOutline] = useState('');
+  const [outline, setOutline] = useState<string>();
   const [loading, setLoading] = useState(false);
   const [clients, setClients] = React.useState<ClientsList[]>([]);
   const [pages, setPages] = React.useState<PagesList[]>([]);
   const [error, setError] = React.useState<string | null>(null);
-  const [inputFields, setInputFields] = useState<InputFields[]>([{title: '', details: ''}]);
+  const [inputFields, setInputFields] = useState<InputFields[]>([{title: '', description: ''}]);
   const [inputFieldStaticOutline, setInputFieldStaticOutline] = useState<OutlineFields>({ 
     keywords: '',
     articleDescription: '',
@@ -131,6 +165,7 @@ export default function ArticleSteps() {
     pageName: '',
     articlePrompt: '',
     clientGuideline: '',
+    competitorLinks: ''
   });
   const [inputFieldStaticArticle, setInputFieldStaticArticle] = useState<ArticleFields>({ 
     instruction:'',
@@ -145,27 +180,34 @@ export default function ArticleSteps() {
     pageTitle:''
   });
 
-  
+  const [pageTitle, setPageTitle] = useState<any>('');
+  const [response, setResponse] = useState<any>('');
+  const [toCopy, settoCopy] = useState<any>('');
+  const [loadingResult, setLoadingResult] = useState(false);
+  const [cookies, setCookie] = useCookies(['user']);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     const internalLinksArray = inputFieldStaticOutline.internalLinks.split(',').map(link => link.trim());
     const authorityLinksArray = inputFieldStaticOutline.authorityLinks.split(',').map(link => link.trim());
+    const competitorLinksArray = inputFieldStaticOutline.competitorLinks.split(',').map(link => link.trim());
 
     try {
       const generatedOutline = await generateOutline(
         inputFieldStaticOutline.keywords,
         inputFieldStaticOutline.articleDescription,
-      `${inputFieldStaticOutline.clientName} - ${inputFieldStaticOutline.clientGuideline}`,
-        inputFieldStaticOutline.selectedPage,
+        inputFieldStaticOutline.clientName,
+        inputFieldStaticOutline.pageName,
         internalLinksArray,
-        authorityLinksArray
+        authorityLinksArray,
+        competitorLinksArray
       );
       handleComplete();
-      sessionStorage.setItem('articleOutlineResult', generatedOutline);
-      console.log(generatedOutline);
-      setOutline(generatedOutline);
+      let result = removeMd(generatedOutline).slice(0, -1);
+      setOutline(result);
+      parseOutlineResultFillArticleField(result);
     } catch (error) {
       console.error('Error generating outline', error);
       alert('Failed to generate article outline.');
@@ -275,11 +317,27 @@ const handleInputChangeStaticOutline  = (event: any) => {
         setLoading(false);
       }
     };
+    const parseOutlineResultFillArticleField = (outline: any) => {
+      console.log(outline);
+      let parsedOutlineResult = JSON.parse(outline)[0];
+      console.log(parsedOutlineResult);
+      setInputFieldStaticArticle({
+        ...inputFieldStaticArticle,
+        ['instruction']: parsedOutlineResult.meta_description ?? inputFieldStaticOutline.articleDescription, 
+        ['pageTitle']: parsedOutlineResult.title,
+        ['keywords']:  inputFieldStaticOutline.keywords
+    });
+      setPageTitle(parsedOutlineResult.title);
+      // Simulate data fetching or initialization logic here
+      const initialData: InputFields[] = parsedOutlineResult.sections;
+
+      // Populate the state with the initial data
+      setInputFields(initialData);
+    }
     useEffect(() => {
       fetchClients();
       fetchPages();
     }, []);
-
 
 const getPageGuideline = (event: any) => {
     const { name, value } = event.target;
@@ -287,7 +345,7 @@ const getPageGuideline = (event: any) => {
 }
 
 const handleAddFields = () => {
-  setInputFields([...inputFields, { title: '', details: '' }]);
+  setInputFields([...inputFields, { title: '', description: '' }]);
 };
 
 const handleRemoveFields = (index: number) => {
@@ -326,13 +384,25 @@ const handleInputChangeStaticArticle = (event: any) => {
       prompt = prompt.replace("{{keywords}}", formData.main.keywords);
       let articleSections = new Array();
       formData.sections.forEach(async (section,index) => {
-        let sectionTemoplate = `\n\nSection ${index +1} \nSection Title: ${section.title} \nSection Details: ${section.details} \n`
+        let sectionTemoplate = `\n\nSection ${index +1} \nSection Title: ${section.title} \nSection Details: ${section.description} \n`
         articleSections.push(sectionTemoplate);
   
       });
-      sessionStorage.setItem('articleResultPrompt', prompt);
-      sessionStorage.setItem('articleResultSections', JSON.stringify(articleSections));
-      sessionStorage.setItem('pageTitle', JSON.stringify(formData.main.pageTitle));
+          try {
+            setLoadingResult(true);
+            let res = sendRequest(prompt,JSON.stringify(articleSections))
+            const data = await res;
+            createHistory(data,pageTitle,cookies.user.user.email);
+            const plainText = removeMd(data);
+            settoCopy(plainText)
+            setResponse(data || 'No response');
+          } catch (error) {
+            console.log(error);
+            setResponse(error);
+            setLoadingResult(false);
+          } finally {
+            setLoadingResult(false);
+          }
       handleComplete();
 
     };
@@ -353,9 +423,11 @@ const handleInputChangeStaticArticle = (event: any) => {
       <div>
         {allStepsCompleted() ? (
           <React.Fragment>
-            <Typography sx={{ mt: 2, mb: 1 }}>
-              All steps completed - you&apos;re finished
-            </Typography>
+            <ArticlesResult 
+                pageTitle = {pageTitle}
+                toCopy = {toCopy}
+                response = {response}
+                loadingResult = {loadingResult} />
             <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
               <Box sx={{ flex: '1 1 auto' }} />
               <Button onClick={handleReset}>Reset</Button>
@@ -366,13 +438,14 @@ const handleInputChangeStaticArticle = (event: any) => {
             {
               {
                 0: <ArticleOutlineForm 
-                handleComplete={handleComplete} 
                 handleSubmit = {handleSubmit} 
                 inputFieldStaticOutline = {inputFieldStaticOutline} 
                 getClientGuideline = {getClientGuideline} 
                 clients = {clients} 
                 handleInputChangeStaticOutline  = {handleInputChangeStaticOutline } 
+                getPageGuideline = {getPageGuideline}
                 loading = {loading} 
+                pages = {pages}
                 outline = {outline}/>,
                 1: <ArticlesForm 
                 handleSubmitArticle = {handleSubmitArticle}
@@ -385,9 +458,14 @@ const handleInputChangeStaticArticle = (event: any) => {
                 inputFields = {inputFields}
                 handleInputChange = {handleInputChange}
                 handleAddFields = {handleAddFields}
-                handleRemoveFields = {handleRemoveFields}                
+                handleRemoveFields = {handleRemoveFields}    
+                loadingResult = {loadingResult}            
                 />,
-                2: <ArticlesResult />
+                2: <ArticlesResult 
+                pageTitle = {pageTitle}
+                toCopy = {toCopy}
+                response = {response}
+                loadingResult = {loadingResult} />
               }[activeStep]
             } 
           </React.Fragment>
@@ -405,9 +483,8 @@ const handleInputChangeStaticArticle = (event: any) => {
                 Back
               </Button>
             <Box sx={{ flex: '1 1 auto' }} />
-              <Button onClick={handleNext} sx={{ mr: 1 }}>
-                Next
-              </Button>
+            <Button onClick={handleNext} sx={{ mr: 1 }} disabled={activeStep === 2}>Next</Button> 
+              
               {activeStep !== steps.length &&
                 (completed[activeStep] ? (
                   <Typography variant="caption" sx={{ display: 'inline-block' }}>

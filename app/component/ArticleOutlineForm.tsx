@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { generateOutline } from '../helpers/openaiApi';
-import { Box, FormControl, Grid, InputLabel, MenuItem, Select, TextField } from '@mui/material';
+import { Box, Button, FormControl, Grid, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import { createClient } from '@supabase/supabase-js';
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -12,7 +12,7 @@ const supabase = createClient(
   supaBaseLink,
   supaBaseKey
 );
-const ArticleOutlineForm = ({handleComplete,handleSubmit,inputFieldStaticOutline,getClientGuideline,clients,handleInputChangeStaticOutline,loading,outline}:any) => {
+const ArticleOutlineForm = ({handleSubmit,inputFieldStaticOutline,getClientGuideline,clients,handleInputChangeStaticOutline,loading,outline,getPageGuideline,pages}:any) => {
   
   return (
  
@@ -38,6 +38,27 @@ const ArticleOutlineForm = ({handleComplete,handleSubmit,inputFieldStaticOutline
                 }
                 </Select>
               </FormControl>
+            </Grid>
+            <Grid item xs={12}>
+              </Grid>
+              <Grid item xs={12}>
+              <FormControl fullWidth>
+                <InputLabel id="pageLabel">Page Template</InputLabel>
+                <Select
+                name="selectedPage"
+                labelId="pageLabel"
+                id="page"
+                value={inputFieldStaticOutline.selectedPage}
+                label="page"
+                onChange={(event) => getPageGuideline(event)}
+                >
+                {
+                    pages.map((page : any) => (
+                        <MenuItem key={page.id} value={page.id}>{page.name}</MenuItem>
+                    ))
+                }
+                </Select>
+            </FormControl>
             </Grid>
             <Grid item xs={12}>
             <TextField
@@ -66,6 +87,17 @@ const ArticleOutlineForm = ({handleComplete,handleSubmit,inputFieldStaticOutline
           <Grid item xs={12}>
             <TextField
               fullWidth
+              id="competitorLinks"
+              label="Competitor Links (comma-separated)"
+              name="competitorLinks"
+              value={inputFieldStaticOutline.competitorLinks}
+              variant="outlined"
+              onChange={(e) => handleInputChangeStaticOutline(e)}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
               id="internalLinks"
               label="Internal Links (comma-separated)"
               name="internalLinks"
@@ -86,20 +118,26 @@ const ArticleOutlineForm = ({handleComplete,handleSubmit,inputFieldStaticOutline
             />
           </Grid>
         </Grid>
-        <button type="submit" disabled={loading}>
-          {loading ? 'Generating...' : 'Generate Outline'}
-        </button>
+        <Button
+        variant="outlined"
+        color="primary"
+        style={{ marginTop: '16px' }}
+        fullWidth
+        disabled={loading}
+        type='submit'
+      >
+        {loading ? 'Generating...' : 'Generate Outline'}
+      </Button>
       </form>
 
-      {outline && (
+      {/* {outline && (
         <div>
           <h2>Generated Article Outline:</h2>
           <Markdown className="process-text" remarkPlugins={[remarkGfm]}>{outline}
 
           </Markdown>
-          {/* <pre>{outline}</pre> */}
         </div>
-      )}
+      )} */}
     </div>
   );
 };
