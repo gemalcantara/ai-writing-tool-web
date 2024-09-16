@@ -60,8 +60,8 @@ interface ClientsList {
   name: string;
 }
 function SidebarList() {
-  const [page, setPage] = React.useState(true);
-  const [client, setClient] = React.useState(true);
+  const [page, setPage] = React.useState(false);
+  const [client, setClient] = React.useState(false);
   const [selectedIndex, setSelectedIndex] = React.useState(1);
   const navigate = useNavigate();
   const logout = useLogout();
@@ -70,11 +70,18 @@ function SidebarList() {
     index: number,
   ) => {
     setSelectedIndex(index);
+    console.log(index != 1);
+    if (index > 2) {
+      setPage(false);
+      setClient(false);
+    }
   };
   const handleClickPage = () => {
     setPage(!page);
+    setClient(false);
   };
   const handleClickClient = () => {
+    setPage(false);
     setClient(!client);
   };
   return (
@@ -149,8 +156,8 @@ function SidebarList() {
       </Collapse>
       <Divider />
       <ListItemButton
-        selected={selectedIndex === 0}
-        onClick={(event) => handleListItemClick( 0)}
+        selected={selectedIndex === 6}
+        onClick={(event) => handleListItemClick( 6)}
         component={Link}
         to="users"
       >

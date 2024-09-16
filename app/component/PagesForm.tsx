@@ -35,7 +35,7 @@ async function createPage(pageData: any) {
     alert(error.message);
   }
   alert(`${pageData.name} has been created.`);
-  window.location.reload()
+  // window.location.reload()
 }
 
 export default function PagesForm() {

@@ -35,7 +35,6 @@ async function createLawClient(clientData: any) {
     alert(error.message);
   }
   alert(`${clientData.name} has been created.`);
-  window.location.reload()
 }
 
 export default function ClientsForm() {
