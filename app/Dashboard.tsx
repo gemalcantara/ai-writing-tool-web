@@ -60,8 +60,8 @@ interface ClientsList {
   name: string;
 }
 function SidebarList() {
-  const [page, setPage] = React.useState(true);
-  const [client, setClient] = React.useState(true);
+  const [page, setPage] = React.useState(false);
+  const [client, setClient] = React.useState(false);
   const [selectedIndex, setSelectedIndex] = React.useState(1);
   const navigate = useNavigate();
   const logout = useLogout();
