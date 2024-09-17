@@ -88,7 +88,7 @@ export default function Client() {
         if (error) throw error;
 
         alert('Page updated successfully!');
-        // window.location.reload();
+        // navigate('/');
       } catch (error) {
         if (error instanceof Error) {
           setError(error.message);
@@ -112,9 +112,11 @@ export default function Client() {
         if (error) throw error;
 
         alert('Client deleted successfully!');
+        navigate('/');
       } catch (error) {
         if (error instanceof Error) {
           setError(error.message);
+          navigate('/');
         }
       }
     }

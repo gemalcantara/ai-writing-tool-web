@@ -5,13 +5,15 @@ import Step from '@mui/material/Step';
 import StepButton from '@mui/material/StepButton';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-import { Card, CardActions, CardContent, Toolbar } from '@mui/material';
+import { Alert, Card, CardActions, CardContent, Toolbar } from '@mui/material';
 import ArticleOutlineForm from './ArticleOutlineForm';
 import { createClient } from '@supabase/supabase-js';
 import { generateArticle, generateOutline } from '../helpers/openaiApi';
 import ArticlesForm from './ArticleForm';
 import ArticlesResult from './ArticlesResult';
 import { CookiesProvider, useCookies  } from 'react-cookie';
+import { CheckCircleOutline } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 
 const steps = ['Create Outline', 'Create Article', 'Article Result'];
 const supaBaseLink = process.env.NEXT_PUBLIC_SUPABASE_LINK;
@@ -91,6 +93,7 @@ let articlePrompt: ArticlePromt[] = [{role: "user", content: formData}]
 
 export default function ArticleSteps() {
   const removeMd = require('remove-markdown');
+  const navigate = useNavigate();
 
   const [activeStep, setActiveStep] = React.useState(0);
 
@@ -111,6 +114,9 @@ export default function ArticleSteps() {
   };
 
   const allStepsCompleted = () => {
+    if (completedSteps() === totalSteps()) {
+      navigate('/');
+    }
     return completedSteps() === totalSteps();
   };
 
@@ -423,11 +429,6 @@ const handleInputChangeStaticArticle = (event: any) => {
       <div>
         {allStepsCompleted() ? (
           <React.Fragment>
-            <ArticlesResult 
-                pageTitle = {pageTitle}
-                toCopy = {toCopy}
-                response = {response}
-                loadingResult = {loadingResult} />
             <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
               <Box sx={{ flex: '1 1 auto' }} />
               <Button onClick={handleReset}>Reset</Button>

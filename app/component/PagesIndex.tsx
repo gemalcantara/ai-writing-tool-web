@@ -89,7 +89,7 @@ export default function PagesIndex() {
         if (error) throw error;
 
         alert('Page updated successfully!');
-        // window.location.reload();
+        // navigate('/');
       } catch (error) {
         if (error instanceof Error) {
           setError(error.message);
@@ -113,7 +113,8 @@ export default function PagesIndex() {
         if (error) throw error;
 
         alert('Page deleted successfully!');
-        // navigate('/'); // Redirect after deletion
+        navigate('/');
+        // Redirect after deletion
       } catch (error) {
         if (error instanceof Error) {
           setError(error.message);

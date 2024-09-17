@@ -33,11 +33,14 @@ async function createLawClient(clientData: any) {
   });
   if (error) {
     alert(error.message);
+    return 0;
   }
   alert(`${clientData.name} has been created.`);
+  return 1
 }
 
 export default function ClientsForm() {
+  const navigate = useNavigate();
   const [name, setName] = useState('');
   const [guideline, setGuideline] = useState('');
   const handleSubmit = async (event: any) => {
@@ -46,7 +49,10 @@ export default function ClientsForm() {
       name,
       guideline
     };
-    createLawClient(data);
+   let isCreated = await createLawClient(data);
+    if ( isCreated) {
+      navigate('/');
+    }
   };
   const session = supabase.auth.getSession();
 

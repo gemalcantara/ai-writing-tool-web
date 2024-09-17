@@ -25,7 +25,7 @@ async function generateOutline(
 
       Read the articles in their entirety so that you are an expert on the topic. When creating your outline, incorporate the most common topics, characteristics, and information that you learn from the example articles.  
 
-      STRUCTURE & FORMAT: The outline should be divided into Sections and Subsections. Each Section and Subsection should have a Title formatted in BOLD. Don’t include numbers or Roman numerals in the Section or Subsection Titles. Capitalize the first word of the title/heading and of any subtitle/subheading.
+      STRUCTURE & FORMAT: The outline should be divided into Sections. Each Section should have a Title formatted in BOLD. Don’t include numbers or Roman numerals in the Section or Subsection Titles. Capitalize the first word of the title/heading and of any subtitle/subheading.
       Capitalize all major words (nouns, verbs including phrasal verbs such as “play with”, adjectives, adverbs, and pronouns) in the title/heading, including the second part of hyphenated major words (e.g., Self-Report not Self-report). Do not capitalize articles, prepositions (regardless of length), and coordinating conjunctions. The Title of the article must prominently feature the Keyword to optimize for SEO. The Meta Description should also include this keyword.
 
       GUIDANCE: The outline should be exhaustive, including clear guidance for the writer of what should be covered in each section and subsection. Format all guidance for the writer using bullet points. Don’t create a “Resources” section at the end of the article. 
@@ -60,7 +60,7 @@ async function generateOutline(
         "title": "section title",
         "description": "concatinate all subsections"
       }]
-     REMINDER: strictly follow this format no other text is required.
+     REMINDER: strictly follow this format no other text or markdown is required.
       `
     }
   ];
@@ -78,6 +78,10 @@ async function generateOutline(
   }
 };
 async function generateArticle(articlePrompt: any) {
+  articlePrompt.push({
+    role: 'user',
+    content: `make it much longer, more detailed, and tend to be much more persuasive`
+  })
   const completion = await openai.chat.completions.create({
     model: "gpt-4o",
      // @ts-ignore

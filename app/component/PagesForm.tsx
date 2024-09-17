@@ -33,21 +33,27 @@ async function createPage(pageData: any) {
   });
   if (error) {
     alert(error.message);
+        return 0;
   }
   alert(`${pageData.name} has been created.`);
-  // window.location.reload()
+    return 1
+
 }
 
 export default function PagesForm() {
   const [name, setName] = useState('');
   const [guideline, setGuideline] = useState('');
+  const navigate = useNavigate();
   const handleSubmit = async (event: any) => {
     event.preventDefault();
     let data = {
       name,
       guideline
     };
-    createPage(data);
+    let isCreated = await createPage(data);
+    if (isCreated) {
+      navigate('/');
+    }
   };
   const session = supabase.auth.getSession();
   return (
