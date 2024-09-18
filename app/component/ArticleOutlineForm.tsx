@@ -5,6 +5,7 @@ import { createClient } from '@supabase/supabase-js';
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import '../App.css';
+import FormLinks from './Links';
 const supaBaseLink = process.env.NEXT_PUBLIC_SUPABASE_LINK;
 const supaBaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY
 
@@ -12,8 +13,10 @@ const supabase = createClient(
   supaBaseLink,
   supaBaseKey
 );
-const ArticleOutlineForm = ({handleSubmit,inputFieldStaticOutline,getClientGuideline,clients,handleInputChangeStaticOutline,loading,outline,getPageGuideline,pages}:any) => {
-  
+const ArticleOutlineForm = ({handleSubmit,inputFieldStaticOutline,getClientGuideline,clients,handleInputChangeStaticOutline,loading,outline,getPageGuideline,pages,inputFieldsKeywords,
+  inputFieldsAuthorityLinks,
+  inputFieldsCompetitorLinks,
+  inputFieldsInternalLinks}:any) => {
   return (
  
     <div>
@@ -74,48 +77,36 @@ const ArticleOutlineForm = ({handleSubmit,inputFieldStaticOutline,getClientGuide
             />
           </Grid>
           <Grid item xs={12}>
-            <TextField
-              fullWidth
-              id="keywords"
-              label="Keywords (comma-separated)"
-              name="keywords"
-              value={inputFieldStaticOutline.keywords}
-              variant="outlined"
-              onChange={(e) => handleInputChangeStaticOutline(e)}
-            />
+          <FormLinks
+          inputFields = {inputFieldsKeywords[0]}
+          setInputFields = {inputFieldsKeywords[1]}
+          name = 'keywords'
+          label = 'Keywords'
+          ></FormLinks>
           </Grid>
           <Grid item xs={12}>
-            <TextField
-              fullWidth
-              id="competitorLinks"
-              label="Competitor Links (comma-separated)"
-              name="competitorLinks"
-              value={inputFieldStaticOutline.competitorLinks}
-              variant="outlined"
-              onChange={(e) => handleInputChangeStaticOutline(e)}
-            />
+            <FormLinks
+            inputFields = {inputFieldsCompetitorLinks[0]}
+            setInputFields = {inputFieldsCompetitorLinks[1]}
+            name = 'competitorLinks'
+            label = 'Competitor Links'
+            ></FormLinks>
           </Grid>
           <Grid item xs={12}>
-            <TextField
-              fullWidth
-              id="internalLinks"
-              label="Internal Links (comma-separated)"
-              name="internalLinks"
-              value={inputFieldStaticOutline.internalLinks}
-              variant="outlined"
-              onChange={(e) => handleInputChangeStaticOutline(e)}
-            />
+          <FormLinks
+            inputFields = {inputFieldsInternalLinks[0]}
+            setInputFields = {inputFieldsInternalLinks[1]}
+            name = 'internalLinks'
+            label = 'Internal Links'
+            ></FormLinks>
           </Grid>
           <Grid item xs={12}>
-            <TextField
-              fullWidth
-              id="authorityLinks"
-              label="Authority Links (comma-separated)"
-              name="authorityLinks"
-              value={inputFieldStaticOutline.authorityLinks}
-              variant="outlined"
-              onChange={(e) => handleInputChangeStaticOutline(e)}
-            />
+          <FormLinks
+            inputFields = {inputFieldsAuthorityLinks[0]}
+            setInputFields = {inputFieldsAuthorityLinks[1]}
+            name = 'authorityLinks'
+            label = 'Authority Links'
+            ></FormLinks>
           </Grid>
         </Grid>
         <Button

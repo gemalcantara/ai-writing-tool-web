@@ -62,16 +62,28 @@ interface ClientsList {
   title: string;
   description: string;
 }
-
+interface Keywords {
+  keywords: string;
+}
+interface AuthorityLinks {
+   authorityLinks: string;
+}
+interface CompetitorLinks {
+   competitorLinks: string;
+}
+interface InternalLinks {
+   internalLinks: string;
+}
 interface ArticlePromt {
   role: string;
   content: string;
 }
-async function createHistory(output: string | null,article_title: string | null,created_by: string | null) {
+async function createHistory(output: string | null,article_title: string | null,created_by: string | null,outline: string | undefined) {
   const { data, error } = await supabase.from('history').insert({
     created_by: created_by,
     article_output: output,
     article_title: article_title,
+    outline: outline,
   });
 
   if (error) {
@@ -159,6 +171,10 @@ export default function ArticleSteps() {
   const [pages, setPages] = React.useState<PagesList[]>([]);
   const [error, setError] = React.useState<string | null>(null);
   const [inputFields, setInputFields] = useState<InputFields[]>([{title: '', description: ''}]);
+  const [inputFieldsKeywords, setInputFieldsKeywords] = useState<Keywords[]>([{keywords: ''}]);
+  const [inputFieldsAuthorityLinks, setInputFieldsAuthorityLinks] = useState<AuthorityLinks[]>([{authorityLinks: ''}]);
+  const [inputFieldsCompetitorLinks, setInputFieldsCompetitorLinks] = useState<CompetitorLinks[]>([{competitorLinks: ''}]);
+  const [inputFieldsInternalLinks, setInputFieldsInternalLinks] = useState<InternalLinks[]>([{internalLinks: ''}]);
   const [inputFieldStaticOutline, setInputFieldStaticOutline] = useState<OutlineFields>({ 
     keywords: '',
     articleDescription: '',
@@ -195,11 +211,14 @@ export default function ArticleSteps() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
+    console.log(inputFieldsKeywords,
+      inputFieldsAuthorityLinks,
+      inputFieldsCompetitorLinks,
+      inputFieldsInternalLinks)
     const internalLinksArray = inputFieldStaticOutline.internalLinks.split(',').map(link => link.trim());
     const authorityLinksArray = inputFieldStaticOutline.authorityLinks.split(',').map(link => link.trim());
     const competitorLinksArray = inputFieldStaticOutline.competitorLinks.split(',').map(link => link.trim());
-
+    return '';
     try {
       const generatedOutline = await generateOutline(
         inputFieldStaticOutline.keywords,
@@ -398,7 +417,7 @@ const handleInputChangeStaticArticle = (event: any) => {
             setLoadingResult(true);
             let res = sendRequest(prompt,JSON.stringify(articleSections))
             const data = await res;
-            createHistory(data,pageTitle,cookies.user.user.email);
+            createHistory(data,pageTitle,cookies.user.user.email,outline);
             const plainText = removeMd(data);
             settoCopy(plainText)
             setResponse(data || 'No response');
@@ -447,6 +466,10 @@ const handleInputChangeStaticArticle = (event: any) => {
                 getPageGuideline = {getPageGuideline}
                 loading = {loading} 
                 pages = {pages}
+                inputFieldsKeywords = {[inputFieldsKeywords, setInputFieldsKeywords]}
+                inputFieldsAuthorityLinks = {[inputFieldsAuthorityLinks, setInputFieldsAuthorityLinks]}
+                inputFieldsCompetitorLinks = {[inputFieldsCompetitorLinks, setInputFieldsCompetitorLinks]}
+                inputFieldsInternalLinks = {[inputFieldsInternalLinks, setInputFieldsInternalLinks]}
                 outline = {outline}/>,
                 1: <ArticlesForm 
                 handleSubmitArticle = {handleSubmitArticle}
