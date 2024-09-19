@@ -12,8 +12,11 @@ const supabase = createClient(
   supaBaseLink,
   supaBaseKey
 );
-const ArticleOutlineForm = ({handleSubmit,inputFieldStaticOutline,getClientGuideline,clients,handleInputChangeStaticOutline,loading,outline,getPageGuideline,pages}:any) => {
-  
+const ArticleOutlineForm = ({handleSubmit, inputFieldStaticOutline, setInputFieldStaticOutline, clients, pages,loadingOutline}:any) => {
+  const getNameById = (list: any,id: any) => {
+    const entry = list.find((item: { id: any; }) => item.id === id);
+    return entry.name;
+};
   return (
  
     <div>
@@ -29,7 +32,11 @@ const ArticleOutlineForm = ({handleSubmit,inputFieldStaticOutline,getClientGuide
                 name="selectedClient"
                 value={inputFieldStaticOutline.selectedClient}
                 label="client"
-                onChange={(event) => getClientGuideline(event)}
+                onChange={(e) => setInputFieldStaticOutline({
+                  ...inputFieldStaticOutline,
+                  [e.target.name]: e.target.value, 
+                  clientName: getNameById(clients,e.target.value)
+                })}
                 >
                 {
                     clients.map((client : any) => (
@@ -50,7 +57,11 @@ const ArticleOutlineForm = ({handleSubmit,inputFieldStaticOutline,getClientGuide
                 id="page"
                 value={inputFieldStaticOutline.selectedPage}
                 label="page"
-                onChange={(event) => getPageGuideline(event)}
+                onChange={(e) => setInputFieldStaticOutline({
+                  ...inputFieldStaticOutline,
+                  [e.target.name]: e.target.value, 
+                  pageName:  getNameById(pages,e.target.value)
+                })}
                 >
                 {
                     pages.map((page : any) => (
@@ -68,7 +79,10 @@ const ArticleOutlineForm = ({handleSubmit,inputFieldStaticOutline,getClientGuide
               name="articleDescription"
               value={inputFieldStaticOutline.articleDescription}
               variant="outlined"
-              onChange={(e) => handleInputChangeStaticOutline(e)}
+              onChange={(e) => setInputFieldStaticOutline({
+                ...inputFieldStaticOutline,
+                [e.target.name]: e.target.value, 
+              })}
               multiline
               rows={5}
             />
@@ -81,7 +95,10 @@ const ArticleOutlineForm = ({handleSubmit,inputFieldStaticOutline,getClientGuide
               name="keywords"
               value={inputFieldStaticOutline.keywords}
               variant="outlined"
-              onChange={(e) => handleInputChangeStaticOutline(e)}
+              onChange={(e) => setInputFieldStaticOutline({
+                ...inputFieldStaticOutline,
+                [e.target.name]: e.target.value, 
+              })}
             />
           </Grid>
           <Grid item xs={12}>
@@ -92,7 +109,10 @@ const ArticleOutlineForm = ({handleSubmit,inputFieldStaticOutline,getClientGuide
               name="competitorLinks"
               value={inputFieldStaticOutline.competitorLinks}
               variant="outlined"
-              onChange={(e) => handleInputChangeStaticOutline(e)}
+      onChange={(e) => setInputFieldStaticOutline({
+                  ...inputFieldStaticOutline,
+                  [e.target.name]: e.target.value, 
+                })}
             />
           </Grid>
           <Grid item xs={12}>
@@ -103,7 +123,10 @@ const ArticleOutlineForm = ({handleSubmit,inputFieldStaticOutline,getClientGuide
               name="internalLinks"
               value={inputFieldStaticOutline.internalLinks}
               variant="outlined"
-              onChange={(e) => handleInputChangeStaticOutline(e)}
+      onChange={(e) => setInputFieldStaticOutline({
+                  ...inputFieldStaticOutline,
+                  [e.target.name]: e.target.value, 
+                })}
             />
           </Grid>
           <Grid item xs={12}>
@@ -114,7 +137,10 @@ const ArticleOutlineForm = ({handleSubmit,inputFieldStaticOutline,getClientGuide
               name="authorityLinks"
               value={inputFieldStaticOutline.authorityLinks}
               variant="outlined"
-              onChange={(e) => handleInputChangeStaticOutline(e)}
+      onChange={(e) => setInputFieldStaticOutline({
+                  ...inputFieldStaticOutline,
+                  [e.target.name]: e.target.value, 
+                })}
             />
           </Grid>
         </Grid>
@@ -123,10 +149,10 @@ const ArticleOutlineForm = ({handleSubmit,inputFieldStaticOutline,getClientGuide
         color="primary"
         style={{ marginTop: '16px' }}
         fullWidth
-        disabled={loading}
+        disabled={loadingOutline}
         type='submit'
       >
-        {loading ? 'Generating...' : 'Generate Outline'}
+        {loadingOutline ? 'Generating...' : 'Generate Outline'}
       </Button>
       </form>
 
