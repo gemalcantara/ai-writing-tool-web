@@ -8,7 +8,6 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 const Sections = ({ inputFields, handleInputChange, handleAddFields, handleRemoveFields,handleAddFieldLink,handleRemoveFieldLink } :any) => {
-console.log(inputFields);
   return (
     <div >
       {inputFields.map((inputField: any, index: number) => (

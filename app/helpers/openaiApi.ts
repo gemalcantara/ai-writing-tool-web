@@ -58,7 +58,10 @@ async function generateOutline(
       ["title": "",
       "sections": {
         "title": "section title",
-        "description": "concatinate all subsections"
+        "description": "concatinate all subsections",
+        "links": [{
+            "link": "link here"
+        }]
       }]
      REMINDER: strictly follow this format no other text or markdown is required.
       `
@@ -78,10 +81,10 @@ async function generateOutline(
   }
 };
 async function generateArticle(articlePrompt: any) {
-  articlePrompt.push({
-    role: 'user',
-    content: `make it much longer, more detailed, and tend to be much more persuasive`
-  })
+  // articlePrompt.push({
+  //   role: 'user',
+  //   content: `make it much longer, more detailed, and tend to be much more persuasive`
+  // })
   const completion = await openai.chat.completions.create({
     model: "gpt-4o",
      // @ts-ignore
