@@ -1,14 +1,28 @@
 "use client"
 import React, { useState } from 'react';
-import { TextField, Button, Grid, Divider, FormControl, InputLabel, OutlinedInput, InputAdornment, IconButton } from '@mui/material';
-import { Add, BorderAll, Close, DeleteOutlineRounded } from '@mui/icons-material';
-
+import { TextField, Button, Grid, IconButton } from '@mui/material';
+import { Add, Close } from '@mui/icons-material';
+import Accordion from '@mui/material/Accordion';
+import AccordionActions from '@mui/material/AccordionActions';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 const Sections = ({ inputFields, handleInputChange, handleAddFields, handleRemoveFields,handleAddFieldLink,handleRemoveFieldLink } :any) => {
 console.log(inputFields);
   return (
     <div >
       {inputFields.map((inputField: any, index: number) => (
-        <Grid container spacing={2} key={index}>
+
+          <Accordion sx={{border: "solid", borderWidth: "1px"}} key={index}>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel1-content"
+              id="panel1-header"
+              >
+              {inputField.title != '' ? inputField.title : `Section ${index + 1}`}
+            </AccordionSummary>
+            <AccordionDetails>
+            <Grid container spacing={2} key={index}>
           <Grid item xs={12}>
             <TextField
               name="title"
@@ -73,6 +87,8 @@ console.log(inputFields);
             
           </Grid>
         </Grid>
+            </AccordionDetails>
+          </Accordion>
       ))}
            
       <Button
