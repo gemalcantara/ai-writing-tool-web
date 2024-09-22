@@ -78,7 +78,6 @@ export default function ArticleSteps() {
   };
   const handleAddFields = () => {
     setInputFields([...inputFields, { title: '', description: '', links: [{link: ''}] }]);
-    console.log(inputFields);
   };
   
   const handleRemoveFields = (index: number) => {
@@ -165,8 +164,7 @@ export default function ArticleSteps() {
     const formData = { sections: inputFields, main: inputFieldStaticArticle };
     let prompt = formData.main.articlePrompt.replace("{{client_guidelines}}", formData.main.clientGuideline).replace("{{article_guidelines}}", formData.main.instruction).replace("{{key_words}}", formData.main.keywords);
     
-    const articleSections = formData.sections.map((section, index) => `\n\nSection ${index + 1} \nSection Title: ${section.title} \nSection Details: ${section.description} \n`);
-    console.log(formData);
+    const articleSections = formData.sections.map((section, index) => `\n\nSection ${index + 1} \nSection Title: ${section.title} \nSection Details: ${section.description} \n ${section.links.join(', ')} \n`);
     try {
       setLoadingResult(true);
       const data : any = await sendRequest(prompt, JSON.stringify(articleSections));
@@ -179,7 +177,6 @@ export default function ArticleSteps() {
       setResponse('Error generating article');
       setLoadingResult(false);
     }
-    return 'hello1';
     handleComplete();
   };
 
