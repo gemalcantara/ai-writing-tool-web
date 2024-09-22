@@ -38,11 +38,15 @@ const defaultArticleFields = {
   keywords: '',
   pageTitle: ''
 };
-
+const stepsCompleted : any = {
+  0: false,
+  1: false,
+  2: false
+}
 export default function ArticleSteps() {
   const navigate = useNavigate();
   const [activeStep, setActiveStep] = useState(0);
-  const [completed, setCompleted] = useState({});
+  const [completed, setCompleted] = useState(stepsCompleted);
   const [outline, setOutline] = useState<string>();
   const [clients, setClients] = useState([]);
   const [pages, setPages] = useState([]);
@@ -74,7 +78,23 @@ export default function ArticleSteps() {
       console.error(`Failed to fetch ${table}`, error);
     }
   };
-
+  const handleAddFields = () => {
+    setInputFields([...inputFields, { title: '', description: '' }]);
+  };
+  
+  const handleRemoveFields = (index: number) => {
+    const values = [...inputFields];
+    values.splice(index, 1);
+    setInputFields(values);
+  };
+  const handleInputChange = (index: number, event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = event.target;
+    setInputFields(prevFields =>
+      prevFields.map((field, i) =>
+        i === index ? { ...field, [name]: value } : field
+      )
+    );
+  };
   useEffect(() => { fetchData('clients', setClients); fetchData('pages', setPages); }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -114,7 +134,7 @@ export default function ArticleSteps() {
     
     try {
       setLoadingResult(true);
-      const data = await sendRequest(prompt, JSON.stringify(articleSections));
+      const data : any = await sendRequest(prompt, JSON.stringify(articleSections));
       await createHistory(data, pageTitle, cookies.user.user.email);
       const plainText = removeMd(data);
       setResponse(data);
@@ -136,7 +156,7 @@ export default function ArticleSteps() {
     try {
       await supabase.from('history').insert({ created_by, article_output: output, article_title });
       alert(`${article_title} has been saved.`);
-    } catch (error) {
+    } catch (error : any) {
       alert(error.message);
     }
   };
@@ -162,7 +182,9 @@ export default function ArticleSteps() {
           ) : (
             {
               0: <ArticleOutlineForm {...{ handleSubmit, inputFieldStaticOutline, setInputFieldStaticOutline, clients, pages,loadingOutline }} />,
-              1: <ArticlesForm {...{ handleSubmitArticle, inputFieldStaticArticle, setInputFieldStaticArticle, clients, pages, inputFields, setInputFields, loadingResult }} />,
+              1: <ArticlesForm {...{ handleSubmitArticle, inputFieldStaticArticle, setInputFieldStaticArticle, clients, pages, inputFields, setInputFields, loadingResult,handleAddFields,
+                handleRemoveFields,
+                handleInputChange }} />,
               2: <ArticlesResult {...{ pageTitle, response, loadingResult }} />
             }[activeStep]
           )}

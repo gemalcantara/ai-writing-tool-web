@@ -23,17 +23,9 @@ import { ChangeEvent } from 'react';
 import OpenAI from "openai";
 
   export default function ArticlesForm({
-    handleSubmitArticle,
-    inputFieldStaticArticle,
-    handleInputChangeStaticArticle,
-    getClientGuideline,
-    clients,
-    getPageGuideline,
-    pages,
-    inputFields,
-    handleInputChange,
-    handleAddFields,
-    handleRemoveFields,loadingResult}: any) {
+    handleSubmitArticle, inputFieldStaticArticle, setInputFieldStaticArticle, clients, pages, inputFields, loadingResult,handleAddFields,
+    handleRemoveFields,
+    handleInputChange}: any) {
   return (
      
     <div>
@@ -48,7 +40,10 @@ import OpenAI from "openai";
                   name="pageTitle"
                   value={inputFieldStaticArticle.pageTitle}
                   variant="outlined"
-                  onChange={(event) => handleInputChangeStaticArticle(event)}
+                  onChange={(event) => setInputFieldStaticArticle({
+                    ...inputFieldStaticArticle,
+                    [event.target.name]: event.target.value, 
+                  })}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -95,7 +90,10 @@ import OpenAI from "openai";
                   id="clientGuideline"
                   label="Client Guidelines"
                   value={inputFieldStaticArticle.clientGuideline}
-                  onChange={(event) => handleInputChangeStaticArticle(event)}
+                  onChange={(event) => setInputFieldStaticArticle({
+                    ...inputFieldStaticArticle,
+                    [event.target.name]: event.target.value, 
+                  })}
                   multiline
                   fullWidth
                   rows={5}
@@ -108,7 +106,10 @@ import OpenAI from "openai";
                   label="Article Guidelines"
                   name="articleGuideline"
                   value={inputFieldStaticArticle.articleGuideline}
-                  onChange={(event) => handleInputChangeStaticArticle(event)}
+                  onChange={(event) => setInputFieldStaticArticle({
+                    ...inputFieldStaticArticle,
+                    [event.target.name]: event.target.value, 
+                  })}
                   multiline
                   fullWidth
                   rows={5}
@@ -123,7 +124,10 @@ import OpenAI from "openai";
               fullWidth
               rows={5}
               value={inputFieldStaticArticle.instruction}
-              onChange={(event) => handleInputChangeStaticArticle(event)}
+              onChange={(event) => setInputFieldStaticArticle({
+                ...inputFieldStaticArticle,
+                [event.target.name]: event.target.value, 
+              })}
             />
               </Grid>
               <Grid item xs={12}>
@@ -134,7 +138,10 @@ import OpenAI from "openai";
                   name="keywords"
                   value={inputFieldStaticArticle.keywords}
                   variant="outlined"
-                  onChange={(event) => handleInputChangeStaticArticle(event)}
+                  onChange={(event) => setInputFieldStaticArticle({
+                    ...inputFieldStaticArticle,
+                    [event.target.name]: event.target.value, 
+                  })}
                 />
               </Grid>
 
