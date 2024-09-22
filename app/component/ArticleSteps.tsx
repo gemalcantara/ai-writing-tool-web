@@ -168,8 +168,6 @@ export default function ArticleSteps() {
     const articleSections = formData.sections.map((section, index) => `\n\nSection ${index + 1} \nSection Title: ${section.title} \nSection Details: ${section.description} \n`);
     console.log(formData);
     try {
-      console.log(prompt, JSON.stringify(articleSections));
-      return 'hello1';
       setLoadingResult(true);
       const data : any = await sendRequest(prompt, JSON.stringify(articleSections));
       await createHistory(data, pageTitle, cookies.user.user.email);
