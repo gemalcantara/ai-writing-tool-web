@@ -46,6 +46,7 @@ export default function ArticleSteps() {
   const [activeStep, setActiveStep] = useState(0);
   const [completed, setCompleted] = useState(stepsCompleted);
   const [outline, setOutline] = useState<string>();
+  const [toCopy, setToCopy] = useState('');
   const [clients, setClients] = useState([]);
   const [pages, setPages] = useState([]);
   const [inputFields, setInputFields] = useState([{ title: '', description: '', links: [{link: ''}] }]);
@@ -134,13 +135,15 @@ export default function ArticleSteps() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      setLoadingOutline(true);
+      // setLoadingOutline(true);
       const internalLinksArray = inputFieldStaticOutline.internalLinks.split(',').map(link => link.trim());
       const authorityLinksArray = inputFieldStaticOutline.authorityLinks.split(',').map(link => link.trim());
       const competitorLinksArray = inputFieldStaticOutline.competitorLinks.split(',').map(link => link.trim());
       const generatedOutline = await generateOutline(inputFieldStaticOutline.keywords, inputFieldStaticOutline.articleDescription, inputFieldStaticOutline.clientName, inputFieldStaticOutline.pageName, internalLinksArray, authorityLinksArray, competitorLinksArray);
       handleComplete();
-      const result = removeMd(generatedOutline).slice(0, -1);
+      // console.log(generatedOutline);
+      // return 
+      const result = removeMd(generatedOutline);
       setOutline(result);
       parseOutlineResultFillArticleField(result);
       setLoadingOutline(false);
@@ -152,8 +155,9 @@ export default function ArticleSteps() {
   };
 
   const parseOutlineResultFillArticleField = (outline: string) => {
+
     const parsedOutline = JSON.parse(outline)[0];
-    setInputFieldStaticArticle(prev => ({ ...prev, instruction: parsedOutline.meta_description ?? inputFieldStaticOutline.articleDescription, pageTitle: parsedOutline.title, keywords: inputFieldStaticOutline.keywords,selectedClient: inputFieldStaticOutline.selectedClient,
+    setInputFieldStaticArticle(prev => ({ ...prev, instruction: parsedOutline.metaDescription ?? inputFieldStaticOutline.articleDescription, pageTitle: parsedOutline.title, keywords: inputFieldStaticOutline.keywords,selectedClient: inputFieldStaticOutline.selectedClient,
       selectedPage: inputFieldStaticOutline.selectedPage }));
     setPageTitle(parsedOutline.title);
     setInputFields(parsedOutline.sections || []);
@@ -163,13 +167,23 @@ export default function ArticleSteps() {
     event.preventDefault();
     const formData = { sections: inputFields, main: inputFieldStaticArticle };
     let prompt = formData.main.articlePrompt.replace("{{client_guidelines}}", formData.main.clientGuideline).replace("{{article_guidelines}}", formData.main.instruction).replace("{{key_words}}", formData.main.keywords);
-    
-    const articleSections = formData.sections.map((section, index) => `\n\nSection ${index + 1} \nSection Title: ${section.title} \nSection Details: ${section.description} \n ${section.links.join(', ')} \n`);
+    const articleSections = formData.sections.map((section, index) => {
+    return `
+    Section ${index + 1}
+    Section Title: ${section.title}
+    Section Details: ${section.description}
+    Section Links: ${section.links.join(', ')}
+    `
+    });
     try {
+      // console.log(prompt)
       setLoadingResult(true);
       const data : any = await sendRequest(prompt, JSON.stringify(articleSections));
+      // return
       await createHistory(data, pageTitle, cookies.user.user.email);
       const plainText = removeMd(data);
+      console.log(plainText)
+      setToCopy(plainText);
       setResponse(data);
       setLoadingResult(false);
     } catch (error) {
@@ -181,8 +195,7 @@ export default function ArticleSteps() {
   };
 
   const sendRequest = async (formData: string, sectionData: string) => {
-    const articlePrompt = [{ role: "user", content: formData }, ...JSON.parse(sectionData).map((section: string) => ({ role: "user", content: section })), { role: "user", content: "merge all into one article" }];
-    return await generateArticle(articlePrompt);
+    return await generateArticle(formData,sectionData);
   };
 
   const createHistory = async (output: string, article_title: string, created_by: string) => {
@@ -219,7 +232,7 @@ export default function ArticleSteps() {
                 handleRemoveFields,
                 handleInputChange,handleAddFieldLink,
                 handleRemoveFieldLink }} />,
-              2: <ArticlesResult {...{ pageTitle, response, loadingResult }} />
+              2: <ArticlesResult {...{ pageTitle, toCopy,response, loadingResult }} />
             }[activeStep]
           )}
         </CardContent>

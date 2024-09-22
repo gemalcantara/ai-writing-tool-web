@@ -18,9 +18,11 @@ import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { createClient } from '@supabase/supabase-js';
 import { CookiesProvider, useCookies  } from 'react-cookie';
+import ReactMarkdown from 'react-markdown';
 
 export default function ArticlesResult({pageTitle,toCopy,response,loadingResult}:any) {
- 
+
+ console.log(toCopy);
   return (
     <div>
       <h1>Article Result:</h1>
@@ -31,7 +33,7 @@ export default function ArticlesResult({pageTitle,toCopy,response,loadingResult}
         <Grid item xs={2}>
         <Button variant="outlined" sx={{float: 'right'}} onClick={() => {
           navigator.clipboard.writeText(toCopy)
-          alert('result copied')
+          alert('Result Copied')
         }}>Copy Result</Button>
         </Grid>
       </Grid>
@@ -40,9 +42,9 @@ export default function ArticlesResult({pageTitle,toCopy,response,loadingResult}
        { 
        loadingResult ?? <p>Loading...</p>
         }
-         <Markdown className="process-text" remarkPlugins={[remarkGfm]}>{response}
+         <ReactMarkdown className="process-text" remarkPlugins={[remarkGfm]}>{response}
 
-         </Markdown>
+         </ReactMarkdown>
 
     </div>
 

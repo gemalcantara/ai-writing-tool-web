@@ -11,7 +11,6 @@ const Sections = ({ inputFields, handleInputChange, handleAddFields, handleRemov
   return (
     <div >
       {inputFields.map((inputField: any, index: number) => (
-
           <Accordion sx={{border: "solid", borderWidth: "1px"}} key={index}>
             <AccordionSummary
               expandIcon={<ExpandMoreIcon />}
