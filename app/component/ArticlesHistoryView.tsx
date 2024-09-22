@@ -19,6 +19,7 @@ import remarkGfm from 'remark-gfm'
 import { createClient } from '@supabase/supabase-js';
 import { CookiesProvider, useCookies  } from 'react-cookie';
 import { useParams } from 'react-router-dom';
+import ReactMarkdown from 'react-markdown';
 
 
 const apiKey = process.env.NEXT_PUBLIC_CHAT_GPT_API_KEY;;
@@ -96,9 +97,9 @@ export default function ArticleHistoryView() {
         }}>Copy Result</Button>
         </Grid>
       </Grid>
-         <Markdown className="process-text" remarkPlugins={[remarkGfm]}>{article?.article_output}
+         <ReactMarkdown className="process-text" remarkPlugins={[remarkGfm]}>{article?.article_output}
 
-         </Markdown>
+         </ReactMarkdown>
 
          </CardContent>
       </Card>

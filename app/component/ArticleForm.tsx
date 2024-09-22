@@ -18,7 +18,6 @@ import Sections from './Sections';
     handleSubmitArticle, inputFieldStaticArticle, setInputFieldStaticArticle, clients, pages, inputFields, loadingResult,handleAddFields,
     handleRemoveFields,
     handleInputChange,handleAddFieldLink,handleRemoveFieldLink}: any) {
-
       const getNameById = (list: any,id: any) => {
         const entry = list.find((item: { id: any; }) => item.id === id);
         return entry.name;

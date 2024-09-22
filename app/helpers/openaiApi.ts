@@ -1,4 +1,10 @@
 import OpenAI from 'openai';
+import Anthropic from '@anthropic-ai/sdk';
+
+const anthropic = new Anthropic({
+  apiKey:process.env.NEXT_PUBLIC_CLAUDE_AI_API_KEY,
+  dangerouslyAllowBrowser: true // defaults to process.env["ANTHROPIC_API_KEY"]
+});
 
 const apiKey = process.env.NEXT_PUBLIC_CHAT_GPT_API_KEY;
 const openai = new OpenAI({
@@ -14,9 +20,10 @@ async function generateOutline(
   internalLinksArray: string[],
   authorityLinksArray: string[],
   competitorLinksArray: string[]) {
+  let aiTool = sessionStorage.getItem('aiTool');
   const messages = [
     {
-      role: 'system',
+      role: 'user',
       content: `SUMMARY: Assume the identity of a law firm and create an outline for an article about a specific legal issue that we will provide at the end of this prompt. Your goal is to create a helpful, engaging article outline that informs potential clients about a specific legal topic and how our law firm can help. You must incorporate the the Law Firm that is provided below into the Outline. 
 
       PROCESS: To generate the Outline, start by reviewiewing these three example articles. 
@@ -37,12 +44,8 @@ async function generateOutline(
       IMPORTANT: Ensure that all links (Internal and Authority) are embedded within the relevant sections of the outline. Do not create a separate 'Resources' section. The links should be part of the guidance for the writer, showing where they fit into the article's content. Make sure the Title includes the Keyword listed above.  All links must be incorporated into the outline; DO NOT create an ‘Additional Resources’ section
 
       FINAL OUTPUT: Be sure to include the following fields in the final output before the Outline: Keyword, Law Firm, Page Type, Title, Meta Description, Recommended slug. 
-`
-    },
-    {
-      role: 'user',
-      content: 
-      `INPUT INFORMATION
+
+      INPUT INFORMATION
 
       KEYWORD: ${keywords}
       CLIENT:  ${clientName}
@@ -50,12 +53,10 @@ async function generateOutline(
       ARTICLE INSTRUCTION: ${articleDescription}
       INTERNAL LINKS: ${internalLinksArray}
       AUTHORITY LINKS: ${authorityLinksArray}
-      REMINDER: All links must be incorporated into the outline; under no circumstances should you create an ‘Additional Resources’ or ‘Further Reading’ section at the end.`
-    },
-    {
-      role: 'user',
-      content: `make the result into an javascript json to parse with this format
-      ["title": "",
+      REMINDER: All links must be incorporated into the outline; under no circumstances should you create an ‘Additional Resources’ or ‘Further Reading’ section at the end. 
+      
+      make the result into an javascript json to parse with this format and only this
+      [{"title": "",
       "sections": {
         "title": "section title",
         "description": "concatinate all subsections",
@@ -63,33 +64,68 @@ async function generateOutline(
             "link": "link here"
         }]
       }]
-     REMINDER: strictly follow this format no other text or markdown is required.
-      `
+     REMINDER: strictly follow this format no other text or markdown is required do not cover it in tilde and dont add the word json.`
     }
   ];
   try {
-    const response = await openai.chat.completions.create({
-      model: 'gpt-4o',
-     // @ts-ignore
-      messages: messages,
-      max_tokens: 1500,
-    });  
-    return response.choices[0].message?.content || '';
+    let response: any = {};
+    switch (aiTool) {
+      case 'chatGpt':
+        response = await openai.chat.completions.create({
+          model: 'gpt-4o',
+         // @ts-ignore
+          messages: messages,
+        });  
+        return response.choices[0].message?.content || '';
+        
+        break;
+        case 'claude':
+           response = await anthropic.messages.create({
+            model: "claude-3-5-sonnet-20240620",
+            max_tokens: 8000,
+         // @ts-ignore
+            messages: messages,
+          });
+          return response.content[0].text || '';
+          break;
+      default:
+        break;
+    }
   } catch (error) {
     console.error('Error generating article outline:', error);
     throw error;
   }
 };
-async function generateArticle(articlePrompt: any) {
-  // articlePrompt.push({
-  //   role: 'user',
-  //   content: `make it much longer, more detailed, and tend to be much more persuasive`
-  // })
-  const completion = await openai.chat.completions.create({
-    model: "gpt-4o",
-     // @ts-ignore
-    messages: articlePrompt,
-  });
-  return completion.choices[0].message.content;
+async function generateArticle(formData: string, sectionData: string) {
+  let aiTool = sessionStorage.getItem('aiTool');
+  let articlePrompt: any = {}
+  let response: any = {};
+  switch (aiTool) {
+    case 'chatGpt':
+      articlePrompt = [{ role: "user", content: formData }, ...JSON.parse(sectionData).map((section: string) => ({ role: "user", content: section })), { role: "user", content: "merge all into one article" }];
+      response = await openai.chat.completions.create({
+        model: 'gpt-4o',
+      // @ts-ignore
+        messages: articlePrompt,
+      });  
+      return response.choices[0].message?.content || '';
+      
+      break;
+      case 'claude':
+        let content = `${JSON.parse(sectionData).map((section: string) =>  formData += `${section} `).join('\n')}`;
+        articlePrompt = [{ role: "user", content }] ;
+        response = await anthropic.messages.create({
+          model: "claude-3-5-sonnet-20240620",
+          max_tokens: 8100,
+      // @ts-ignore
+          messages: articlePrompt,
+        });
+        return response.content[0].text || '';
+        break;
+    default:
+      break;
   }
+}
+
+
 export {generateOutline,generateArticle}

@@ -1,11 +1,7 @@
 /* eslint-disable no-use-before-define */
 "use client"
 import {
-  MemoryRouter as Router,
-  Routes,
-  Route,
   useNavigate,
-  Navigate,
   Link,
   Outlet
 } from 'react-router-dom';
@@ -29,16 +25,17 @@ import {
   Pages,
   Logout,
   TableChart,
+  Menu,
 } from '@mui/icons-material';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import Collapse from '@mui/material/Collapse';
-import { ListItem } from '@mui/material';
+import { FormControl, ListItem, MenuItem, Select, SelectChangeEvent } from '@mui/material';
 import { useState, useEffect } from 'react';
 import useLogout from './component/Logout';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { createClient } from '@supabase/supabase-js';
-
+import { CookiesProvider, useCookies  } from 'react-cookie';
 
 const supaBaseLink = process.env.NEXT_PUBLIC_SUPABASE_LINK;
 const supaBaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY
@@ -70,7 +67,7 @@ function SidebarList() {
     index: number,
   ) => {
     setSelectedIndex(index);
-    console.log(index != 1);
+    // console.log(index != 1);
     if (index > 2) {
       setPage(false);
       setClient(false);
@@ -319,19 +316,74 @@ function PageList() {
     </List>
   );
 }
-export default function ClippedDrawer() {
 
+function AiToolSelector() {
+  let aiTool = sessionStorage.getItem('aiTool');
+  const [tool, setTool] = useState(aiTool);
+  if (!aiTool) {
+    sessionStorage.setItem('aiTool', 'chatGpt');
+    setTool('chatGpt');
+  }
+  const handleChange = (event: any) => {
+    setTool(event.target.value);
+    sessionStorage.setItem('aiTool', event.target.value)
+  };
   return (
-    <Box sx={{ display: 'flex' }}>
-      <CssBaseline />
-      <AppBar
-        position="fixed"
-        sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+    <FormControl>
+      <Select
+        value={tool}
+        onChange={handleChange}
+        displayEmpty
+        inputProps={{ 'aria-label': 'AI Tool' }}
+        sx={{
+          // Set background to white
+          // backgroundColor: 'white',  
+          // Set text color to white
+          color: 'white',  // Text color
+          '& .MuiOutlinedInput-notchedOutline': {
+            borderColor: 'white',  // Border color
+          },
+          '&:hover .MuiOutlinedInput-notchedOutline': {
+            borderColor: 'gray',  // Border color on hover
+          },
+          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+            borderColor: 'white',  // Border color when focused
+          },minWidth: 120
+        }}
       >
+        <MenuItem value={'chatGpt'}>Chat GPT</MenuItem>
+        <MenuItem value={'claude'}>Claude AI</MenuItem>
+      </Select>
+    </FormControl>
+  );
+}
+function ToolBarHome(){
+  return (
+      <Box sx={{ flexGrow: 1 }}>
+      
+    </Box>
+  );
+}
+export default function ClippedDrawer() {
+  const [age, setAge] = React.useState('');
+
+  const handleChange = (event: SelectChangeEvent) => {
+    setAge(event.target.value as string);
+  };
+  return (
+    <Box sx={{ display: 'flex'}}>
+      <CssBaseline />
+      <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
         <Toolbar>
-          <Typography variant="h6" noWrap component="div">
-            AI Writing Tool
+          <Typography
+            variant="h6"
+            noWrap
+            component="div"
+            sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}
+          >
+             AI Writing Tool
           </Typography>
+          <AiToolSelector></AiToolSelector>
         </Toolbar>
       </AppBar>
       <Drawer
