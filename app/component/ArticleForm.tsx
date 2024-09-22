@@ -25,7 +25,17 @@ import OpenAI from "openai";
   export default function ArticlesForm({
     handleSubmitArticle, inputFieldStaticArticle, setInputFieldStaticArticle, clients, pages, inputFields, loadingResult,handleAddFields,
     handleRemoveFields,
-    handleInputChange}: any) {
+    handleInputChange,handleAddFieldLink,handleRemoveFieldLink}: any) {
+
+      const getNameById = (list: any,id: any) => {
+        const entry = list.find((item: { id: any; }) => item.id === id);
+        return entry.name;
+    };
+
+    const getGuielineById = (list: any,id: any) => {
+      const entry = list.find((item: { id: any; }) => item.id === id);
+      return entry.guideline;
+    };
   return (
      
     <div>
@@ -55,7 +65,12 @@ import OpenAI from "openai";
                 name="selectedClient"
                 value={inputFieldStaticArticle.selectedClient}
                 label="client"
-                onChange={(event) => getClientGuideline(event)}
+                onChange={(event) => setInputFieldStaticArticle({
+                  ...inputFieldStaticArticle,
+                  [event.target.name]: event.target.value, 
+                  clientName: getNameById(clients,event.target.value),
+                  clientGuideline:  getGuielineById(clients,event.target.value)
+                })}
                 >
                 {
                     clients.map((client :any) => (
@@ -74,7 +89,13 @@ import OpenAI from "openai";
                 id="page"
                 value={inputFieldStaticArticle.selectedPage}
                 label="page"
-                onChange={(event) => getPageGuideline(event)}
+                onChange={(event) => setInputFieldStaticArticle({
+                  ...inputFieldStaticArticle,
+                  [event.target.name]: event.target.value, 
+                  pageName:  getNameById(pages,event.target.value),
+                  articlePrompt : getGuielineById(clients,event.target.value)
+
+                })}
                 >
                 {
                     pages.map((page : any) => (
@@ -154,6 +175,8 @@ import OpenAI from "openai";
            handleInputChange={handleInputChange}
            handleAddFields={handleAddFields}
            handleRemoveFields={handleRemoveFields}
+           handleAddFieldLink = {handleAddFieldLink}
+           handleRemoveFieldLink = {handleRemoveFieldLink}
           />
         <Button
         variant="outlined"

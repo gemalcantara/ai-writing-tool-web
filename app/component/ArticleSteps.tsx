@@ -39,9 +39,7 @@ const defaultArticleFields = {
   pageTitle: ''
 };
 const stepsCompleted : any = {
-  0: false,
-  1: false,
-  2: false
+
 }
 export default function ArticleSteps() {
   const navigate = useNavigate();
@@ -50,7 +48,7 @@ export default function ArticleSteps() {
   const [outline, setOutline] = useState<string>();
   const [clients, setClients] = useState([]);
   const [pages, setPages] = useState([]);
-  const [inputFields, setInputFields] = useState([{ title: '', description: '' }]);
+  const [inputFields, setInputFields] = useState([{ title: '', description: '', links: [{link: ''}] }]);
   const [inputFieldStaticOutline, setInputFieldStaticOutline] = useState(defaultOutlineFields);
   const [inputFieldStaticArticle, setInputFieldStaticArticle] = useState(defaultArticleFields);
   const [pageTitle, setPageTitle] = useState('');
@@ -79,7 +77,8 @@ export default function ArticleSteps() {
     }
   };
   const handleAddFields = () => {
-    setInputFields([...inputFields, { title: '', description: '' }]);
+    setInputFields([...inputFields, { title: '', description: '', links: [{link: ''}] }]);
+    console.log(inputFields);
   };
   
   const handleRemoveFields = (index: number) => {
@@ -87,14 +86,50 @@ export default function ArticleSteps() {
     values.splice(index, 1);
     setInputFields(values);
   };
-  const handleInputChange = (index: number, event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    parentIndex: number,
+    childIndex: number | null,
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = event.target;
+  
+    setInputFields(prevFields =>
+      prevFields.map((field, i) => {
+        if (i === parentIndex) {
+          // If childIndex is null, it's a top-level field (e.g., title, description)
+          if (childIndex === null) {
+            return { ...field, [name]: value };
+          } else {
+            // For nested field (i.e., links array)
+            const updatedLinks = field.links.map((link: any, j: number) =>
+              j === childIndex ? { ...link, [name]: value } : link
+            );
+            return { ...field, links: updatedLinks };
+          }
+        }
+        return field;
+      })
+    );
+  };
+  const handleAddFieldLink = (index: number) => {
     setInputFields(prevFields =>
       prevFields.map((field, i) =>
-        i === index ? { ...field, [name]: value } : field
+        i === index
+          ? { ...field, links: [...field.links, { link: '' }] } // Add new link object
+          : field
       )
     );
   };
+  const handleRemoveFieldLink = (parentIndex: number, linkIndex: number) => {
+    setInputFields(prevFields =>
+      prevFields.map((field, i) =>
+        i === parentIndex
+          ? { ...field, links: field.links.filter((_, j) => j !== linkIndex) } // Remove link at linkIndex
+          : field
+      )
+    );
+  };
+  
   useEffect(() => { fetchData('clients', setClients); fetchData('pages', setPages); }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -129,10 +164,12 @@ export default function ArticleSteps() {
     event.preventDefault();
     const formData = { sections: inputFields, main: inputFieldStaticArticle };
     let prompt = formData.main.articlePrompt.replace("{{client_guidelines}}", formData.main.clientGuideline).replace("{{article_guidelines}}", formData.main.instruction).replace("{{key_words}}", formData.main.keywords);
-
-    const articleSections = formData.sections.map((section, index) => `\n\nSection ${index + 1} \nSection Title: ${section.title} \nSection Details: ${section.description} \n`);
     
+    const articleSections = formData.sections.map((section, index) => `\n\nSection ${index + 1} \nSection Title: ${section.title} \nSection Details: ${section.description} \n`);
+    console.log(formData);
     try {
+      console.log(prompt, JSON.stringify(articleSections));
+      return 'hello1';
       setLoadingResult(true);
       const data : any = await sendRequest(prompt, JSON.stringify(articleSections));
       await createHistory(data, pageTitle, cookies.user.user.email);
@@ -144,6 +181,7 @@ export default function ArticleSteps() {
       setResponse('Error generating article');
       setLoadingResult(false);
     }
+    return 'hello1';
     handleComplete();
   };
 
@@ -184,7 +222,8 @@ export default function ArticleSteps() {
               0: <ArticleOutlineForm {...{ handleSubmit, inputFieldStaticOutline, setInputFieldStaticOutline, clients, pages,loadingOutline }} />,
               1: <ArticlesForm {...{ handleSubmitArticle, inputFieldStaticArticle, setInputFieldStaticArticle, clients, pages, inputFields, setInputFields, loadingResult,handleAddFields,
                 handleRemoveFields,
-                handleInputChange }} />,
+                handleInputChange,handleAddFieldLink,
+                handleRemoveFieldLink }} />,
               2: <ArticlesResult {...{ pageTitle, response, loadingResult }} />
             }[activeStep]
           )}
