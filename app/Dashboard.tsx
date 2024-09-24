@@ -383,7 +383,7 @@ export default function ClippedDrawer() {
           >
              AI Writing Tool
           </Typography>
-          <AiToolSelector></AiToolSelector>
+          {/* <AiToolSelector></AiToolSelector> */}
         </Toolbar>
       </AppBar>
       <Drawer
