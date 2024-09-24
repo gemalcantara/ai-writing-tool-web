@@ -55,7 +55,7 @@ async function generateOutline(
       AUTHORITY LINKS: ${authorityLinksArray}
       REMINDER: All links must be incorporated into the outline; under no circumstances should you create an ‘Additional Resources’ or ‘Further Reading’ section at the end. 
       
-      Generate the result in a JSON object following the structure provided and return it in pure JSON format without markdown
+     
       {"title": "",
       "sections": {
         "title": "section title",
@@ -63,7 +63,10 @@ async function generateOutline(
         "links": [{
             "link": "link here"
         }]
-      }`
+      }
+      
+       IMPORTANT RREMINDER: Generate the result in a JSON object following the structure provided and return it in pure JSON format without markdown tilde or the word json.
+      ` 
     }
   ];
   try {

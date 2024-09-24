@@ -96,11 +96,20 @@ export default function ArticleHistory() {
         { field: 'created_by', headerName: 'Created By', width: 250 },
         { field: 'created_at', headerName: 'Created At', width: 200 },
         {
-          field: 'actions',
-          headerName: 'Actions',
+          field: 'view_result',
+          headerName: 'View Result',
           width: 150,
           renderCell: (params) => (
             <IconButton aria-label="view" color="primary" onClick={() => navigate(`${params.row.id}`)}>
+              <Visibility/>
+            </IconButton>
+          ),
+        }, {
+          field: 'view_result',
+          headerName: 'View Output',
+          width: 150,
+          renderCell: (params) => (
+            <IconButton aria-label="view" color="primary" onClick={() => navigate(`${params.row.id}/output`)}>
               <Visibility/>
             </IconButton>
           ),
