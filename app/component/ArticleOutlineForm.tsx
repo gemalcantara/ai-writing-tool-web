@@ -12,6 +12,37 @@ const supabase = createClient(
   supaBaseLink,
   supaBaseKey
 );
+
+
+function AiToolSelector() {
+  let aiTool = sessionStorage.getItem('aiTool');
+  const [tool, setTool] = useState(aiTool);
+  if (!aiTool) {
+    sessionStorage.setItem('aiTool', 'chatGpt');
+    setTool('chatGpt');
+  }
+  const handleChange = (event: any) => {
+    setTool(event.target.value);
+    sessionStorage.setItem('aiTool', event.target.value)
+  };
+  return (
+    <FormControl fullWidth>
+      <InputLabel id="llm">LLM</InputLabel>
+      <Select
+        value={tool}
+        onChange={handleChange}
+        label="LLM"
+        fullWidth
+        id="llm"
+
+      >
+        <MenuItem value={'chatGpt'}>Chat GPT</MenuItem>
+        <MenuItem value={'claude'}>Claude AI</MenuItem>
+      </Select>
+    </FormControl>
+  );
+}
+
 const ArticleOutlineForm = ({handleSubmit, inputFieldStaticOutline, setInputFieldStaticOutline, clients, pages,loadingOutline}:any) => {
   const getNameById = (list: any,id: any) => {
     const entry = list.find((item: { id: any; }) => item.id === id);
@@ -47,6 +78,7 @@ const ArticleOutlineForm = ({handleSubmit, inputFieldStaticOutline, setInputFiel
               </FormControl>
             </Grid>
             <Grid item xs={12}>
+            <AiToolSelector></AiToolSelector>
               </Grid>
               <Grid item xs={12}>
               <FormControl fullWidth>
