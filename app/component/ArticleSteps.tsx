@@ -148,9 +148,18 @@ export default function ArticleSteps() {
       setLoadingOutline(false);
       handleComplete();
     } catch (error) {
-      console.error('Error generating outline', error);
-      alert('Failed to generate article outline.');
+      setLoadingOutline(true);
+      const internalLinksArray = inputFieldStaticOutline.internalLinks.split(',').map(link => link.trim());
+      const authorityLinksArray = inputFieldStaticOutline.authorityLinks.split(',').map(link => link.trim());
+      const competitorLinksArray = inputFieldStaticOutline.competitorLinks.split(',').map(link => link.trim());
+      const generatedOutline = await generateOutline(inputFieldStaticOutline.keywords, inputFieldStaticOutline.articleDescription, inputFieldStaticOutline.clientName, inputFieldStaticOutline.pageName, internalLinksArray, authorityLinksArray, competitorLinksArray);
+      // console.log(generatedOutline);
+      // return 
+      const result = removeMd(generatedOutline);
+      setOutline(result);
+      parseOutlineResultFillArticleField(result);
       setLoadingOutline(false);
+      handleComplete();
     }
   };
 
