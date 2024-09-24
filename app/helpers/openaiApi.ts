@@ -55,12 +55,12 @@ async function generateOutline(
       AUTHORITY LINKS: ${authorityLinksArray}
       REMINDER: All links must be incorporated into the outline; under no circumstances should you create an ‘Additional Resources’ or ‘Further Reading’ section at the end. 
       
-     Please return the response using the following template as pure JSON without any markdown. The structure should follow this format exactly.
+     Return the response strictly following this JSON template, ensuring valid JSON formatting and no markdown or extraneous content. Section title should be in the 'sectionTitle' field, concatenate all the subsections into the 'description' field under 'sections' and list the links under 'links'
      
      {
         \"title\": \"\",
         \"sections\": {
-          \"title\": \"section title\",
+          \"sectionTitle\": \"main section title\",
           \"description\": \"concatenate all subsections\",
           \"links\": [
             {
@@ -69,7 +69,6 @@ async function generateOutline(
           ]
         }
       }
-      .
       ` 
     }
   ];
