@@ -142,9 +142,9 @@ export default function ArticleSteps() {
       const generatedOutline = await generateOutline(inputFieldStaticOutline.keywords, inputFieldStaticOutline.articleDescription, inputFieldStaticOutline.clientName, inputFieldStaticOutline.pageName, internalLinksArray, authorityLinksArray, competitorLinksArray);
       // console.log(generatedOutline);
       // return 
-      const result = removeMd(generatedOutline);
-      setOutline(result);
-      parseOutlineResultFillArticleField(result);
+      // const result = removeMd(generatedOutline);
+      setOutline(generatedOutline);
+      parseOutlineResultFillArticleField(generatedOutline);
       setLoadingOutline(false);
       handleComplete();
     } catch (error) {
@@ -164,7 +164,6 @@ export default function ArticleSteps() {
   };
 
   const parseOutlineResultFillArticleField = (outline: string) => {
-
     const parsedOutline = JSON.parse(outline);
     setInputFieldStaticArticle(prev => ({ ...prev, instruction: parsedOutline.metaDescription ?? inputFieldStaticOutline.articleDescription, pageTitle: parsedOutline.title, keywords: inputFieldStaticOutline.keywords,selectedClient: inputFieldStaticOutline.selectedClient,
       selectedPage: inputFieldStaticOutline.selectedPage }));
