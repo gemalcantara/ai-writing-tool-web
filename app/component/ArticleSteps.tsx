@@ -141,9 +141,9 @@ export default function ArticleSteps() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     let internalLinksArray = linkFields.internalLinks.map((link, index) => link.value.trim()).join(', ');
-    let internalKeywords = linkFields.internalLinks.map((link, index) => link.value.trim()).join(', ');
-    let authorityLinksArray = linkFields.internalLinks.map((link, index) => link.value.trim()).join(', ');
-    let competitorLinksArray = linkFields.internalLinks.map((link, index) => link.value.trim()).join(", ");
+    let internalKeywords = linkFields.keywords.map((link, index) => link.value.trim()).join(', ');
+    let authorityLinksArray = linkFields.authorityLinks.map((link, index) => link.value.trim()).join(', ');
+    let competitorLinksArray = linkFields.competitorLinks.map((link, index) => link.value.trim()).join(", ");
     try {
       setLoadingOutline(true);
       const generatedOutline = await generateOutline(internalKeywords, inputFieldStaticOutline.articleDescription, inputFieldStaticOutline.clientName, inputFieldStaticOutline.pageName, internalLinksArray, authorityLinksArray, competitorLinksArray);
