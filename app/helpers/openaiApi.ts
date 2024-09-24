@@ -59,15 +59,17 @@ async function generateOutline(
      
      {
         \"title\": \"\",
-        \"sections\": {
-          \"sectionTitle\": \"main section title\",
-          \"description\": \"concatenate all subsections\",
-          \"links\": [
-            {
-              \"link\": \"link here\"
-            }
-          ]
-        }
+        \"sections\": [
+          {
+            \"sectionTitle\": \"main section title\",
+            \"description\": \"concatenate all subsections\",
+            \"links\": [
+              {
+                \"link\": \"link here\"
+              }
+            ]
+          }
+        ]
       }
       ` 
     }
