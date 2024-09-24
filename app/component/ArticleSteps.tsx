@@ -49,7 +49,7 @@ export default function ArticleSteps() {
   const [toCopy, setToCopy] = useState('');
   const [clients, setClients] = useState([]);
   const [pages, setPages] = useState([]);
-  const [inputFields, setInputFields] = useState([{ title: '', description: '', links: [{link: ''}] }]);
+  const [inputFields, setInputFields] = useState([{ sectionTitle: '', description: '', links: [{link: ''}] }]);
   const [inputFieldStaticOutline, setInputFieldStaticOutline] = useState(defaultOutlineFields);
   const [inputFieldStaticArticle, setInputFieldStaticArticle] = useState(defaultArticleFields);
   const [pageTitle, setPageTitle] = useState('');
@@ -84,7 +84,7 @@ export default function ArticleSteps() {
     }
   };
   const handleAddFields = () => {
-    setInputFields([...inputFields, { title: '', description: '', links: [{link: ''}] }]);
+    setInputFields([...inputFields, { sectionTitle: '', description: '', links: [{link: ''}] }]);
   };
   
   const handleRemoveFields = (index: number) => {
@@ -141,9 +141,9 @@ export default function ArticleSteps() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     let internalLinksArray = linkFields.internalLinks.map((link, index) => link.value.trim()).join(', ');
-    let internalKeywords = linkFields.internalLinks.map((link, index) => link.value.trim()).join(', ');
-    let authorityLinksArray = linkFields.internalLinks.map((link, index) => link.value.trim()).join(', ');
-    let competitorLinksArray = linkFields.internalLinks.map((link, index) => link.value.trim()).join(", ");
+    let internalKeywords = linkFields.keywords.map((link, index) => link.value.trim()).join(', ');
+    let authorityLinksArray = linkFields.authorityLinks.map((link, index) => link.value.trim()).join(', ');
+    let competitorLinksArray = linkFields.competitorLinks.map((link, index) => link.value.trim()).join(", ");
     try {
       setLoadingOutline(true);
       const generatedOutline = await generateOutline(internalKeywords, inputFieldStaticOutline.articleDescription, inputFieldStaticOutline.clientName, inputFieldStaticOutline.pageName, internalLinksArray, authorityLinksArray, competitorLinksArray);
@@ -182,7 +182,7 @@ export default function ArticleSteps() {
     const articleSections = formData.sections.map((section, index) => {
     return `
     Section ${index + 1}
-    Section Title: ${section.title}
+    Section Title: ${section.sectionTitle}
     Section Details: ${section.description}
     Section Links: ${section.links.join(', ')}
     `

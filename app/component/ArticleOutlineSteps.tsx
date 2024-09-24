@@ -49,7 +49,7 @@ export default function ArticleSteps() {
   const [toCopy, setToCopy] = useState('');
   const [clients, setClients] = useState([]);
   const [pages, setPages] = useState([]);
-  const [inputFields, setInputFields] = useState([{ title: '', description: '', links: [{link: ''}] }]);
+  const [inputFields, setInputFields] = useState([{ sectionTitle: '', description: '', links: [{link: ''}] }]);
   const [inputFieldStaticOutline, setInputFieldStaticOutline] = useState(defaultOutlineFields);
   const [inputFieldStaticArticle, setInputFieldStaticArticle] = useState(defaultArticleFields);
   const [pageTitle, setPageTitle] = useState('');
@@ -57,7 +57,13 @@ export default function ArticleSteps() {
   const [loadingResult, setLoadingResult] = useState(false);
   const [loadingOutline, setLoadingOutline] = useState(false);
   const [cookies] = useCookies(['user']);
-  
+  // Define initial state with each field having an array of links
+  const [linkFields, setLinkFields] = useState({
+      keywords: [{ id: 1, value: '' }],
+      competitorLinks: [{ id: 1, value: '' }],
+      internalLinks: [{ id: 1, value: '' }],
+      authorityLinks: [{ id: 1, value: '' }],
+  });
   const totalSteps = steps.length;
   const completedSteps = () => Object.keys(completed).length;
   const isLastStep = () => activeStep === totalSteps - 1;
@@ -78,7 +84,7 @@ export default function ArticleSteps() {
     }
   };
   const handleAddFields = () => {
-    setInputFields([...inputFields, { title: '', description: '', links: [{link: ''}] }]);
+    setInputFields([...inputFields, { sectionTitle: '', description: '', links: [{link: ''}] }]);
   };
   
   const handleRemoveFields = (index: number) => {
@@ -134,25 +140,23 @@ export default function ArticleSteps() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    let internalLinksArray = linkFields.internalLinks.map((link, index) => link.value.trim()).join(', ');
+    let internalKeywords = linkFields.keywords.map((link, index) => link.value.trim()).join(', ');
+    let authorityLinksArray = linkFields.authorityLinks.map((link, index) => link.value.trim()).join(', ');
+    let competitorLinksArray = linkFields.competitorLinks.map((link, index) => link.value.trim()).join(", ");
     try {
       setLoadingOutline(true);
-      const internalLinksArray = inputFieldStaticOutline.internalLinks.split(',').map(link => link.trim());
-      const authorityLinksArray = inputFieldStaticOutline.authorityLinks.split(',').map(link => link.trim());
-      const competitorLinksArray = inputFieldStaticOutline.competitorLinks.split(',').map(link => link.trim());
-      const generatedOutline = await generateOutline(inputFieldStaticOutline.keywords, inputFieldStaticOutline.articleDescription, inputFieldStaticOutline.clientName, inputFieldStaticOutline.pageName, internalLinksArray, authorityLinksArray, competitorLinksArray);
+      const generatedOutline = await generateOutline(internalKeywords, inputFieldStaticOutline.articleDescription, inputFieldStaticOutline.clientName, inputFieldStaticOutline.pageName, internalLinksArray, authorityLinksArray, competitorLinksArray);
       // console.log(generatedOutline);
       // return 
-      const result = removeMd(generatedOutline);
-      setOutline(result);
-      parseOutlineResultFillArticleField(result);
+      // const result = removeMd(generatedOutline);
+      setOutline(generatedOutline);
+      parseOutlineResultFillArticleField(generatedOutline);
       setLoadingOutline(false);
       handleComplete();
     } catch (error) {
       setLoadingOutline(true);
-      const internalLinksArray = inputFieldStaticOutline.internalLinks.split(',').map(link => link.trim());
-      const authorityLinksArray = inputFieldStaticOutline.authorityLinks.split(',').map(link => link.trim());
-      const competitorLinksArray = inputFieldStaticOutline.competitorLinks.split(',').map(link => link.trim());
-      const generatedOutline = await generateOutline(inputFieldStaticOutline.keywords, inputFieldStaticOutline.articleDescription, inputFieldStaticOutline.clientName, inputFieldStaticOutline.pageName, internalLinksArray, authorityLinksArray, competitorLinksArray);
+      const generatedOutline = await generateOutline(internalKeywords, inputFieldStaticOutline.articleDescription, inputFieldStaticOutline.clientName, inputFieldStaticOutline.pageName, internalLinksArray, authorityLinksArray, competitorLinksArray);
       // console.log(generatedOutline);
       // return 
       const result = removeMd(generatedOutline);
@@ -164,7 +168,6 @@ export default function ArticleSteps() {
   };
 
   const parseOutlineResultFillArticleField = (outline: string) => {
-
     const parsedOutline = JSON.parse(outline);
     setInputFieldStaticArticle(prev => ({ ...prev, instruction: parsedOutline.metaDescription ?? inputFieldStaticOutline.articleDescription, pageTitle: parsedOutline.title, keywords: inputFieldStaticOutline.keywords,selectedClient: inputFieldStaticOutline.selectedClient,
       selectedPage: inputFieldStaticOutline.selectedPage }));
@@ -179,7 +182,7 @@ export default function ArticleSteps() {
     const articleSections = formData.sections.map((section, index) => {
     return `
     Section ${index + 1}
-    Section Title: ${section.title}
+    Section Title: ${section.sectionTitle}
     Section Details: ${section.description}
     Section Links: ${section.links.join(', ')}
     `
@@ -236,7 +239,7 @@ export default function ArticleSteps() {
             </Box>
           ) : (
             {
-              0: <ArticleOutlineForm {...{ handleSubmit, inputFieldStaticOutline, setInputFieldStaticOutline, clients, pages,loadingOutline }} />,
+              0: <ArticleOutlineForm {...{ handleSubmit, inputFieldStaticOutline, setInputFieldStaticOutline, clients, pages,loadingOutline,linkFields, setLinkFields }} />,
               1: <ArticlesForm {...{ handleSubmitArticle, inputFieldStaticArticle, setInputFieldStaticArticle, clients, pages, inputFields, setInputFields, loadingResult,handleAddFields,
                 handleRemoveFields,
                 handleInputChange,handleAddFieldLink,

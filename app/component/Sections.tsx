@@ -17,17 +17,17 @@ const Sections = ({ inputFields, handleInputChange, handleAddFields, handleRemov
               aria-controls="panel1-content"
               id="panel1-header"
               >
-              {inputField.title != '' ? inputField.title : `Section ${index + 1}`}
+              {inputField.sectionTitle != '' ? inputField.sectionTitle : `Section ${index + 1}`}
             </AccordionSummary>
             <AccordionDetails>
             <Grid container spacing={2} key={index}>
           <Grid item xs={12}>
             <TextField
-              name="title"
+              name="sectionTitle"
               label="Section Title"
               variant="outlined"
               fullWidth
-              value={inputField.title}
+              value={inputField.sectionTitle}
               onChange={(event) => handleInputChange(index,null, event)}
             />
           </Grid>
