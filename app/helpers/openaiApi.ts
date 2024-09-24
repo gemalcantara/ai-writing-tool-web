@@ -55,7 +55,7 @@ async function generateOutline(
       AUTHORITY LINKS: ${authorityLinksArray}
       REMINDER: All links must be incorporated into the outline; under no circumstances should you create an ‘Additional Resources’ or ‘Further Reading’ section at the end. 
       
-     Return the response strictly following this JSON template, ensuring valid JSON formatting and no markdown or extraneous content.'
+     Return the response strictly following this JSON template, ensuring valid JSON formatting and no markdown, extraneous content or code block syntax. I will use this with JSON.parse(), so it should be in valid JSON format.'
      
     {
       \"title\": \"\",
