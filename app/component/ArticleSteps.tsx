@@ -57,7 +57,13 @@ export default function ArticleSteps() {
   const [loadingResult, setLoadingResult] = useState(false);
   const [loadingOutline, setLoadingOutline] = useState(false);
   const [cookies] = useCookies(['user']);
-  
+  // Define initial state with each field having an array of links
+  const [linkFields, setLinkFields] = useState({
+      keywords: [{ id: 1, value: '' }],
+      competitorLinks: [{ id: 1, value: '' }],
+      internalLinks: [{ id: 1, value: '' }],
+      authorityLinks: [{ id: 1, value: '' }],
+  });
   const totalSteps = steps.length;
   const completedSteps = () => Object.keys(completed).length;
   const isLastStep = () => activeStep === totalSteps - 1;
@@ -134,12 +140,13 @@ export default function ArticleSteps() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    let internalLinksArray = linkFields.internalLinks.map((link, index) => link.value.trim()).join(', ');
+    let internalKeywords = linkFields.internalLinks.map((link, index) => link.value.trim()).join(', ');
+    let authorityLinksArray = linkFields.internalLinks.map((link, index) => link.value.trim()).join(', ');
+    let competitorLinksArray = linkFields.internalLinks.map((link, index) => link.value.trim()).join(", ");
     try {
       setLoadingOutline(true);
-      const internalLinksArray = inputFieldStaticOutline.internalLinks.split(',').map(link => link.trim());
-      const authorityLinksArray = inputFieldStaticOutline.authorityLinks.split(',').map(link => link.trim());
-      const competitorLinksArray = inputFieldStaticOutline.competitorLinks.split(',').map(link => link.trim());
-      const generatedOutline = await generateOutline(inputFieldStaticOutline.keywords, inputFieldStaticOutline.articleDescription, inputFieldStaticOutline.clientName, inputFieldStaticOutline.pageName, internalLinksArray, authorityLinksArray, competitorLinksArray);
+      const generatedOutline = await generateOutline(internalKeywords, inputFieldStaticOutline.articleDescription, inputFieldStaticOutline.clientName, inputFieldStaticOutline.pageName, internalLinksArray, authorityLinksArray, competitorLinksArray);
       // console.log(generatedOutline);
       // return 
       // const result = removeMd(generatedOutline);
@@ -149,10 +156,7 @@ export default function ArticleSteps() {
       handleComplete();
     } catch (error) {
       setLoadingOutline(true);
-      const internalLinksArray = inputFieldStaticOutline.internalLinks.split(',').map(link => link.trim());
-      const authorityLinksArray = inputFieldStaticOutline.authorityLinks.split(',').map(link => link.trim());
-      const competitorLinksArray = inputFieldStaticOutline.competitorLinks.split(',').map(link => link.trim());
-      const generatedOutline = await generateOutline(inputFieldStaticOutline.keywords, inputFieldStaticOutline.articleDescription, inputFieldStaticOutline.clientName, inputFieldStaticOutline.pageName, internalLinksArray, authorityLinksArray, competitorLinksArray);
+      const generatedOutline = await generateOutline(internalKeywords, inputFieldStaticOutline.articleDescription, inputFieldStaticOutline.clientName, inputFieldStaticOutline.pageName, internalLinksArray, authorityLinksArray, competitorLinksArray);
       // console.log(generatedOutline);
       // return 
       const result = removeMd(generatedOutline);
@@ -235,7 +239,7 @@ export default function ArticleSteps() {
             </Box>
           ) : (
             {
-              0: <ArticleOutlineForm {...{ handleSubmit, inputFieldStaticOutline, setInputFieldStaticOutline, clients, pages,loadingOutline }} />,
+              0: <ArticleOutlineForm {...{ handleSubmit, inputFieldStaticOutline, setInputFieldStaticOutline, clients, pages,loadingOutline,linkFields, setLinkFields }} />,
               1: <ArticlesForm {...{ handleSubmitArticle, inputFieldStaticArticle, setInputFieldStaticArticle, clients, pages, inputFields, setInputFields, loadingResult,handleAddFields,
                 handleRemoveFields,
                 handleInputChange,handleAddFieldLink,

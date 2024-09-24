@@ -17,9 +17,9 @@ async function generateOutline(
   articleDescription: string,
   clientName: string,
   pageName: string,
-  internalLinksArray: string[],
-  authorityLinksArray: string[],
-  competitorLinksArray: string[]) {
+  internalLinksArray: string,
+  authorityLinksArray: string,
+  competitorLinksArray: string) {
   let aiTool = sessionStorage.getItem('aiTool');
   const messages = [
     {
@@ -28,7 +28,7 @@ async function generateOutline(
 
       PROCESS: To generate the Outline, start by reviewiewing these three example articles. 
 
-      Examples: ${competitorLinksArray.join(', ')}
+      Examples: ${competitorLinksArray}
 
       Read the articles in their entirety so that you are an expert on the topic. When creating your outline, incorporate the most common topics, characteristics, and information that you learn from the example articles.  
 
