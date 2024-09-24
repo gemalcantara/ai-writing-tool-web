@@ -46,16 +46,17 @@ const Sections = ({ inputFields, handleInputChange, handleAddFields, handleRemov
           {inputField.links.map((link: any, linkIndex: number) => (
             <Grid container spacing={2} key={linkIndex} style={{ marginLeft: '1rem',marginTop: '1rem' }} >
               <Grid container>
-                <Grid item>
+                <Grid item xs={11}>
                 <TextField
                   name="link"
                   label="Links"
                   variant="outlined"
+                  fullWidth
                   value={link.link}
                   onChange={(event) => handleInputChange(index, linkIndex, event)} // pass both parentIndex and childIndex
                 />
                 </Grid>
-                <Grid item alignItems="stretch" style={{ display: "flex" }}>
+                <Grid item xs={1} alignItems="stretch" style={{ display: "flex" }}>
                 <IconButton aria-label="delete" onClick={() => handleRemoveFieldLink(index, linkIndex)} size="large" color="error">
                   <Close fontSize="inherit" />
                 </IconButton>

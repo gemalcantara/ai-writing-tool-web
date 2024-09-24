@@ -5,6 +5,7 @@ import { createClient } from '@supabase/supabase-js';
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import '../App.css';
+import DynamicFieldsComponent from './OutlineDynamicLinks';
 const supaBaseLink = process.env.NEXT_PUBLIC_SUPABASE_LINK;
 const supaBaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY
 
@@ -43,7 +44,7 @@ function AiToolSelector() {
   );
 }
 
-const ArticleOutlineForm = ({handleSubmit, inputFieldStaticOutline, setInputFieldStaticOutline, clients, pages,loadingOutline}:any) => {
+const ArticleOutlineForm = ({handleSubmit, inputFieldStaticOutline, setInputFieldStaticOutline, clients, pages,loadingOutline,linkFields, setLinkFields}:any) => {
   const getNameById = (list: any,id: any) => {
     const entry = list.find((item: { id: any; }) => item.id === id);
     return entry.name;
@@ -119,62 +120,9 @@ const ArticleOutlineForm = ({handleSubmit, inputFieldStaticOutline, setInputFiel
               rows={5}
             />
           </Grid>
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              id="keywords"
-              label="Keywords (comma-separated)"
-              name="keywords"
-              value={inputFieldStaticOutline.keywords}
-              variant="outlined"
-              onChange={(e) => setInputFieldStaticOutline({
-                ...inputFieldStaticOutline,
-                [e.target.name]: e.target.value, 
-              })}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              id="competitorLinks"
-              label="Competitor Links (comma-separated)"
-              name="competitorLinks"
-              value={inputFieldStaticOutline.competitorLinks}
-              variant="outlined"
-      onChange={(e) => setInputFieldStaticOutline({
-                  ...inputFieldStaticOutline,
-                  [e.target.name]: e.target.value, 
-                })}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              id="internalLinks"
-              label="Internal Links (comma-separated)"
-              name="internalLinks"
-              value={inputFieldStaticOutline.internalLinks}
-              variant="outlined"
-      onChange={(e) => setInputFieldStaticOutline({
-                  ...inputFieldStaticOutline,
-                  [e.target.name]: e.target.value, 
-                })}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              id="authorityLinks"
-              label="Authority Links (comma-separated)"
-              name="authorityLinks"
-              value={inputFieldStaticOutline.authorityLinks}
-              variant="outlined"
-      onChange={(e) => setInputFieldStaticOutline({
-                  ...inputFieldStaticOutline,
-                  [e.target.name]: e.target.value, 
-                })}
-            />
-          </Grid>
+        <Grid item xs={12}>
+          <DynamicFieldsComponent linkFields={linkFields} setLinkFields={setLinkFields}></DynamicFieldsComponent>
+        </Grid>
         </Grid>
         <Button
         variant="outlined"
