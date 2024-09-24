@@ -135,18 +135,18 @@ export default function ArticleSteps() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      // setLoadingOutline(true);
+      setLoadingOutline(true);
       const internalLinksArray = inputFieldStaticOutline.internalLinks.split(',').map(link => link.trim());
       const authorityLinksArray = inputFieldStaticOutline.authorityLinks.split(',').map(link => link.trim());
       const competitorLinksArray = inputFieldStaticOutline.competitorLinks.split(',').map(link => link.trim());
       const generatedOutline = await generateOutline(inputFieldStaticOutline.keywords, inputFieldStaticOutline.articleDescription, inputFieldStaticOutline.clientName, inputFieldStaticOutline.pageName, internalLinksArray, authorityLinksArray, competitorLinksArray);
-      handleComplete();
       // console.log(generatedOutline);
       // return 
       const result = removeMd(generatedOutline);
       setOutline(result);
       parseOutlineResultFillArticleField(result);
       setLoadingOutline(false);
+      handleComplete();
     } catch (error) {
       console.error('Error generating outline', error);
       alert('Failed to generate article outline.');
@@ -156,7 +156,7 @@ export default function ArticleSteps() {
 
   const parseOutlineResultFillArticleField = (outline: string) => {
 
-    const parsedOutline = JSON.parse(outline)[0];
+    const parsedOutline = JSON.parse(outline);
     setInputFieldStaticArticle(prev => ({ ...prev, instruction: parsedOutline.metaDescription ?? inputFieldStaticOutline.articleDescription, pageTitle: parsedOutline.title, keywords: inputFieldStaticOutline.keywords,selectedClient: inputFieldStaticOutline.selectedClient,
       selectedPage: inputFieldStaticOutline.selectedPage }));
     setPageTitle(parsedOutline.title);
