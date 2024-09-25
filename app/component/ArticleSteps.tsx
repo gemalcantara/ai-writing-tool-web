@@ -41,6 +41,12 @@ const defaultArticleFields = {
 const stepsCompleted : any = {
 
 }
+interface SectionField {
+  sectionTitle: string;
+  description: string;
+  links: { link: string }[];
+  headingLevel: 'h1' | 'h2'; // Track heading level for each section
+}
 export default function ArticleSteps() {
   const navigate = useNavigate();
   const [activeStep, setActiveStep] = useState(0);
@@ -49,7 +55,7 @@ export default function ArticleSteps() {
   const [toCopy, setToCopy] = useState('');
   const [clients, setClients] = useState([]);
   const [pages, setPages] = useState([]);
-  const [inputFields, setInputFields] = useState([{ sectionTitle: '', description: '', links: [{link: ''}] }]);
+  const [inputFields, setInputFields] = useState<SectionField[]>([{ sectionTitle: '', description: '', links: [{link: ''}],headingLevel: 'h2'  }]);
   const [inputFieldStaticOutline, setInputFieldStaticOutline] = useState(defaultOutlineFields);
   const [inputFieldStaticArticle, setInputFieldStaticArticle] = useState(defaultArticleFields);
   const [pageTitle, setPageTitle] = useState('');
@@ -82,58 +88,6 @@ export default function ArticleSteps() {
     } catch (error) {
       console.error(`Failed to fetch ${table}`, error);
     }
-  };
-  const handleAddFields = () => {
-    setInputFields([...inputFields, { sectionTitle: '', description: '', links: [{link: ''}] }]);
-  };
-  
-  const handleRemoveFields = (index: number) => {
-    const values = [...inputFields];
-    values.splice(index, 1);
-    setInputFields(values);
-  };
-  const handleInputChange = (
-    parentIndex: number,
-    childIndex: number | null,
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = event.target;
-  
-    setInputFields(prevFields =>
-      prevFields.map((field, i) => {
-        if (i === parentIndex) {
-          // If childIndex is null, it's a top-level field (e.g., title, description)
-          if (childIndex === null) {
-            return { ...field, [name]: value };
-          } else {
-            // For nested field (i.e., links array)
-            const updatedLinks = field.links.map((link: any, j: number) =>
-              j === childIndex ? { ...link, [name]: value } : link
-            );
-            return { ...field, links: updatedLinks };
-          }
-        }
-        return field;
-      })
-    );
-  };
-  const handleAddFieldLink = (index: number) => {
-    setInputFields(prevFields =>
-      prevFields.map((field, i) =>
-        i === index
-          ? { ...field, links: [...field.links, { link: '' }] } // Add new link object
-          : field
-      )
-    );
-  };
-  const handleRemoveFieldLink = (parentIndex: number, linkIndex: number) => {
-    setInputFields(prevFields =>
-      prevFields.map((field, i) =>
-        i === parentIndex
-          ? { ...field, links: field.links.filter((_, j) => j !== linkIndex) } // Remove link at linkIndex
-          : field
-      )
-    );
   };
   
   useEffect(() => { fetchData('clients', setClients); fetchData('pages', setPages); }, []);
@@ -182,7 +136,7 @@ export default function ArticleSteps() {
     const articleSections = formData.sections.map((section, index) => {
     return `
     Section ${index + 1}
-    Section Title: ${section.sectionTitle}
+    Section Title: ${section.headingLevel} ${section.sectionTitle}
     Section Details: ${section.description}
     Section Links: ${section.links.join(', ')}
     `
@@ -240,10 +194,7 @@ export default function ArticleSteps() {
           ) : (
             {
               0: <ArticleOutlineForm {...{ handleSubmit, inputFieldStaticOutline, setInputFieldStaticOutline, clients, pages,loadingOutline,linkFields, setLinkFields }} />,
-              1: <ArticlesForm {...{ handleSubmitArticle, inputFieldStaticArticle, setInputFieldStaticArticle, clients, pages, inputFields, setInputFields, loadingResult,handleAddFields,
-                handleRemoveFields,
-                handleInputChange,handleAddFieldLink,
-                handleRemoveFieldLink }} />,
+              1: <ArticlesForm {...{ handleSubmitArticle, inputFieldStaticArticle, setInputFieldStaticArticle, clients, pages, inputFields, setInputFields, loadingResult }} />,
               2: <ArticlesResult {...{ pageTitle, toCopy,response, loadingResult }} />
             }[activeStep]
           )}

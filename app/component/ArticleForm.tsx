@@ -15,7 +15,7 @@ import Sections from './Sections';
 
 
   export default function ArticlesForm({
-    handleSubmitArticle, inputFieldStaticArticle, setInputFieldStaticArticle, clients, pages, inputFields, loadingResult,handleAddFields,
+    handleSubmitArticle, inputFieldStaticArticle,setInputFields, setInputFieldStaticArticle, clients, pages, inputFields, loadingResult,handleAddFields,
     handleRemoveFields,
     handleInputChange,handleAddFieldLink,handleRemoveFieldLink}: any) {
       const getNameById = (list: any,id: any) => {
@@ -30,7 +30,7 @@ import Sections from './Sections';
   return (
      
     <div>
-      <h1>Create Outline</h1>
+      <h1>Create Article</h1>
       <form onSubmit={handleSubmitArticle}>
           <Accordion sx={{border: "solid", borderWidth: "1px"}}>
             <AccordionSummary
@@ -157,6 +157,7 @@ import Sections from './Sections';
            handleRemoveFields={handleRemoveFields}
            handleAddFieldLink = {handleAddFieldLink}
            handleRemoveFieldLink = {handleRemoveFieldLink}
+           setInputFields ={setInputFields}
           />
         <Button
         variant="outlined"
