@@ -3,11 +3,8 @@ import {
   MemoryRouter as Router,
   Routes,
   Route,
-  useNavigate,
 } from 'react-router-dom';
 import * as React from 'react';
-import { useEffect, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
 import Dashboard from './Dashboard';
 import './App.css';
 import '@fontsource/roboto/300.css';
@@ -26,6 +23,7 @@ import ArticlesResult from './component/ArticlesResult';
 import ArticleHistory from './component/ArticleHistory';
 import ArticleHistoryView from './component/ArticlesHistoryView';
 import ArticleSteps from './component/ArticleSteps';
+import ArticlesHistoryOutline from './component/ArticlesHistoryOutlineView';
 
 export default function App() {
   // console.log(createUser());
@@ -44,9 +42,11 @@ export default function App() {
           <Route path="/dashboard/clients/view/:clientId" element={ <Client /> } />
           <Route path="/dashboard/articles" element={< ArticlesResult /> } />
           <Route path="/dashboard/articles/create" element={< ArticleSteps /> } />
+          <Route path="/dashboard/articles/create/:articleId" element={< ArticleSteps /> } />
           {/* <Route path="/dashboard/articles/create" element={< ArticlesForm /> } /> */}
           <Route path="/dashboard/articles/view" element={< ArticleHistory /> } />
           <Route path="/dashboard/articles/view/:articleId" element={< ArticleHistoryView /> } />
+          <Route path="/dashboard/articles/view/:articleId/output" element={< ArticlesHistoryOutline /> } />
         </Route>
       </Routes>
     </Router>

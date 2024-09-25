@@ -8,6 +8,7 @@ import ArticlesForm from './ArticleForm';
 import ArticlesResult from './ArticlesResult';
 import { generateArticle, generateOutline } from '../helpers/openaiApi';
 import removeMd from 'remove-markdown';
+import { useParams } from "react-router-dom";
 
 const steps = ['Create Outline', 'Create Article', 'Article Result'];
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_LINK, process.env.NEXT_PUBLIC_SUPABASE_KEY);
@@ -41,6 +42,22 @@ const defaultArticleFields = {
 const stepsCompleted : any = {
 
 }
+interface SectionField {
+  sectionTitle: string;
+  description: string;
+  links: { link: string }[];
+  headingLevel: 'h1' | 'h2'; // Track heading level for each section
+}
+
+interface Article {
+  id: number;
+  created_by: string;
+  created_at: string;
+  article_title: string;
+  article_output: string;
+  outline: string;
+  outline_input_data: string;
+}
 export default function ArticleSteps() {
   const navigate = useNavigate();
   const [activeStep, setActiveStep] = useState(0);
@@ -49,7 +66,7 @@ export default function ArticleSteps() {
   const [toCopy, setToCopy] = useState('');
   const [clients, setClients] = useState([]);
   const [pages, setPages] = useState([]);
-  const [inputFields, setInputFields] = useState([{ sectionTitle: '', description: '', links: [{link: ''}] }]);
+  const [inputFields, setInputFields] = useState<SectionField[]>([{ sectionTitle: '', description: '', links: [{link: ''}],headingLevel: 'h2'  }]);
   const [inputFieldStaticOutline, setInputFieldStaticOutline] = useState(defaultOutlineFields);
   const [inputFieldStaticArticle, setInputFieldStaticArticle] = useState(defaultArticleFields);
   const [pageTitle, setPageTitle] = useState('');
@@ -57,6 +74,48 @@ export default function ArticleSteps() {
   const [loadingResult, setLoadingResult] = useState(false);
   const [loadingOutline, setLoadingOutline] = useState(false);
   const [cookies] = useCookies(['user']);
+  const { articleId } = useParams();
+  const [error, setError] = useState<string>();
+  const [article, setArticle] = useState<Article>();
+  const [outlineResult, setOutlineResult] = useState<any>();
+  const [outlineResultField, setOutlineResultField] = useState<any>();
+
+    useEffect(() => {
+      const fetchArticleById = async () => {
+        try {
+          const { data, error } = await supabase
+          .from("history")
+          .select("*")
+          .eq("id", articleId)
+          .single(); // Ensures we only get one record
+          
+          if (error) {
+            setError(`Error fetching article: ${error.message}`);
+          } else {
+            console.log(data);
+            setArticle(data);
+            setOutlineResultField(JSON.parse(data.outline_input_data))
+            setOutlineResult(data.outline)
+          }
+        } catch (error) {
+          setError(`Error fetching article: ${error}`);
+        }
+      };
+      
+      fetchArticleById();
+    }, [articleId]);
+
+    useEffect(()=>{
+      if(outlineResultField && outlineResult){
+        let inputFieldStaticOutline = outlineResultField.inputFieldStaticOutline;
+        let linkFields = outlineResultField.linkFields;
+        console.log(inputFieldStaticOutline,linkFields)
+        setInputFieldStaticOutline(inputFieldStaticOutline);
+        setLinkFields(linkFields);
+        parseOutlineResultFillArticleField(outlineResult);
+      }
+    },[article])
+
   // Define initial state with each field having an array of links
   const [linkFields, setLinkFields] = useState({
       keywords: [{ id: 1, value: '' }],
@@ -82,58 +141,6 @@ export default function ArticleSteps() {
     } catch (error) {
       console.error(`Failed to fetch ${table}`, error);
     }
-  };
-  const handleAddFields = () => {
-    setInputFields([...inputFields, { sectionTitle: '', description: '', links: [{link: ''}] }]);
-  };
-  
-  const handleRemoveFields = (index: number) => {
-    const values = [...inputFields];
-    values.splice(index, 1);
-    setInputFields(values);
-  };
-  const handleInputChange = (
-    parentIndex: number,
-    childIndex: number | null,
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = event.target;
-  
-    setInputFields(prevFields =>
-      prevFields.map((field, i) => {
-        if (i === parentIndex) {
-          // If childIndex is null, it's a top-level field (e.g., title, description)
-          if (childIndex === null) {
-            return { ...field, [name]: value };
-          } else {
-            // For nested field (i.e., links array)
-            const updatedLinks = field.links.map((link: any, j: number) =>
-              j === childIndex ? { ...link, [name]: value } : link
-            );
-            return { ...field, links: updatedLinks };
-          }
-        }
-        return field;
-      })
-    );
-  };
-  const handleAddFieldLink = (index: number) => {
-    setInputFields(prevFields =>
-      prevFields.map((field, i) =>
-        i === index
-          ? { ...field, links: [...field.links, { link: '' }] } // Add new link object
-          : field
-      )
-    );
-  };
-  const handleRemoveFieldLink = (parentIndex: number, linkIndex: number) => {
-    setInputFields(prevFields =>
-      prevFields.map((field, i) =>
-        i === parentIndex
-          ? { ...field, links: field.links.filter((_, j) => j !== linkIndex) } // Remove link at linkIndex
-          : field
-      )
-    );
   };
   
   useEffect(() => { fetchData('clients', setClients); fetchData('pages', setPages); }, []);
@@ -182,7 +189,7 @@ export default function ArticleSteps() {
     const articleSections = formData.sections.map((section, index) => {
     return `
     Section ${index + 1}
-    Section Title: ${section.sectionTitle}
+    Section Title: ${section.headingLevel} ${section.sectionTitle}
     Section Details: ${section.description}
     Section Links: ${section.links.join(', ')}
     `
@@ -192,7 +199,8 @@ export default function ArticleSteps() {
       setLoadingResult(true);
       const data : any = await sendRequest(prompt, JSON.stringify(articleSections));
       // return
-      await createHistory(data, pageTitle, cookies.user.user.email,outline);
+      let oulineFields = JSON.stringify({inputFieldStaticOutline,linkFields})
+      await createHistory(data, pageTitle, cookies.user.user.email,outline,oulineFields);
       const plainText = removeMd(data);
       console.log(plainText)
       setToCopy(plainText);
@@ -210,9 +218,9 @@ export default function ArticleSteps() {
     return await generateArticle(formData,sectionData);
   };
 
-  const createHistory = async (output: string, article_title: string, created_by: string,outline: string) => {
+  const createHistory = async (output: string, article_title: string, created_by: string,outline: string,oulineFields: any) => {
     try {
-      await supabase.from('history').insert({ created_by, article_output: output, article_title, outline});
+      await supabase.from('history').insert({ created_by, article_output: output, article_title, outline,outline_input_data:oulineFields });
       alert(`${article_title} has been saved.`);
     } catch (error : any) {
       alert(error.message);
@@ -240,10 +248,7 @@ export default function ArticleSteps() {
           ) : (
             {
               0: <ArticleOutlineForm {...{ handleSubmit, inputFieldStaticOutline, setInputFieldStaticOutline, clients, pages,loadingOutline,linkFields, setLinkFields }} />,
-              1: <ArticlesForm {...{ handleSubmitArticle, inputFieldStaticArticle, setInputFieldStaticArticle, clients, pages, inputFields, setInputFields, loadingResult,handleAddFields,
-                handleRemoveFields,
-                handleInputChange,handleAddFieldLink,
-                handleRemoveFieldLink }} />,
+              1: <ArticlesForm {...{ handleSubmitArticle, inputFieldStaticArticle, setInputFieldStaticArticle, clients, pages, inputFields, setInputFields, loadingResult }} />,
               2: <ArticlesResult {...{ pageTitle, toCopy,response, loadingResult }} />
             }[activeStep]
           )}

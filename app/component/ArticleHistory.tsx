@@ -105,7 +105,7 @@ export default function ArticleHistory() {
             </IconButton>
           ),
         }, {
-          field: 'view_result',
+          field: 'view_output',
           headerName: 'View Output',
           width: 150,
           renderCell: (params) => (

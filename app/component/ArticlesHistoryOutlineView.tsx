@@ -6,12 +6,12 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import { createClient } from "@supabase/supabase-js";
 import { useParams } from "react-router-dom";
 import removeMd from "remove-markdown";
 import '../App.css';
+import { Typography } from "@mui/material";
+import { useNavigate } from 'react-router-dom';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_LINK!,
@@ -24,12 +24,15 @@ interface Article {
   created_at: string;
   article_title: string;
   article_output: string;
+  outline: string;
 }
 
-export default function ArticleHistoryView() {
-  const [article, setArticle] = useState<Article | null>(null);
-  const [error, setError] = useState<string | null>(null);
+export default function ArticlesHistoryOutline() {
+  const [article, setArticle] = useState<Article>();
+  const [error, setError] = useState<string>();
+  const [outline, setOutline] = useState<any>();
   const { articleId } = useParams();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchArticleById = async () => {
@@ -44,6 +47,7 @@ export default function ArticleHistoryView() {
           setError(`Error fetching article: ${error.message}`);
         } else {
           setArticle(data);
+          setOutline(JSON.parse(data.outline))
         }
       } catch (error) {
         setError(`Error fetching article: ${error}`);
@@ -52,7 +56,7 @@ export default function ArticleHistoryView() {
 
     fetchArticleById();
   }, [articleId]);
-
+  console.log(outline)
   const handleCopy = () => {
     if (article) {
       const plainText = removeMd(article.article_output);
@@ -71,15 +75,34 @@ export default function ArticleHistoryView() {
               <h3>{article?.article_title}</h3>
             </Grid>
             <Grid item xs={2}>
-              <Button variant="outlined" sx={{ float: "right" }} onClick={handleCopy}>
-                Copy Result
+              <Button variant="outlined" sx={{ float: "right" }} onClick={() => navigate(`/dashboard/articles/create/${articleId}`)}>
+                Create Article
               </Button>
             </Grid>
           </Grid>
           {error && <p style={{ color: "red" }}>{error}</p>}
-          <ReactMarkdown className="process-text" remarkPlugins={[remarkGfm]}>
-            {article?.article_output}
-          </ReactMarkdown>
+        {
+          outline ? outline.sections.map((section : any, index: any) => (
+            <div key={index}>
+              {section.headingLevel === 'h2' ? (
+                <h2> { section.sectionTitle}</h2>
+              ) : (
+                <h3> { section.sectionTitle}</h3>
+              )}
+              <Typography>{`${section.description}`}</Typography>
+              <br />
+              <Typography>Links:</Typography>
+              {section.links.map((link: any,index: any)=>( 
+                <div key={index}>
+                  <a href={link.link}>{`${link.link}`}</a>
+                </div>
+              ))}
+              <br />
+            </div>
+          
+        
+        ))  : ''
+        }
         </CardContent>
       </Card>
     </Box>
