@@ -8,6 +8,7 @@ import ArticlesForm from './ArticleForm';
 import ArticlesResult from './ArticlesResult';
 import { generateArticle, generateOutline } from '../helpers/openaiApi';
 import removeMd from 'remove-markdown';
+import { useParams } from "react-router-dom";
 
 const steps = ['Create Outline', 'Create Article', 'Article Result'];
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_LINK, process.env.NEXT_PUBLIC_SUPABASE_KEY);
@@ -47,6 +48,16 @@ interface SectionField {
   links: { link: string }[];
   headingLevel: 'h1' | 'h2'; // Track heading level for each section
 }
+
+interface Article {
+  id: number;
+  created_by: string;
+  created_at: string;
+  article_title: string;
+  article_output: string;
+  outline: string;
+  outline_input_data: string;
+}
 export default function ArticleSteps() {
   const navigate = useNavigate();
   const [activeStep, setActiveStep] = useState(0);
@@ -63,6 +74,48 @@ export default function ArticleSteps() {
   const [loadingResult, setLoadingResult] = useState(false);
   const [loadingOutline, setLoadingOutline] = useState(false);
   const [cookies] = useCookies(['user']);
+  const { articleId } = useParams();
+  const [error, setError] = useState<string>();
+  const [article, setArticle] = useState<Article>();
+  const [outlineResult, setOutlineResult] = useState<any>();
+  const [outlineResultField, setOutlineResultField] = useState<any>();
+
+    useEffect(() => {
+      const fetchArticleById = async () => {
+        try {
+          const { data, error } = await supabase
+          .from("history")
+          .select("*")
+          .eq("id", articleId)
+          .single(); // Ensures we only get one record
+          
+          if (error) {
+            setError(`Error fetching article: ${error.message}`);
+          } else {
+            console.log(data);
+            setArticle(data);
+            setOutlineResultField(JSON.parse(data.outline_input_data))
+            setOutlineResult(data.outline)
+          }
+        } catch (error) {
+          setError(`Error fetching article: ${error}`);
+        }
+      };
+      
+      fetchArticleById();
+    }, [articleId]);
+
+    useEffect(()=>{
+      if(outlineResultField && outlineResult){
+        let inputFieldStaticOutline = outlineResultField.inputFieldStaticOutline;
+        let linkFields = outlineResultField.linkFields;
+        console.log(inputFieldStaticOutline,linkFields)
+        setInputFieldStaticOutline(inputFieldStaticOutline);
+        setLinkFields(linkFields);
+        parseOutlineResultFillArticleField(outlineResult);
+      }
+    },[article])
+
   // Define initial state with each field having an array of links
   const [linkFields, setLinkFields] = useState({
       keywords: [{ id: 1, value: '' }],
