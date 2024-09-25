@@ -146,7 +146,8 @@ export default function ArticleSteps() {
       setLoadingResult(true);
       const data : any = await sendRequest(prompt, JSON.stringify(articleSections));
       // return
-      await createHistory(data, pageTitle, cookies.user.user.email,outline);
+      let oulineFields = JSON.stringify({inputFieldStaticOutline,linkFields})
+      await createHistory(data, pageTitle, cookies.user.user.email,outline,oulineFields);
       const plainText = removeMd(data);
       console.log(plainText)
       setToCopy(plainText);
@@ -164,9 +165,9 @@ export default function ArticleSteps() {
     return await generateArticle(formData,sectionData);
   };
 
-  const createHistory = async (output: string, article_title: string, created_by: string,outline: string) => {
+  const createHistory = async (output: string, article_title: string, created_by: string,outline: string,oulineFields: any) => {
     try {
-      await supabase.from('history').insert({ created_by, article_output: output, article_title, outline});
+      await supabase.from('history').insert({ created_by, article_output: output, article_title, outline,outline_input_data:oulineFields });
       alert(`${article_title} has been saved.`);
     } catch (error : any) {
       alert(error.message);
