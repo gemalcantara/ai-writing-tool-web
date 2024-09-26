@@ -118,7 +118,6 @@ export default function ArticleSteps() {
       }
     },[article])
 
-  // Define initial state with each field having an array of links
   const [linkFields, setLinkFields] = useState({
       keywords: [{ id: 1, value: '' }],
       competitorLinks: [{ id: 1, value: '' }],
