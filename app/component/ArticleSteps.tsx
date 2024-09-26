@@ -108,11 +108,13 @@ export default function ArticleSteps() {
     useEffect(()=>{
       if(outlineResultField && outlineResult){
         let inputFieldStaticOutline = outlineResultField.inputFieldStaticOutline;
+        let inputFieldStaticArticle = outlineResultField.inputFieldStaticArticle;
         let linkFields = outlineResultField.linkFields;
         console.log(inputFieldStaticOutline,linkFields)
         setInputFieldStaticOutline(inputFieldStaticOutline);
+        setInputFieldStaticArticle(inputFieldStaticArticle);
         setLinkFields(linkFields);
-        parseOutlineResultFillArticleField(outlineResult);
+        // parseOutlineResultFillArticleField(outlineResult);
       }
     },[article])
 
@@ -198,8 +200,8 @@ export default function ArticleSteps() {
       // console.log(prompt)
       setLoadingResult(true);
       const data : any = await sendRequest(prompt, JSON.stringify(articleSections));
+      let oulineFields = JSON.stringify({inputFieldStaticOutline,inputFieldStaticArticle,linkFields})
       // return
-      let oulineFields = JSON.stringify({inputFieldStaticOutline,linkFields})
       await createHistory(data, pageTitle, cookies.user.user.email,outline,oulineFields);
       const plainText = removeMd(data);
       console.log(plainText)
