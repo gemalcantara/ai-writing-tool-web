@@ -110,7 +110,7 @@ async function generateArticle(formData: string, sectionData: string) {
   let response: any = {};
   switch (aiTool) {
     case 'chatGpt':
-       articlePrompt = [{ role: "user", content: formData }, ...JSON.parse(sectionData).map((section: string) => ({ role: "user", content: section })), { role: "user", content: "merge all into one article" }];
+       articlePrompt = [{ role: "user", content: formData }, ...JSON.parse(sectionData).map((section: string) => ({ role: "user", content: section })), { role: "user", content: "merge all results into one article" }];
       response = await openai.chat.completions.create({
         model: 'gpt-4o',
       // @ts-ignore
