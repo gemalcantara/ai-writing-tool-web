@@ -110,7 +110,7 @@ async function generateArticle(formData: string, sectionData: string) {
   let response: any = {};
   switch (aiTool) {
     case 'chatGpt':
-      articlePrompt = [{ role: "user", content: formData }, ...JSON.parse(sectionData).map((section: string) => ({ role: "user", content: section })), { role: "user", content: "merge all into one article" }];
+       articlePrompt = [{ role: "user", content: formData }, ...JSON.parse(sectionData).map((section: string) => ({ role: "user", content: section })), { role: "user", content: "merge all into one article" }];
       response = await openai.chat.completions.create({
         model: 'gpt-4o',
       // @ts-ignore
@@ -119,13 +119,18 @@ async function generateArticle(formData: string, sectionData: string) {
       return response.choices[0].message?.content || '';
       
       break;
-      case 'claude':
-        let content = `${JSON.parse(sectionData).map((section: string) =>  formData += `${section} `).join('\n')}`;
-        articlePrompt = [{ role: "user", content }] ;
+      case 'claude': 
+       articlePrompt = [{ role: "user", content: [{type: "text", text: formData}, ...JSON.parse(sectionData).map((section: string) => ({
+        type: "text",
+        text: section
+      })),{ type: "text", text: "merge all results into one article with mardown" }]} ];
+      // console.log(articlePrompt);
+      // return
+
         response = await anthropic.messages.create({
           model: "claude-3-5-sonnet-20240620",
           max_tokens: 8100,
-      // @ts-ignore
+        // @ts-ignore
           messages: articlePrompt,
         });
         return response.content[0].text || '';
