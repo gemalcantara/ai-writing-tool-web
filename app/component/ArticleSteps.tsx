@@ -112,9 +112,9 @@ export default function ArticleSteps() {
         let linkFields = outlineResultField.linkFields;
         console.log(inputFieldStaticOutline,linkFields)
         setInputFieldStaticOutline(inputFieldStaticOutline);
+        parseOutlineResultFillArticleField(outlineResult);
         setInputFieldStaticArticle(inputFieldStaticArticle);
         setLinkFields(linkFields);
-        parseOutlineResultFillArticleField(outlineResult);
       }
     },[article])
 

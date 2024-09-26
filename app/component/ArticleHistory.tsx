@@ -108,10 +108,12 @@ export default function ArticleHistory() {
           field: 'view_output',
           headerName: 'View Output',
           width: 150,
-          renderCell: (params) => (
+          renderCell: (params) => ( params.row.outline ?
             <IconButton aria-label="view" color="primary" onClick={() => navigate(`${params.row.id}/output`)}>
               <Visibility/>
             </IconButton>
+            :
+            ''
           ),
         },
       ];
