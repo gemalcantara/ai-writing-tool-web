@@ -114,7 +114,7 @@ export default function ArticleSteps() {
         setInputFieldStaticOutline(inputFieldStaticOutline);
         setInputFieldStaticArticle(inputFieldStaticArticle);
         setLinkFields(linkFields);
-        // parseOutlineResultFillArticleField(outlineResult);
+        parseOutlineResultFillArticleField(outlineResult);
       }
     },[article])
 
