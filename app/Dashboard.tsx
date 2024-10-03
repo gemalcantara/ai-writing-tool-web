@@ -164,6 +164,17 @@ function SidebarList() {
         <ListItemText primary="Users" />
       </ListItemButton>
       <ListItemButton
+        selected={selectedIndex === 11}
+        onClick={(event) => handleListItemClick( 11)}
+        component={Link}
+        to="users/profile"
+      >
+        <ListItemIcon>
+          <Person />
+        </ListItemIcon>
+        <ListItemText primary="Profile" />
+      </ListItemButton>
+      <ListItemButton
         selected={selectedIndex === 5}
         onClick={logout}
       >

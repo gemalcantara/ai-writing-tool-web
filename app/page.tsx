@@ -24,6 +24,7 @@ import ArticleHistory from './component/ArticleHistory';
 import ArticleHistoryView from './component/ArticlesHistoryView';
 import ArticleSteps from './component/ArticleSteps';
 import ArticlesHistoryOutline from './component/ArticlesHistoryOutlineView';
+import Profile from './component/Profile';
 
 export default function App() {
   // console.log(createUser());
@@ -34,6 +35,7 @@ export default function App() {
         <Route path="/dashboard" element={<Dashboard />}>
           <Route path="/dashboard/users" element={ <Users /> } />
           <Route path="/dashboard/users/create" element={ <UsersForm /> } />
+          <Route path="/dashboard/users/profile" element={ <Profile /> } />
           <Route path="/dashboard/pages" element={ <Pages /> } />
           <Route path="/dashboard/pages/create" element={ <PagesForm /> } />
           <Route path="/dashboard/pages/view/:pageId" element={ <Pages /> } />
