@@ -94,6 +94,7 @@ async function generateOutline(
          // @ts-ignore
             messages: messages,
           });
+          console.log(response);
           return response.content[0].text || '';
           break;
       default:
@@ -119,11 +120,10 @@ async function generateArticle(formData: string, sectionData: string) {
       return response.choices[0].message?.content || '';
       
       break;
+
+
       case 'claude': 
-       articlePrompt = [{ role: "user", content: [{type: "text", text: formData}, ...JSON.parse(sectionData).map((section: string) => ({
-        type: "text",
-        text: section
-      })),{ type: "text", text: "merge all results into one article with mardown" }]} ];
+       articlePrompt = [{ role: "user", content: [{type: "text", text: formData + JSON.parse(sectionData).map((section: string) => section).join("\n")} ,{ type: "text", text: "merge all results into one article with mardown" }]} ];
       // console.log(articlePrompt);
       // return
 

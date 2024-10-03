@@ -12,6 +12,7 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Sections from './Sections';
+import { useEffect } from 'react';
 
 
   export default function ArticlesForm({
@@ -27,6 +28,19 @@ import Sections from './Sections';
       const entry = list.find((item: { id: any; }) => item.id === id);
       return entry.guideline;
     };
+    useEffect (()=>{
+      if (inputFieldStaticArticle.selectedClient && inputFieldStaticArticle.selectedPage) {
+        
+        setInputFieldStaticArticle({
+          ...inputFieldStaticArticle,
+          clientName: getNameById(clients,inputFieldStaticArticle.selectedClient),
+          clientGuideline:  getGuielineById(clients,inputFieldStaticArticle.selectedClient), 
+          pageName:  getNameById(pages,inputFieldStaticArticle.selectedPage),
+          articlePrompt : getGuielineById(pages,inputFieldStaticArticle.selectedPage)
+        })
+      }
+
+    },[inputFieldStaticArticle.selectedClient,inputFieldStaticArticle.selectedPage])
   return (
      
     <div>

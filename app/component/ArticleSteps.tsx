@@ -79,42 +79,56 @@ export default function ArticleSteps() {
   const [article, setArticle] = useState<Article>();
   const [outlineResult, setOutlineResult] = useState<any>();
   const [outlineResultField, setOutlineResultField] = useState<any>();
+  useEffect(() => { fetchData('clients', setClients); fetchData('pages', setPages); }, []);
 
     useEffect(() => {
-      const fetchArticleById = async () => {
-        try {
-          const { data, error } = await supabase
-          .from("history")
-          .select("*")
-          .eq("id", articleId)
-          .single(); // Ensures we only get one record
-          
-          if (error) {
-            setError(`Error fetching article: ${error.message}`);
-          } else {
-            console.log(data);
-            setArticle(data);
-            setOutlineResultField(JSON.parse(data.outline_input_data))
-            setOutlineResult(data.outline)
+      if (articleId) {
+        
+        const fetchArticleById = async () => {
+          try {
+            const { data, error } = await supabase
+            .from("history")
+            .select("*")
+            .eq("id", articleId)
+            .single(); // Ensures we only get one record
+            
+            if (error) {
+              setError(`Error fetching article: ${error.message}`);
+            } else {
+              // console.log(data);
+              setArticle(data);
+              setOutlineResultField(JSON.parse(data.outline_input_data))
+              setOutlineResult(data.outline)
+              setOutline(data.outline);
+            }
+          } catch (error) {
+            setError(`Error fetching article: ${error}`);
           }
-        } catch (error) {
-          setError(`Error fetching article: ${error}`);
-        }
-      };
-      
-      fetchArticleById();
+        };
+        
+        fetchArticleById();
+      }
     }, [articleId]);
 
     useEffect(()=>{
       if(outlineResultField && outlineResult){
+ 
         let inputFieldStaticOutline = outlineResultField.inputFieldStaticOutline;
-        let inputFieldStaticArticle = outlineResultField.inputFieldStaticArticle;
+        let inputFieldStaticArticledb = outlineResultField.inputFieldStaticArticle;
+        let inputFieldSectiondb = outlineResultField.inputFields;
+        console.log(inputFieldStaticArticledb.pageTitle);
         let linkFields = outlineResultField.linkFields;
-        console.log(inputFieldStaticOutline,linkFields)
         setInputFieldStaticOutline(inputFieldStaticOutline);
-        parseOutlineResultFillArticleField(outlineResult);
-        setInputFieldStaticArticle(inputFieldStaticArticle);
+        parseOutlineResultFillArticleFieldPreload(outlineResult,inputFieldSectiondb);
+        console.log(inputFieldSectiondb);
+        // parseOutlineResultFillArticleField(outlineResult);
         setLinkFields(linkFields);
+
+        if(linkFields.keywords){
+          let internalKeywords = linkFields.keywords.map((link: any, index: any) => link.value.trim()).join(', ');
+          setInputFieldStaticArticle(prev => ({ ...prev,keywords: internalKeywords }));
+        }
+
       }
     },[article])
 
@@ -144,7 +158,6 @@ export default function ArticleSteps() {
     }
   };
   
-  useEffect(() => { fetchData('clients', setClients); fetchData('pages', setPages); }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -182,11 +195,19 @@ export default function ArticleSteps() {
     setPageTitle(parsedOutline.title);
     setInputFields(parsedOutline.sections || []);
   };
-
+  const parseOutlineResultFillArticleFieldPreload = (outline: string,inputFields: any) => {
+    const parsedOutline = JSON.parse(outline);
+    setInputFieldStaticArticle(prev => ({ ...prev, instruction: parsedOutline.metaDescription ?? inputFieldStaticOutline.articleDescription, pageTitle: parsedOutline.title, keywords: inputFieldStaticOutline.keywords,selectedClient: inputFieldStaticOutline.selectedClient,
+      selectedPage: inputFieldStaticOutline.selectedPage }));
+    setPageTitle(parsedOutline.title);
+    setInputFields(inputFields);
+  };
   const handleSubmitArticle = async (event: React.FormEvent) => {
     event.preventDefault();
     const formData = { sections: inputFields, main: inputFieldStaticArticle };
-    let prompt = formData.main.articlePrompt.replace("{{client_guidelines}}", formData.main.clientGuideline).replace("{{article_guidelines}}", formData.main.instruction).replace("{{key_words}}", formData.main.keywords);
+    let prompt = formData.main.articlePrompt.replace("{{client_guidelines}}", formData.main.clientGuideline).replace("{{article_instructions}}", formData.main.instruction).replace("{{keywords}}", formData.main.keywords);
+    // console.log(prompt);
+    // return ;
     const articleSections = formData.sections.map((section, index) => {
     return `
     Section ${index + 1}
@@ -199,7 +220,7 @@ export default function ArticleSteps() {
       // console.log(prompt)
       setLoadingResult(true);
       const data : any = await sendRequest(prompt, JSON.stringify(articleSections));
-      let oulineFields = JSON.stringify({inputFieldStaticOutline,inputFieldStaticArticle,linkFields})
+      let oulineFields = JSON.stringify({inputFieldStaticOutline,inputFieldStaticArticle,linkFields,inputFields})
       // return
       await createHistory(data, pageTitle, cookies.user.user.email,outline,oulineFields);
       const plainText = removeMd(data);
@@ -207,12 +228,13 @@ export default function ArticleSteps() {
       setToCopy(plainText);
       setResponse(data);
       setLoadingResult(false);
+      handleComplete();
     } catch (error) {
       console.error(error);
+      alert('Error generating article, check all fields and try again');
       setResponse('Error generating article');
       setLoadingResult(false);
     }
-    handleComplete();
   };
 
   const sendRequest = async (formData: string, sectionData: string) => {

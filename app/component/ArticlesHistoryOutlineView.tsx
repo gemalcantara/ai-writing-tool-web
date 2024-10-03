@@ -56,7 +56,7 @@ export default function ArticlesHistoryOutline() {
 
     fetchArticleById();
   }, [articleId]);
-  console.log(outline)
+  // console.log(outline)
   const handleCopy = () => {
     if (article) {
       const plainText = removeMd(article.article_output);

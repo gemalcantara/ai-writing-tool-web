@@ -9,7 +9,7 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 const Sections = ({ inputFields,setInputFields } :any) => {
   const handleAddFields = () => {
-    setInputFields([...inputFields, { sectionTitle: '', description: '', links: [{link: ''}],headingLevel: 'h1' }]);
+    setInputFields([...inputFields, { sectionTitle: '', description: '', links: [{link: ''}],headingLevel: 'h2' }]);
   };
   
   const handleRemoveFields = (index: number) => {
