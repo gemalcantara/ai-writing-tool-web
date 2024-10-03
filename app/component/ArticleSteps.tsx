@@ -46,9 +46,8 @@ interface SectionField {
   sectionTitle: string;
   description: string;
   links: { link: string }[];
-  headingLevel: 'h1' | 'h2'; // Track heading level for each section
+  headingLevel: 'h2' | 'h3'; // Track heading level for each section
 }
-
 interface Article {
   id: number;
   created_by: string;
@@ -206,7 +205,7 @@ export default function ArticleSteps() {
     event.preventDefault();
     const formData = { sections: inputFields, main: inputFieldStaticArticle };
     let prompt = formData.main.articlePrompt.replace("{{client_guidelines}}", formData.main.clientGuideline).replace("{{article_instructions}}", formData.main.instruction).replace("{{keywords}}", formData.main.keywords);
-    // console.log(prompt);
+    // console.log(formData);
     // return ;
     const articleSections = formData.sections.map((section, index) => {
     return `
