@@ -78,9 +78,6 @@ const ArticleOutlineForm = ({handleSubmit, inputFieldStaticOutline, setInputFiel
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12}>
-            <AiToolSelector></AiToolSelector>
-              </Grid>
               <Grid item xs={12}>
               <FormControl fullWidth>
                 <InputLabel id="pageLabel">Page Template</InputLabel>

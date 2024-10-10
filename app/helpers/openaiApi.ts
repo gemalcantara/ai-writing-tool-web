@@ -20,7 +20,6 @@ async function generateOutline(
   internalLinksArray: string,
   authorityLinksArray: string,
   competitorLinksArray: string) {
-  let aiTool = sessionStorage.getItem('aiTool');
   const messages = [
     {
       role: 'user',
@@ -77,67 +76,33 @@ async function generateOutline(
   ];
   try {
     let response: any = {};
-    switch (aiTool) {
-      case 'chatGpt':
-        response = await openai.chat.completions.create({
-          model: 'gpt-4o',
-         // @ts-ignore
-          messages: messages,
-        });  
-        return response.choices[0].message?.content || '';
-        
-        break;
-        case 'claude':
-           response = await anthropic.messages.create({
-            model: "claude-3-5-sonnet-20240620",
-            max_tokens: 8000,
-         // @ts-ignore
-            messages: messages,
-          });
-          console.log(response);
-          return response.content[0].text || '';
-          break;
-      default:
-        break;
-    }
+    response = await anthropic.messages.create({
+      model: "claude-3-5-sonnet-20240620",
+      max_tokens: 8000,
+   // @ts-ignore
+      messages: messages,
+    });
+    console.log(response);
+    return response.content[0].text || '';
   } catch (error) {
     console.error('Error generating article outline:', error);
     throw error;
   }
 };
 async function generateArticle(formData: string, sectionData: string) {
-  let aiTool = sessionStorage.getItem('aiTool');
   let articlePrompt: any = {}
   let response: any = {};
-  switch (aiTool) {
-    case 'chatGpt':
-       articlePrompt = [{ role: "user", content: formData }, ...JSON.parse(sectionData).map((section: string) => ({ role: "user", content: section })), { role: "user", content: "merge all results into one article" }];
-      response = await openai.chat.completions.create({
-        model: 'gpt-4o',
-      // @ts-ignore
-        messages: articlePrompt,
-      });  
-      return response.choices[0].message?.content || '';
-      
-      break;
+  articlePrompt = [{ role: "user", content: [{type: "text", text: formData + JSON.parse(sectionData).map((section: string) => section).join("\n")} ,{ type: "text", text: "merge all results into one article with mardown" }]} ];
+  // console.log(articlePrompt);
+  // return
 
-
-      case 'claude': 
-       articlePrompt = [{ role: "user", content: [{type: "text", text: formData + JSON.parse(sectionData).map((section: string) => section).join("\n")} ,{ type: "text", text: "merge all results into one article with mardown" }]} ];
-      // console.log(articlePrompt);
-      // return
-
-        response = await anthropic.messages.create({
-          model: "claude-3-5-sonnet-20240620",
-          max_tokens: 8100,
-        // @ts-ignore
-          messages: articlePrompt,
-        });
-        return response.content[0].text || '';
-        break;
-    default:
-      break;
-  }
+    response = await anthropic.messages.create({
+      model: "claude-3-5-sonnet-20240620",
+      max_tokens: 8100,
+    // @ts-ignore
+      messages: articlePrompt,
+    });
+    return response.content[0].text || '';
 }
 
 
