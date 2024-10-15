@@ -1,52 +1,35 @@
 /* eslint-disable no-use-before-define */
-"use client"
+"use client";
+
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link, Outlet } from 'react-router-dom';
 import {
-  useNavigate,
-  Link,
-  Outlet
-} from 'react-router-dom';
-import * as React from 'react';
-import Box from '@mui/material/Box';
-import Drawer from '@mui/material/Drawer';
-import AppBar from '@mui/material/AppBar';
-import CssBaseline from '@mui/material/CssBaseline';
-import Toolbar from '@mui/material/Toolbar';
-import List from '@mui/material/List';
-import Typography from '@mui/material/Typography';
-import Divider from '@mui/material/Divider';
-import ListSubheader from '@mui/material/ListSubheader';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import {
-  Person,
-  Article,
-  PermContactCalendar,
-  Pages,
-  Logout,
-  TableChart,
-  Menu,
-} from '@mui/icons-material';
-import ExpandLess from '@mui/icons-material/ExpandLess';
-import ExpandMore from '@mui/icons-material/ExpandMore';
-import Collapse from '@mui/material/Collapse';
-import { Card, CardContent, FormControl, ListItem, MenuItem, Paper, Select, SelectChangeEvent } from '@mui/material';
-import { useState, useEffect } from 'react';
-import useLogout from './component/Logout';
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+  Box,
+  Drawer,
+  AppBar,
+  CssBaseline,
+  Toolbar,
+  List,
+  Typography,
+  Divider,
+  Collapse,
+  Paper,
+  Card,
+  CardContent,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  ListSubheader,
+} from '@mui/material';
+
+import { Person, Article, PermContactCalendar, Pages, Logout, TableChart, AddCircleOutline, ExpandLess, ExpandMore } from '@mui/icons-material';
 import { createClient } from '@supabase/supabase-js';
-import { CookiesProvider, useCookies  } from 'react-cookie';
+import useLogout from './component/Logout';
+import './App.css';
 
-const supaBaseLink = process.env.NEXT_PUBLIC_SUPABASE_LINK;
-const supaBaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY
-
-const supabase = createClient(
-  supaBaseLink,
-  supaBaseKey
-);
-
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_LINK!, process.env.NEXT_PUBLIC_SUPABASE_KEY!);
 const drawerWidth = 240;
-
 
 interface PagesList {
   id: number;
@@ -56,345 +39,186 @@ interface ClientsList {
   id: number;
   name: string;
 }
-function SidebarList() {
-  const [page, setPage] = React.useState(false);
-  const [client, setClient] = React.useState(false);
-  const [selectedIndex, setSelectedIndex] = React.useState(1);
+
+const SidebarList = () => {
+  const [page, setPage] = useState(false);
+  const [client, setClient] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(1);
   const navigate = useNavigate();
   const logout = useLogout();
-  // selectedIndex == 0 ? navigate('/dashboard/users');
-  const handleListItemClick = (
-    index: number,
-  ) => {
+
+  const handleListItemClick = (index: number) => {
     setSelectedIndex(index);
-    // console.log(index != 1);
     if (index > 2) {
       setPage(false);
       setClient(false);
     }
   };
+
   const handleClickPage = () => {
     setPage(!page);
     setClient(false);
   };
+
   const handleClickClient = () => {
     setPage(false);
     setClient(!client);
   };
+
   return (
     <List
       sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}
       component="nav"
       aria-labelledby="nested-list-subheader"
-      subheader={
-        <ListSubheader component="div" id="nested-list-subheader">
-          Dashboard
-        </ListSubheader>
-      }
+      subheader={<ListSubheader component="div">Dashboard</ListSubheader>}
     >
-      <ListItemButton
-        selected={selectedIndex === 4}
-        onClick={(event) => {
-          handleListItemClick( 4)
-        }}
-        component={Link}
+      <SidebarItem
+        index={4}
+        selectedIndex={selectedIndex}
+        onClick={handleListItemClick}
+        icon={<Article />}
+        text="Create Article"
         to="articles/create"
-      >
-        <ListItemIcon>
-          <Article />
-        </ListItemIcon>
-        <ListItemText classes={{primary: "awt-font-large"}} primary="Create Article" />
-      </ListItemButton>
-      <Divider />
-      <ListItemButton
-        selected={selectedIndex === 7}
-        onClick={(event) => {
-          handleListItemClick(7)
-        }}
-        component={Link}
+      />
+          <Divider />
+      <SidebarItem
+        index={7}
+        selectedIndex={selectedIndex}
+        onClick={handleListItemClick}
+        icon={<TableChart />}
+        text="Article Output Lists"
         to="articles/view"
-      >
-        <ListItemIcon>
-          <TableChart />
-        </ListItemIcon>
-        <ListItemText primary="Article Output Lists" />
-      </ListItemButton>
-      <ListItemButton
-        selected={selectedIndex === 1}
-        onClick={(event) => {
-          handleClickPage();
-          handleListItemClick( 1);
-        }}
-      >
-        <ListItemIcon>
-          <Pages />
-        </ListItemIcon>
+      />
+      <ListItemButton selected={selectedIndex === 1} onClick={() => { handleClickPage(); handleListItemClick(1); }}>
+        <ListItemIcon><Pages /></ListItemIcon>
         <ListItemText primary="Page Templates" />
         {page ? <ExpandLess /> : <ExpandMore />}
       </ListItemButton>
-      <Collapse in={page} timeout="auto" unmountOnExit>
-        <PageList />
-      </Collapse>
-      <ListItemButton
-        selected={selectedIndex === 2}
-        onClick={(event) => {
-          handleClickClient();
-          handleListItemClick( 2);
-        }}
-      >
-        <ListItemIcon>
-          <PermContactCalendar />
-        </ListItemIcon>
+      <Collapse in={page} timeout="auto" unmountOnExit><PageList /></Collapse>
+
+      <ListItemButton selected={selectedIndex === 2} onClick={() => { handleClickClient(); handleListItemClick(2); }}>
+        <ListItemIcon><PermContactCalendar /></ListItemIcon>
         <ListItemText primary="Client" />
         {client ? <ExpandLess /> : <ExpandMore />}
       </ListItemButton>
-      <Collapse in={client} timeout="auto" unmountOnExit>
-        <ClientList />
-      </Collapse>
-      <Divider />
-      <ListItemButton
-        selected={selectedIndex === 6}
-        onClick={(event) => handleListItemClick( 6)}
-        component={Link}
-        to="users"
-      >
-        <ListItemIcon>
-          <Person />
-        </ListItemIcon>
-        <ListItemText primary="Users" />
-      </ListItemButton>
-      <ListItemButton
-        selected={selectedIndex === 11}
-        onClick={(event) => handleListItemClick( 11)}
-        component={Link}
-        to="users/profile"
-      >
-        <ListItemIcon>
-          <Person />
-        </ListItemIcon>
-        <ListItemText primary="Profile" />
-      </ListItemButton>
-      <ListItemButton
-        selected={selectedIndex === 5}
-        onClick={logout}
-      >
-        <ListItemIcon>
-          <Logout />
-        </ListItemIcon>
+      <Collapse in={client} timeout="auto" unmountOnExit><ClientList /></Collapse>
+          <Divider />
+
+      <SidebarItem index={6} selectedIndex={selectedIndex} onClick={handleListItemClick} icon={<Person />} text="Users" to="users" />
+      <SidebarItem index={11} selectedIndex={selectedIndex} onClick={handleListItemClick} icon={<Person />} text="Profile" to="users/profile" />
+      <ListItemButton selected={selectedIndex === 5} onClick={logout}>
+        <ListItemIcon><Logout /></ListItemIcon>
         <ListItemText primary="Logout" />
       </ListItemButton>
+      <Divider />
+
     </List>
   );
-}
-function ClientList() {
-  const [selectedIndex, setSelectedIndex] = React.useState(1);
+};
+
+const SidebarItem = ({ index, selectedIndex, onClick, icon, text, to }: any) => (
+  <ListItemButton selected={selectedIndex === index} onClick={() => onClick(index)} component={Link} to={to}>
+    <ListItemIcon>{icon}</ListItemIcon>
+    {
+      index == 4 ? 
+       <ListItemText primary={text}  
+      classes={{primary: "awt-font-large"}}
+      /> : <ListItemText primary={text} />
+    }
+  </ListItemButton>
+);
+
+const ClientList = () => {
   const [clients, setClients] = useState<ClientsList[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-  const handleListItemClick = (
-    index: number,
-  ) => {
-    setSelectedIndex(index);
-  };
-
 
   useEffect(() => {
-      const fetchUsers = async () => {
-        try {
-          // Fetch data from Supabase
-          const { data, error } = await supabase
-            .from('clients') // Replace 'users' with your table name
-            .select('*');
-  
-          if (error) throw error;
-  
-          // Update state with fetched data
-          setClients(data || []);
-        } catch (error) {
-          // Handle error
-          setError('Failed to fetch clients');
-        } finally {
-          setLoading(false);
-        }
-      };
-  
-      fetchUsers();
-    }, []);
-    if (loading) return <p>Loading...</p>;
-    if (error) return <p>{error}</p>;
-    let rows = [];
-    clients.map((client) => (
-      rows.push( { id: client.id, name: client.name })
-    ));
+    const fetchClients = async () => {
+      try {
+        const { data, error } = await supabase.from('clients').select('*');
+        if (error) throw error;
+        setClients(data || []);
+      } catch (error) {
+        setError('Failed to fetch clients');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchClients();
+  }, []);
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>{error}</p>;
+
   return (
     <List component="div" disablePadding>
-      {clients.map((client, index) => (
-        <ListItem key={client.name} disablePadding>
-          <ListItemButton sx={{ pl: 4 }} 
-            selected={selectedIndex === client.id}
-            onClick={(event) => {handleListItemClick( client.id); navigate(`clients/view/${client.id}`)}}
-          >
+      {clients.map((client) => (
+        <ListItem key={client.id} disablePadding>
+          <ListItemButton sx={{ pl: 4 }} onClick={() => navigate(`clients/view/${client.id}`)}>
             <ListItemText primary={client.name} />
-          </ListItemButton >
+          </ListItemButton>
         </ListItem>
       ))}
       <Divider />
-      <ListItem key='Create Client' disablePadding>
-          <ListItemButton sx={{ pl: 4 }} 
-            selected={selectedIndex === 0}
-            onClick={(event) => handleListItemClick( 0)}
-            component={Link}
-            to="clients/create"
-                        >
-          <ListItemIcon>
-            <AddCircleOutlineIcon />
-          </ListItemIcon>
-            <ListItemText primary="Create Client" />
-          </ListItemButton>
-        </ListItem>
+      <ListItemButton sx={{ pl: 4 }} component={Link} to="clients/create">
+        <ListItemIcon><AddCircleOutline /></ListItemIcon>
+        <ListItemText primary="Create Client" />
+      </ListItemButton>
     </List>
   );
-}
-function PageList() {
-  const [selectedIndex, setSelectedIndex] = React.useState(1);
+};
+
+const PageList = () => {
   const [pages, setPages] = useState<PagesList[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-  const handleListItemClick = (
-    index: number,
-  ) => {
-    setSelectedIndex(index);
-  };
-
 
   useEffect(() => {
-      const fetchUsers = async () => {
-        try {
-          // Fetch data from Supabase
-          const { data, error } = await supabase
-            .from('pages') // Replace 'users' with your table name
-            .select('*');
-  
-          if (error) throw error;
-  
-          // Update state with fetched data
-          setPages(data || []);
-        } catch (error) {
-          // Handle error
-          setError('Failed to fetch pages');
-        } finally {
-          setLoading(false);
-        }
-      };
-  
-      fetchUsers();
-    }, []);
-    if (loading) return <p>Loading...</p>;
-    if (error) return <p>{error}</p>;
-    let rows = [];
-    pages.map((pages) => (
-      rows.push( { id: pages.id, name: pages.name })
-    ));
+    const fetchPages = async () => {
+      try {
+        const { data, error } = await supabase.from('pages').select('*');
+        if (error) throw error;
+        setPages(data || []);
+      } catch (error) {
+        setError('Failed to fetch pages');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPages();
+  }, []);
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>{error}</p>;
+
   return (
     <List component="div" disablePadding>
-
-      {pages.map((page, index) => (
-        <ListItem key={page.name} disablePadding>
-          <ListItemButton sx={{ pl: 4 }} 
-            selected={selectedIndex === page.id}
-            onClick={(event) => {handleListItemClick( page.id); navigate(`pages/view/${page.id}`)}}
-          >
+      {pages.map((page) => (
+        <ListItem key={page.id} disablePadding>
+          <ListItemButton sx={{ pl: 4 }} onClick={() => navigate(`pages/view/${page.id}`)}>
             <ListItemText primary={page.name} />
-          </ListItemButton >
+          </ListItemButton>
         </ListItem>
       ))}
       <Divider />
-      <ListItem key='Create Template' disablePadding>
-          <ListItemButton sx={{ pl: 4 }} 
-            selected={selectedIndex === 0}
-            onClick={(event) => handleListItemClick( 0)}
-            component={Link}
-            to="pages/create"
-                        >
-          <ListItemIcon>
-            <AddCircleOutlineIcon />
-          </ListItemIcon>
-            <ListItemText primary="Create Template" />
-          </ListItemButton>
-        </ListItem>
+      <ListItemButton sx={{ pl: 4 }} component={Link} to="pages/create">
+        <ListItemIcon><AddCircleOutline /></ListItemIcon>
+        <ListItemText primary="Create Template" />
+      </ListItemButton>
     </List>
   );
-}
+};
 
-function AiToolSelector() {
-  let aiTool = sessionStorage.getItem('aiTool');
-  const [tool, setTool] = useState(aiTool);
-  if (!aiTool) {
-    sessionStorage.setItem('aiTool', 'chatGpt');
-    setTool('chatGpt');
-  }
-  const handleChange = (event: any) => {
-    setTool(event.target.value);
-    sessionStorage.setItem('aiTool', event.target.value)
-  };
+const ClippedDrawer = () => {
   return (
-    <FormControl>
-      <Select
-        value={tool}
-        onChange={handleChange}
-        displayEmpty
-        inputProps={{ 'aria-label': 'AI Tool' }}
-        sx={{
-          // Set background to white
-          // backgroundColor: 'white',  
-          // Set text color to white
-          color: 'white',  // Text color
-          '& .MuiOutlinedInput-notchedOutline': {
-            borderColor: 'white',  // Border color
-          },
-          '&:hover .MuiOutlinedInput-notchedOutline': {
-            borderColor: 'gray',  // Border color on hover
-          },
-          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-            borderColor: 'white',  // Border color when focused
-          },minWidth: 120
-        }}
-      >
-        <MenuItem value={'chatGpt'}>Chat GPT</MenuItem>
-        <MenuItem value={'claude'}>Claude AI</MenuItem>
-      </Select>
-    </FormControl>
-  );
-}
-function ToolBarHome(){
-  return (
-      <Box sx={{ flexGrow: 1 }}>
-      
-    </Box>
-  );
-}
-export default function ClippedDrawer() {
-  const [age, setAge] = React.useState('');
-
-  const handleChange = (event: SelectChangeEvent) => {
-    setAge(event.target.value as string);
-  };
-  return (
-    <Box sx={{ display: 'flex'}}>
+    <Box sx={{ display: 'flex' }}>
       <CssBaseline />
       <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
         <Toolbar>
-          <Typography
-            variant="h6"
-            noWrap
-            component="div"
-            sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}
-          >
-             AI Writing Tool
-          </Typography>
-          {/* <AiToolSelector></AiToolSelector> */}
+          <Typography variant="h6" noWrap sx={{ flexGrow: 1 }}>AI Writing Tool</Typography>
         </Toolbar>
       </AppBar>
       <Drawer
@@ -409,21 +233,20 @@ export default function ClippedDrawer() {
         }}
       >
         <Toolbar />
-        <Box sx={{ overflow: 'auto' }}>
-          <SidebarList />
-          <Divider />
-        </Box>
+        <SidebarList />
       </Drawer>
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <Toolbar />
         <Paper elevation={0}>
-        <Card sx={{ minWidth: "130vh", maxWidth: "130vh",minHeight: "80vh", maxHeight: '80vh', overflowY: "scroll" }}>
-        <CardContent>
-          <Outlet />
-          </CardContent>
+          <Card sx={{ minWidth: "130vh", maxWidth: "130vh", minHeight: "80vh", maxHeight: '80vh', overflowY: "scroll" }}>
+            <CardContent>
+              <Outlet />
+            </CardContent>
           </Card>
         </Paper>
       </Box>
     </Box>
   );
-}
+};
+
+export default ClippedDrawer;

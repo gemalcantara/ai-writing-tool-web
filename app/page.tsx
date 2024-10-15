@@ -33,22 +33,23 @@ export default function App() {
       <Routes>
         <Route path="/" element={ <Login /> } />
         <Route path="/dashboard" element={<Dashboard />}>
-          <Route path="/dashboard/users" element={ <Users /> } />
-          <Route path="/dashboard/users/create" element={ <UsersForm /> } />
-          <Route path="/dashboard/users/profile" element={ <Profile /> } />
-          <Route path="/dashboard/pages" element={ <Pages /> } />
-          <Route path="/dashboard/pages/create" element={ <PagesForm /> } />
-          <Route path="/dashboard/pages/view/:pageId" element={ <Pages /> } />
-          <Route path="/dashboard/clients" element={ <Client /> } />
-          <Route path="/dashboard/clients/create" element={ <ClientsForm /> } />
-          <Route path="/dashboard/clients/view/:clientId" element={ <Client /> } />
-          <Route path="/dashboard/articles" element={< ArticlesResult /> } />
-          <Route path="/dashboard/articles/create" element={< ArticleSteps /> } />
-          <Route path="/dashboard/articles/create/:articleId" element={< ArticleSteps /> } />
-          {/* <Route path="/dashboard/articles/create" element={< ArticlesForm /> } /> */}
-          <Route path="/dashboard/articles/view" element={< ArticleHistory /> } />
-          <Route path="/dashboard/articles/view/:articleId" element={< ArticleHistoryView /> } />
-          <Route path="/dashboard/articles/view/:articleId/output" element={< ArticlesHistoryOutline /> } />
+          <Route path="users" element={ <Users /> } />
+          <Route path="users/create" element={ <UsersForm /> } />
+          <Route path="users/profile" element={ <Profile /> } />
+          <Route path="pages" element={ <Pages /> } />
+          <Route path="pages/create"  element={ <PagesForm /> } />
+          <Route path="pages/view/:pageId" element={ <Pages /> } />
+          <Route path="clients" element={ <Client /> } />
+          <Route path="clients/create" element={ <ClientsForm /> } />
+          <Route path="clients/view/:clientId" element={ <Client /> } />
+          <Route path="articles" element={< ArticlesResult /> } />
+          <Route path="articles/create" element={< ArticleSteps /> } />
+          <Route index element={< ArticleSteps /> } />
+          <Route path="articles/create/:articleId" element={< ArticleSteps /> } />
+          {/* <Route path="articles/create" element={< ArticlesForm /> } /> */}
+          <Route path="articles/view" element={< ArticleHistory /> } />
+          <Route path="articles/view/:articleId" element={< ArticleHistoryView /> } />
+          <Route path="articles/view/:articleId/output" element={< ArticlesHistoryOutline /> } />
         </Route>
       </Routes>
     </Router>

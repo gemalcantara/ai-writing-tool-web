@@ -67,8 +67,8 @@ pre {
 }
 
 .awt-font-large {
-  font-size: x-large;
-  font-weight: 500;
+  font-size: x-large !important;
+  font-weight: 500 !important;
 }
 /* textarea:hover {
   border-color: #3399FF;
