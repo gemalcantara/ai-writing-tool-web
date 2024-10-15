@@ -1,9 +1,5 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import Box from "@mui/material/Box";
-import Toolbar from "@mui/material/Toolbar";
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
 import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
 import { createClient } from "@supabase/supabase-js";
@@ -66,11 +62,8 @@ export default function ArticlesHistoryOutline() {
   };
 
   return (
-    <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-      <Toolbar />
-      <Card sx={{ minWidth: "100vh", maxWidth: "100vh", height: "80vh", overflowY: "scroll" }}>
-        <CardContent>
-          <Grid container spacing={2}>
+    <>
+     <Grid container spacing={2}>
             <Grid item xs={10}>
               <h3>{article?.article_title}</h3>
             </Grid>
@@ -81,31 +74,28 @@ export default function ArticlesHistoryOutline() {
             </Grid>
           </Grid>
           {error && <p style={{ color: "red" }}>{error}</p>}
-        {
-          outline ? outline.sections.map((section : any, index: any) => (
-            <div key={index}>
-              {section.headingLevel === 'h2' ? (
-                <h2> { section.sectionTitle}</h2>
-              ) : (
-                <h3> { section.sectionTitle}</h3>
-              )}
-              <Typography>{`${section.description}`}</Typography>
-              <br />
-              <Typography>Links:</Typography>
-              {section.links.map((link: any,index: any)=>( 
-                <div key={index}>
-                  <a href={link.link}>{`${link.link}`}</a>
-                </div>
-              ))}
-              <br />
-            </div>
-          
-        
-        ))  : ''
-        }
-        </CardContent>
-      </Card>
-    </Box>
+          {
+            outline ? outline.sections.map((section: any, index: any) => (
+              <div key={index}>
+                {section.headingLevel === 'h2' ? (
+                  <h2> {section.sectionTitle}</h2>
+                ) : (
+                  <h3> {section.sectionTitle}</h3>
+                )}
+                <Typography>{`${section.description}`}</Typography>
+                <br />
+                <Typography>Links:</Typography>
+                {section.links.map((link: any, index: any) => (
+                  <div key={index}>
+                    <a href={link.link}>{`${link.link}`}</a>
+                  </div>
+                ))}
+                <br />
+              </div>
+
+
+            )) : ''
+          }
+    </>
   );
 }
-  

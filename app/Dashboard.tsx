@@ -30,7 +30,7 @@ import {
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import Collapse from '@mui/material/Collapse';
-import { FormControl, ListItem, MenuItem, Select, SelectChangeEvent } from '@mui/material';
+import { Card, CardContent, FormControl, ListItem, MenuItem, Paper, Select, SelectChangeEvent } from '@mui/material';
 import { useState, useEffect } from 'react';
 import useLogout from './component/Logout';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
@@ -414,7 +414,16 @@ export default function ClippedDrawer() {
           <Divider />
         </Box>
       </Drawer>
-      <Outlet />
+      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+        <Toolbar />
+        <Paper elevation={0}>
+        <Card sx={{ minWidth: "130vh", maxWidth: "130vh",minHeight: "80vh", maxHeight: '80vh', overflowY: "scroll" }}>
+        <CardContent>
+          <Outlet />
+          </CardContent>
+          </Card>
+        </Paper>
+      </Box>
     </Box>
   );
 }

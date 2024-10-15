@@ -1,11 +1,6 @@
 "use client"
 import * as React from 'react';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
-import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
 import { Grid } from '@mui/material';
 import TextField from '@mui/material/TextField';
@@ -66,81 +61,76 @@ export default function UsersForm() {
   };
 
   return (
-    <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-      <Toolbar />
-      <Card sx={{ minWidth: "120vh",minHeight: "80vh" }}>
-        <CardContent>
-          <Typography
-            variant="h4"
-            fontWeight="bold"
-            color="text.primary"
-            gutterBottom
-          >
-            Create User
-          </Typography>
-          <form onSubmit={handleSubmit}>
-            <Grid container spacing={2}>
-              <Grid item xs={6}>
-                <TextField
-                  fullWidth
-                  id="name"
-                  label="Name"
-                  value={name}
-                  variant="outlined"
-                  onChange={(e) => setName(e.target.value)}
-                />
-              </Grid>
-              <Grid item xs={6}>
-                <TextField
-                  fullWidth
-                  value={email}
-                  id="email"
-                  type="email"
-                  label="Email"
-                  variant="outlined"
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </Grid>
-              <Grid item xs={6}>
-                <TextField
-                  fullWidth
-                  value={password}
-                  id="password"
-                  label="Password"
-                  variant="outlined"
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </Grid>
-              <Grid item xs={6}>
-                <FormControl fullWidth>
-                  <InputLabel id="userTypeLabel">User Type</InputLabel>
-                  <Select
-                    labelId="userTypeLabel"
-                    id="userType"
-                    value={userType}
-                    label="userType"
-                    onChange={handleChange}
-                  >
-                    <MenuItem value={'admin'}>Admin</MenuItem>
-                    <MenuItem value={'user'}>User</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12}>
-                <Button
-                  style={{ float: 'right' }}
-                  size="large"
-                  id="submit"
-                  type="submit"
-                  variant="outlined"
-                >
-                  Save
-                </Button>
-              </Grid>
-            </Grid>
-          </form>
-        </CardContent>
-      </Card>
-    </Box>
+    <>
+      <Typography
+        variant="h4"
+        fontWeight="bold"
+        color="text.primary"
+        gutterBottom
+      >
+        Create User
+      </Typography>
+      <form onSubmit={handleSubmit}>
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              id="name"
+              label="Name"
+              value={name}
+              variant="outlined"
+              onChange={(e) => setName(e.target.value)}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              value={email}
+              id="email"
+              type="email"
+              label="Email"
+              variant="outlined"
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              fullWidth
+              value={password}
+              id="password"
+              label="Password"
+              variant="outlined"
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <FormControl fullWidth>
+              <InputLabel id="userTypeLabel">User Type</InputLabel>
+              <Select
+                labelId="userTypeLabel"
+                id="userType"
+                value={userType}
+                label="userType"
+                onChange={handleChange}
+              >
+                <MenuItem value={'admin'}>Admin</MenuItem>
+                <MenuItem value={'user'}>User</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12}>
+            <Button
+              style={{ float: 'right' }}
+              size="large"
+              id="submit"
+              type="submit"
+              variant="outlined"
+            >
+              Save
+            </Button>
+          </Grid>
+        </Grid>
+      </form>
+    </>
   );
 }

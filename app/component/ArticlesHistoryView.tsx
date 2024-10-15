@@ -1,9 +1,5 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import Box from "@mui/material/Box";
-import Toolbar from "@mui/material/Toolbar";
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
 import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
 import ReactMarkdown from "react-markdown";
@@ -62,27 +58,21 @@ export default function ArticleHistoryView() {
   };
 
   return (
-    <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-      <Toolbar />
-      <Card sx={{ minWidth: "100vh", maxWidth: "100vh", height: "80vh", overflowY: "scroll" }}>
-        <CardContent>
-          <Grid container spacing={2}>
-            <Grid item xs={10}>
-              <h3>{article?.article_title}</h3>
-            </Grid>
-            <Grid item xs={2}>
-              <Button variant="outlined" sx={{ float: "right" }} onClick={handleCopy}>
-                Copy Result
-              </Button>
-            </Grid>
-          </Grid>
-          {error && <p style={{ color: "red" }}>{error}</p>}
-          <ReactMarkdown className="process-text" remarkPlugins={[remarkGfm]}>
-            {article?.article_output}
-          </ReactMarkdown>
-        </CardContent>
-      </Card>
-    </Box>
+    <>
+      <Grid container spacing={2}>
+        <Grid item xs={10}>
+          <h3>{article?.article_title}</h3>
+        </Grid>
+        <Grid item xs={2}>
+          <Button variant="outlined" sx={{ float: "right" }} onClick={handleCopy}>
+            Copy Result
+          </Button>
+        </Grid>
+      </Grid>
+      {error && <p style={{ color: "red" }}>{error}</p>}
+      <ReactMarkdown className="process-text" remarkPlugins={[remarkGfm]}>
+        {article?.article_output}
+      </ReactMarkdown>
+    </>
   );
 }
-  

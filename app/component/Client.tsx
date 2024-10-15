@@ -1,11 +1,6 @@
 "use client"
 import * as React from 'react';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
-import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
 import { Link, useParams } from 'react-router-dom';
 import { createClient } from '@supabase/supabase-js';
@@ -29,7 +24,7 @@ interface ClientsList {
 
 
 export default function Client() {
-  const  { clientId } = useParams();
+  const { clientId } = useParams();
   const [client, setClient] = useState<ClientsList[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -38,10 +33,10 @@ export default function Client() {
 
   const navigate = useNavigate();
 
-  const handleChangeName = (event:any) => {
+  const handleChangeName = (event: any) => {
     setName(event.target.value);
   };
-  const handleChangeGuideline = (event:any) => {
+  const handleChangeGuideline = (event: any) => {
     setGuideline(event.target.value);
   };
   useEffect(() => {
@@ -50,7 +45,7 @@ export default function Client() {
         // Fetch data from Supabase
         const { data, error } = await supabase
           .from('clients') // Replace 'users' with your table name
-          .select('*') 
+          .select('*')
           .eq('id', parseInt(clientId!))
           .single(); // Ensure that only one row is returned
 
@@ -82,7 +77,7 @@ export default function Client() {
       try {
         const { error } = await supabase
           .from('clients')
-          .update({ name: name,guideline: guideline })
+          .update({ name: name, guideline: guideline })
           .eq('id', clientId);
 
         if (error) throw error;
@@ -122,56 +117,51 @@ export default function Client() {
     }
   };
 
-  
-  return (
-    <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-      <Toolbar />
-      <Card sx={{ minWidth: "120vh",minHeight: "80vh" }}>
-        <CardContent>
 
-        <Grid container spacing={2} marginBottom={3}>
-            <Grid item xs={8}>
-            <Typography
+  return (
+    <>
+      <Grid container spacing={2} marginBottom={3}>
+        <Grid item xs={8}>
+          <Typography
             variant="h5"
             color="text.primary"
           >
             Client Guidelines
           </Typography>
-            </Grid>
-            <Grid item xs={4}>
-              <Button style={{float: 'right'}} variant="outlined" color='error'
-                onClick={(event) => handleDelete()}
-                >
-                <DeleteForeverRounded /> Delete Client
-              </Button>
-            </Grid>
-            <Grid item xs={12}>
-          <TextField 
+        </Grid>
+        <Grid item xs={4}>
+          <Button style={{ float: 'right' }} variant="outlined" color='error'
+            onClick={(event) => handleDelete()}
+          >
+            <DeleteForeverRounded /> Delete Client
+          </Button>
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
             id="name"
             label="Name"
-            value= {name}
+            value={name}
             variant="outlined"
-            onChange={handleChangeName}
-            />
-            </Grid>
-
-          </Grid>
-          <TextField
-            id="guideline"
-            label="Page Guideline"
-            onChange={handleChangeGuideline}
-            multiline
             fullWidth
-            value={guideline}
-            rows={20}
+            onChange={handleChangeName}
           />
-        </CardContent>
-        <CardActions style={{ float: 'right' }}>
+        </Grid>
+
+      </Grid>
+      <TextField
+        id="guideline"
+        label="Page Guideline"
+        onChange={handleChangeGuideline}
+        multiline
+        fullWidth
+        value={guideline}
+        rows={20}
+      />
+      <Grid sx={{float: 'right', marginTop: '1rem'}}>
           <Button size="large" variant="contained" color="primary" onClick={(event) => handleUpdate()}>
             Update
           </Button>
-        </CardActions>
-      </Card>
-    </Box>
+      </Grid>
+    </>
   );
 }

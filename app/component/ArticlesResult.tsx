@@ -6,31 +6,29 @@ import Grid from '@mui/material/Grid';
 import remarkGfm from 'remark-gfm'
 import ReactMarkdown from 'react-markdown';
 
-export default function ArticlesResult({pageTitle,toCopy,response,loadingResult}:any) {
-
- console.log(toCopy);
+export default function ArticlesResult({ pageTitle, toCopy, response, loadingResult }: any) {
   return (
     <div>
       <h1>Article Result:</h1>
       <Grid container spacing={2}>
         <Grid item xs={10}>
-        <h3>{pageTitle}</h3>
+          <h3>{pageTitle}</h3>
         </Grid>
         <Grid item xs={2}>
-        <Button variant="outlined" sx={{float: 'right'}} onClick={() => {
-          navigator.clipboard.writeText(toCopy)
-          alert('Result Copied')
-        }}>Copy Result</Button>
+          <Button variant="outlined" sx={{ float: 'right' }} onClick={() => {
+            navigator.clipboard.writeText(toCopy)
+            alert('Result Copied')
+          }}>Copy Result</Button>
         </Grid>
       </Grid>
 
 
-       { 
-       loadingResult ?? <p>Loading...</p>
-        }
-         <ReactMarkdown className="process-text" remarkPlugins={[remarkGfm]}>{response}
+      {
+        loadingResult ?? <p>Loading...</p>
+      }
+      <ReactMarkdown className="process-text" remarkPlugins={[remarkGfm]}>{response}
 
-         </ReactMarkdown>
+      </ReactMarkdown>
 
     </div>
 

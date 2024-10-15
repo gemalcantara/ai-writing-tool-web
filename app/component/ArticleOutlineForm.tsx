@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { generateOutline } from '../helpers/openaiApi';
 import { Box, Button, FormControl, Grid, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import { createClient } from '@supabase/supabase-js';
-import Markdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
 import '../App.css';
 import DynamicFieldsComponent from './OutlineDynamicLinks';
 const supaBaseLink = process.env.NEXT_PUBLIC_SUPABASE_LINK;
@@ -44,21 +41,21 @@ function AiToolSelector() {
   );
 }
 
-const ArticleOutlineForm = ({handleSubmit, inputFieldStaticOutline, setInputFieldStaticOutline, clients, pages,loadingOutline,linkFields, setLinkFields}:any) => {
-  const getNameById = (list: any,id: any) => {
+const ArticleOutlineForm = ({ handleSubmit, inputFieldStaticOutline, setInputFieldStaticOutline, clients, pages, loadingOutline, linkFields, setLinkFields }: any) => {
+  const getNameById = (list: any, id: any) => {
     const entry = list.find((item: { id: any; }) => item.id === id);
     return entry.name;
-};
+  };
   return (
- 
+
     <div>
       <h1>Create Outline</h1>
       <form onSubmit={handleSubmit}>
         <Grid container spacing={2}>
-        <Grid item xs={12}>
-              <FormControl fullWidth>
-                <InputLabel id="clientLabel">Select Client</InputLabel>
-                <Select
+          <Grid item xs={12}>
+            <FormControl fullWidth>
+              <InputLabel id="clientLabel">Select Client</InputLabel>
+              <Select
                 labelId="clientLabel"
                 id="selectedClient"
                 name="selectedClient"
@@ -66,22 +63,22 @@ const ArticleOutlineForm = ({handleSubmit, inputFieldStaticOutline, setInputFiel
                 label="client"
                 onChange={(e) => setInputFieldStaticOutline({
                   ...inputFieldStaticOutline,
-                  [e.target.name]: e.target.value, 
-                  clientName: getNameById(clients,e.target.value)
+                  [e.target.name]: e.target.value,
+                  clientName: getNameById(clients, e.target.value)
                 })}
-                >
+              >
                 {
-                    clients.map((client : any) => (
-                        <MenuItem key={client.id} value={client.id}>{client.name}</MenuItem>
-                    ))
+                  clients.map((client: any) => (
+                    <MenuItem key={client.id} value={client.id}>{client.name}</MenuItem>
+                  ))
                 }
-                </Select>
-              </FormControl>
-            </Grid>
-              <Grid item xs={12}>
-              <FormControl fullWidth>
-                <InputLabel id="pageLabel">Page Template</InputLabel>
-                <Select
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12}>
+            <FormControl fullWidth>
+              <InputLabel id="pageLabel">Page Template</InputLabel>
+              <Select
                 name="selectedPage"
                 labelId="pageLabel"
                 id="page"
@@ -89,19 +86,19 @@ const ArticleOutlineForm = ({handleSubmit, inputFieldStaticOutline, setInputFiel
                 label="page"
                 onChange={(e) => setInputFieldStaticOutline({
                   ...inputFieldStaticOutline,
-                  [e.target.name]: e.target.value, 
-                  pageName:  getNameById(pages,e.target.value)
+                  [e.target.name]: e.target.value,
+                  pageName: getNameById(pages, e.target.value)
                 })}
-                >
+              >
                 {
-                    pages.map((page : any) => (
-                        <MenuItem key={page.id} value={page.id}>{page.name}</MenuItem>
-                    ))
+                  pages.map((page: any) => (
+                    <MenuItem key={page.id} value={page.id}>{page.name}</MenuItem>
+                  ))
                 }
-                </Select>
+              </Select>
             </FormControl>
-            </Grid>
-            <Grid item xs={12}>
+          </Grid>
+          <Grid item xs={12}>
             <TextField
               fullWidth
               id="articleDescription"
@@ -111,26 +108,26 @@ const ArticleOutlineForm = ({handleSubmit, inputFieldStaticOutline, setInputFiel
               variant="outlined"
               onChange={(e) => setInputFieldStaticOutline({
                 ...inputFieldStaticOutline,
-                [e.target.name]: e.target.value, 
+                [e.target.name]: e.target.value,
               })}
               multiline
               rows={5}
             />
           </Grid>
-        <Grid item xs={12}>
-          <DynamicFieldsComponent linkFields={linkFields} setLinkFields={setLinkFields}></DynamicFieldsComponent>
-        </Grid>
+          <Grid item xs={12}>
+            <DynamicFieldsComponent linkFields={linkFields} setLinkFields={setLinkFields}></DynamicFieldsComponent>
+          </Grid>
         </Grid>
         <Button
-        variant="outlined"
-        color="primary"
-        style={{ marginTop: '16px' }}
-        fullWidth
-        disabled={loadingOutline}
-        type='submit'
-      >
-        {loadingOutline ? 'Generating...' : 'Generate Outline'}
-      </Button>
+          variant="outlined"
+          color="primary"
+          style={{ marginTop: '16px' }}
+          fullWidth
+          disabled={loadingOutline}
+          type='submit'
+        >
+          {loadingOutline ? 'Generating...' : 'Generate Outline'}
+        </Button>
       </form>
 
       {/* {outline && (

@@ -1,11 +1,6 @@
 "use client"
 import * as React from 'react';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
-import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
 import { Link, useParams } from 'react-router-dom';
 import { createClient } from '@supabase/supabase-js';
@@ -51,7 +46,7 @@ export default function PagesIndex() {
         // Fetch data from Supabase
         const { data, error } = await supabase
           .from('pages') // Replace 'users' with your table name
-          .select('*') 
+          .select('*')
           .eq('id', parseInt(pageId!))
           .single(); // Ensure that only one row is returned
 
@@ -83,7 +78,7 @@ export default function PagesIndex() {
       try {
         const { error } = await supabase
           .from('pages')
-          .update({ name: name,guideline: guideline })
+          .update({ name: name, guideline: guideline })
           .eq('id', pageId);
 
         if (error) throw error;
@@ -123,42 +118,38 @@ export default function PagesIndex() {
     }
   };
 
-  
-  return (
-    <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-      <Toolbar />
-      <Card sx={{ minWidth: "120vh",minHeight: "80vh" }}>
-        <CardContent>
 
-        <Grid container spacing={2} marginBottom={3}>
-            <Grid item xs={8}>
-            <Typography
+  return (
+    <>
+      <Grid container spacing={2} marginBottom={3}>
+        <Grid item xs={8}>
+          <Typography
             variant="h5"
             color="text.primary"
           >
             Article Guidelines
           </Typography>
-          </Grid>
-            <Grid item xs={4}>
-              <Button style={{float: 'right'}} variant="outlined" color='error'
-                onClick={(event) => handleDelete()}
-                >
-                <DeleteForeverRounded /> Delete Page
-              </Button>
-            </Grid>
-            <Grid item xs={12}>
-            <Typography
+        </Grid>
+        <Grid item xs={4}>
+          <Button style={{ float: 'right' }} variant="outlined" color='error'
+            onClick={(event) => handleDelete()}
+          >
+            <DeleteForeverRounded /> Delete Page
+          </Button>
+        </Grid>
+        <Grid item xs={12}>
+          <Typography
             variant="h6"
             color="text.primary"
             gutterBottom
-            >
+          >
             Variable to use:
           </Typography>
           <Typography
             variant="caption"
             color="text.primary"
             gutterBottom
-            >
+          >
             {"{{"}client_guidelines{"}}"}
           </Typography>
           <br />
@@ -166,7 +157,7 @@ export default function PagesIndex() {
             variant="caption"
             color="text.primary"
             gutterBottom
-            >
+          >
             {"{{"}article_instructions{"}}"}
           </Typography>
           <br />
@@ -174,40 +165,39 @@ export default function PagesIndex() {
             variant="caption"
             color="text.primary"
             gutterBottom
-            >
+          >
             {"{{"}keywords{"}}"}
           </Typography>
           <br />
           <br />
-          
-            </Grid>
-            <Grid item xs={12}>
-          <TextField 
+
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
             id="name"
             label="Name"
-            value= {name}
+            value={name}
+            fullWidth
             variant="outlined"
             onChange={handleChangeName}
-            />
-            </Grid>
-
-          </Grid>
-          <TextField
-            id="guideline"
-            label="Page Guideline"
-            onChange={handleChangeGuideline}
-            multiline
-            fullWidth
-            value={guideline}
-            rows={20}
           />
-        </CardContent>
-        <CardActions style={{ float: 'right' }}>
-          <Button size="large" variant="contained" color="primary" onClick={(event) => handleUpdate()}>
-            Update
-          </Button>
-        </CardActions>
-      </Card>
-    </Box>
+        </Grid>
+
+      </Grid>
+      <TextField
+        id="guideline"
+        label="Page Guideline"
+        onChange={handleChangeGuideline}
+        multiline
+        fullWidth
+        value={guideline}
+        rows={20}
+      />
+      <Grid item xs={12} sx={{ float: "right", marginTop: '1rem' }}>
+        <Button size="large" variant="contained" color="primary" onClick={(event) => handleUpdate()}>
+          Update
+        </Button>
+      </Grid>
+    </>
   );
 }

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Stepper, Step, StepButton, Button, Typography, Card, CardActions, CardContent, Toolbar } from '@mui/material';
+import { Box, Stepper, Step, StepButton, Button, Typography } from '@mui/material';
 import { useCookies } from 'react-cookie';
 import { useNavigate } from 'react-router-dom';
 import { createClient } from '@supabase/supabase-js';
@@ -39,7 +39,7 @@ const defaultArticleFields = {
   keywords: '',
   pageTitle: ''
 };
-const stepsCompleted : any = {
+const stepsCompleted: any = {
 
 }
 interface SectionField {
@@ -65,7 +65,7 @@ export default function ArticleSteps() {
   const [toCopy, setToCopy] = useState('');
   const [clients, setClients] = useState([]);
   const [pages, setPages] = useState([]);
-  const [inputFields, setInputFields] = useState<SectionField[]>([{ sectionTitle: '', description: '', links: [{link: ''}],headingLevel: 'h2'  }]);
+  const [inputFields, setInputFields] = useState<SectionField[]>([{ sectionTitle: '', description: '', links: [{ link: '' }], headingLevel: 'h2' }]);
   const [inputFieldStaticOutline, setInputFieldStaticOutline] = useState(defaultOutlineFields);
   const [inputFieldStaticArticle, setInputFieldStaticArticle] = useState(defaultArticleFields);
   const [pageTitle, setPageTitle] = useState('');
@@ -80,62 +80,62 @@ export default function ArticleSteps() {
   const [outlineResultField, setOutlineResultField] = useState<any>();
   useEffect(() => { fetchData('clients', setClients); fetchData('pages', setPages); }, []);
 
-    useEffect(() => {
-      if (articleId) {
-        
-        const fetchArticleById = async () => {
-          try {
-            const { data, error } = await supabase
+  useEffect(() => {
+    if (articleId) {
+
+      const fetchArticleById = async () => {
+        try {
+          const { data, error } = await supabase
             .from("history")
             .select("*")
             .eq("id", articleId)
             .single(); // Ensures we only get one record
-            
-            if (error) {
-              setError(`Error fetching article: ${error.message}`);
-            } else {
-              // console.log(data);
-              setArticle(data);
-              setOutlineResultField(JSON.parse(data.outline_input_data))
-              setOutlineResult(data.outline)
-              setOutline(data.outline);
-            }
-          } catch (error) {
-            setError(`Error fetching article: ${error}`);
+
+          if (error) {
+            setError(`Error fetching article: ${error.message}`);
+          } else {
+            // console.log(data);
+            setArticle(data);
+            setOutlineResultField(JSON.parse(data.outline_input_data))
+            setOutlineResult(data.outline)
+            setOutline(data.outline);
           }
-        };
-        
-        fetchArticleById();
-      }
-    }, [articleId]);
-
-    useEffect(()=>{
-      if(outlineResultField && outlineResult){
- 
-        let inputFieldStaticOutline = outlineResultField.inputFieldStaticOutline;
-        let inputFieldStaticArticledb = outlineResultField.inputFieldStaticArticle;
-        let inputFieldSectiondb = outlineResultField.inputFields;
-        console.log(inputFieldStaticArticledb.pageTitle);
-        let linkFields = outlineResultField.linkFields;
-        setInputFieldStaticOutline(inputFieldStaticOutline);
-        parseOutlineResultFillArticleFieldPreload(outlineResult,inputFieldSectiondb);
-        console.log(inputFieldSectiondb);
-        // parseOutlineResultFillArticleField(outlineResult);
-        setLinkFields(linkFields);
-
-        if(linkFields.keywords){
-          let internalKeywords = linkFields.keywords.map((link: any, index: any) => link.value.trim()).join(', ');
-          setInputFieldStaticArticle(prev => ({ ...prev,keywords: internalKeywords }));
+        } catch (error) {
+          setError(`Error fetching article: ${error}`);
         }
+      };
 
+      fetchArticleById();
+    }
+  }, [articleId]);
+
+  useEffect(() => {
+    if (outlineResultField && outlineResult) {
+
+      let inputFieldStaticOutline = outlineResultField.inputFieldStaticOutline;
+      let inputFieldStaticArticledb = outlineResultField.inputFieldStaticArticle;
+      let inputFieldSectiondb = outlineResultField.inputFields;
+      console.log(inputFieldStaticArticledb.pageTitle);
+      let linkFields = outlineResultField.linkFields;
+      setInputFieldStaticOutline(inputFieldStaticOutline);
+      parseOutlineResultFillArticleFieldPreload(outlineResult, inputFieldSectiondb);
+      console.log(inputFieldSectiondb);
+      // parseOutlineResultFillArticleField(outlineResult);
+      setLinkFields(linkFields);
+
+      if (linkFields.keywords) {
+        let internalKeywords = linkFields.keywords.map((link: any, index: any) => link.value.trim()).join(', ');
+        setInputFieldStaticArticle(prev => ({ ...prev, keywords: internalKeywords }));
       }
-    },[article])
+
+    }
+  }, [article])
 
   const [linkFields, setLinkFields] = useState({
-      keywords: [{ id: 1, value: '' }],
-      competitorLinks: [{ id: 1, value: '' }],
-      internalLinks: [{ id: 1, value: '' }],
-      authorityLinks: [{ id: 1, value: '' }],
+    keywords: [{ id: 1, value: '' }],
+    competitorLinks: [{ id: 1, value: '' }],
+    internalLinks: [{ id: 1, value: '' }],
+    authorityLinks: [{ id: 1, value: '' }],
   });
   const totalSteps = steps.length;
   const completedSteps = () => Object.keys(completed).length;
@@ -156,7 +156,7 @@ export default function ArticleSteps() {
       console.error(`Failed to fetch ${table}`, error);
     }
   };
-  
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -189,15 +189,19 @@ export default function ArticleSteps() {
 
   const parseOutlineResultFillArticleField = (outline: string) => {
     const parsedOutline = JSON.parse(outline);
-    setInputFieldStaticArticle(prev => ({ ...prev, instruction: parsedOutline.metaDescription ?? inputFieldStaticOutline.articleDescription, pageTitle: parsedOutline.title, keywords: inputFieldStaticOutline.keywords,selectedClient: inputFieldStaticOutline.selectedClient,
-      selectedPage: inputFieldStaticOutline.selectedPage }));
+    setInputFieldStaticArticle(prev => ({
+      ...prev, instruction: parsedOutline.metaDescription ?? inputFieldStaticOutline.articleDescription, pageTitle: parsedOutline.title, keywords: inputFieldStaticOutline.keywords, selectedClient: inputFieldStaticOutline.selectedClient,
+      selectedPage: inputFieldStaticOutline.selectedPage
+    }));
     setPageTitle(parsedOutline.title);
     setInputFields(parsedOutline.sections || []);
   };
-  const parseOutlineResultFillArticleFieldPreload = (outline: string,inputFields: any) => {
+  const parseOutlineResultFillArticleFieldPreload = (outline: string, inputFields: any) => {
     const parsedOutline = JSON.parse(outline);
-    setInputFieldStaticArticle(prev => ({ ...prev, instruction: parsedOutline.metaDescription ?? inputFieldStaticOutline.articleDescription, pageTitle: parsedOutline.title, keywords: inputFieldStaticOutline.keywords,selectedClient: inputFieldStaticOutline.selectedClient,
-      selectedPage: inputFieldStaticOutline.selectedPage }));
+    setInputFieldStaticArticle(prev => ({
+      ...prev, instruction: parsedOutline.metaDescription ?? inputFieldStaticOutline.articleDescription, pageTitle: parsedOutline.title, keywords: inputFieldStaticOutline.keywords, selectedClient: inputFieldStaticOutline.selectedClient,
+      selectedPage: inputFieldStaticOutline.selectedPage
+    }));
     setPageTitle(parsedOutline.title);
     setInputFields(inputFields);
   };
@@ -208,7 +212,7 @@ export default function ArticleSteps() {
     // console.log(formData);
     // return ;
     const articleSections = formData.sections.map((section, index) => {
-    return `
+      return `
     Section ${index + 1}
     Section Title: ${section.headingLevel} ${section.sectionTitle}
     Section Details: ${section.description}
@@ -218,10 +222,10 @@ export default function ArticleSteps() {
     try {
       // console.log(prompt)
       setLoadingResult(true);
-      const data : any = await sendRequest(prompt, JSON.stringify(articleSections));
-      let oulineFields = JSON.stringify({inputFieldStaticOutline,inputFieldStaticArticle,linkFields,inputFields})
+      const data: any = await sendRequest(prompt, JSON.stringify(articleSections));
+      let oulineFields = JSON.stringify({ inputFieldStaticOutline, inputFieldStaticArticle, linkFields, inputFields })
       // return
-      await createHistory(data, pageTitle, cookies.user.user.email,outline,oulineFields);
+      await createHistory(data, pageTitle, cookies.user.user.email, outline, oulineFields);
       const plainText = removeMd(data);
       console.log(plainText)
       setToCopy(plainText);
@@ -237,53 +241,46 @@ export default function ArticleSteps() {
   };
 
   const sendRequest = async (formData: string, sectionData: string) => {
-    return await generateArticle(formData,sectionData);
+    return await generateArticle(formData, sectionData);
   };
 
-  const createHistory = async (output: string, article_title: string, created_by: string,outline: string,oulineFields: any) => {
+  const createHistory = async (output: string, article_title: string, created_by: string, outline: string, oulineFields: any) => {
     try {
-      await supabase.from('history').insert({ created_by, article_output: output, article_title, outline,outline_input_data:oulineFields });
+      await supabase.from('history').insert({ created_by, article_output: output, article_title, outline, outline_input_data: oulineFields });
       alert(`${article_title} has been saved.`);
-    } catch (error : any) {
+    } catch (error: any) {
       alert(error.message);
     }
   };
 
   return (
-    <Box component="main" sx={{ width: '120vh', height: '90vh', flexGrow: 1, p: 3 }}>
-      <Toolbar />
-      <Card sx={{ minWidth: '120vh', height: '80vh', overflowY: 'scroll' }}>
-        <CardContent>
-          <Stepper nonLinear activeStep={activeStep} alternativeLabel>
-            {steps.map((label, index) => (
-              <Step key={label} completed={completed[index]}>
-                <StepButton color="inherit" onClick={() => setActiveStep(index)}>
-                  {label}
-                </StepButton>
-              </Step>
-            ))}
-          </Stepper>
-          {allStepsCompleted() ? (
-            <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
-              <Button onClick={handleReset}>Reset</Button>
-            </Box>
-          ) : (
-            {
-              0: <ArticleOutlineForm {...{ handleSubmit, inputFieldStaticOutline, setInputFieldStaticOutline, clients, pages,loadingOutline,linkFields, setLinkFields }} />,
-              1: <ArticlesForm {...{ handleSubmitArticle, inputFieldStaticArticle, setInputFieldStaticArticle, clients, pages, inputFields, setInputFields, loadingResult }} />,
-              2: <ArticlesResult {...{ pageTitle, toCopy,response, loadingResult }} />
-            }[activeStep]
-          )}
-        </CardContent>
-        <CardActions>
-          <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
-            <Button color="inherit" disabled={activeStep === 0} onClick={handleBack} sx={{ mr: 1 }}>Back</Button>
-            <Box sx={{ flex: '1 1 auto' }} />
-            <Button onClick={handleNext} disabled={activeStep === steps.length - 1}>Next</Button>
-            {activeStep !== steps.length && (completed[activeStep] ? <Typography variant="caption" sx={{ display: 'inline-block' }}>Step {activeStep + 1} already completed</Typography> : <Button onClick={handleComplete}>Complete Step</Button>)}
-          </Box>
-        </CardActions>
-      </Card>
-    </Box>
+    <>
+      <Stepper nonLinear activeStep={activeStep} alternativeLabel>
+        {steps.map((label, index) => (
+          <Step key={label} completed={completed[index]}>
+            <StepButton color="inherit" onClick={() => setActiveStep(index)}>
+              {label}
+            </StepButton>
+          </Step>
+        ))}
+      </Stepper>
+      {allStepsCompleted() ? (
+        <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
+          <Button onClick={handleReset}>Reset</Button>
+        </Box>
+      ) : (
+        {
+          0: <ArticleOutlineForm {...{ handleSubmit, inputFieldStaticOutline, setInputFieldStaticOutline, clients, pages, loadingOutline, linkFields, setLinkFields }} />,
+          1: <ArticlesForm {...{ handleSubmitArticle, inputFieldStaticArticle, setInputFieldStaticArticle, clients, pages, inputFields, setInputFields, loadingResult }} />,
+          2: <ArticlesResult {...{ pageTitle, toCopy, response, loadingResult }} />
+        }[activeStep]
+      )}
+      <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
+        <Button color="inherit" disabled={activeStep === 0} onClick={handleBack} sx={{ mr: 1 }}>Back</Button>
+        <Box sx={{ flex: '1 1 auto' }} />
+        <Button onClick={handleNext} disabled={activeStep === steps.length - 1}>Next</Button>
+        {activeStep !== steps.length && (completed[activeStep] ? <Typography variant="caption" sx={{ display: 'inline-block' }}>Step {activeStep + 1} already completed</Typography> : <Button onClick={handleComplete}>Complete Step</Button>)}
+      </Box>
+    </>
   );
 }

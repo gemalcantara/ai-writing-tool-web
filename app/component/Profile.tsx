@@ -1,10 +1,6 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import Box from "@mui/material/Box";
-import Toolbar from "@mui/material/Toolbar";
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
 import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
 import TextField from "@mui/material/TextField";
@@ -87,7 +83,7 @@ export default function Profile() {
       user_type: userType,
     };
 
-const { error: updateError } = await supabase
+    const { error: updateError } = await supabase
       .from('users')
       .update(updates)
       .eq('supabase_id', profile.supabase_id);
@@ -138,121 +134,111 @@ const { error: updateError } = await supabase
   }
 
   return (
-    <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-      <Toolbar />
-      <Card sx={{ minWidth: "100vh", maxWidth: "100vh", height: "80vh", overflowY: "scroll" }}>
-        <CardContent>
-        <Grid container spacing={2}>
-            <Grid item xs={10}>
-              <Typography
-                variant="h4"
-                fontWeight="bold"
-                color="text.primary"
-                gutterBottom
-              >
-                User Profile
-              </Typography>
-              {error && (
+    <>
+      <Grid container spacing={2}>
+        <Grid item xs={10}>
+          <Typography
+            variant="h4"
+            fontWeight="bold"
+            color="text.primary"
+            gutterBottom
+          >
+            User Profile
+          </Typography>
+          {error && (
             <Typography color="error" gutterBottom>
-                {error}
-                </Typography>
-             )}
-            </Grid>
-            <Grid item xs={2}>
-            {!isEditing ? (
-                <Button style={{float: 'right'}} variant="outlined" onClick={() => setIsEditing(true)}>
-                  Edit Profile
-                </Button>
-              ) : (
-           ""
-              )}
-            </Grid>
-          </Grid>
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                disabled={!isEditing}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={!isEditing}
-              />
-            </Grid>
-            {isEditing && (
-              <Grid item xs={12}>
-                <TextField
-                    fullWidth
-                    label="New Password"
-                    type={showPassword ? 'text' : 'password'} // Toggle between 'password' and 'text'
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    helperText="Leave blank to keep current password"
-                    InputProps={{
-                        endAdornment: (
-                        <InputAdornment position="end">
-                            <IconButton
-                            aria-label="toggle password visibility"
-                            onClick={handleClickShowPassword}
-                            onMouseDown={handleMouseDownPassword}
-                            edge="end"
-                            >
-                            {showPassword ? <VisibilityOff /> : <Visibility />}
-                            </IconButton>
-                        </InputAdornment>
-                        ),
-                    }}
-                    />
-              </Grid>
-            )}
-            <Grid item xs={12}>
-              <FormControl fullWidth disabled={!isEditing}>
-                <InputLabel id="user-type-label">User Type</InputLabel>
-                <Select
-                  labelId="user-type-label"
-                  value={userType}
-                  label="User Type"
-                  onChange={(e) => setUserType(e.target.value as 'admin' | 'user')}
-                >
-                  <MenuItem value="user">User</MenuItem>
-                  <MenuItem value="admin">Admin</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={12}>
-              {!isEditing ? (
+              {error}
+            </Typography>
+          )}
+        </Grid>
+        <Grid item xs={2}>
+          {!isEditing ? (
+            <Button style={{ float: 'right' }} variant="outlined" onClick={() => setIsEditing(true)}>
+              Edit Profile
+            </Button>
+          ) : (
             ""
-              ) : (
-                <>
-                  <Button variant="contained" onClick={handleUpdate} sx={{ mr: 2 }}>
-                    Save Changes
-                  </Button>
-                  <Button variant="outlined" onClick={() => {
-                    setIsEditing(false);
-                    setPassword('');
-                    }}>
-                    Cancel
-                    </Button>
-                </>
-              )}
-            </Grid>
-            {/* <Grid item xs={12}>
-              <Button variant="outlined" color="secondary" onClick={handleLogout}>
-                Logout
-              </Button>
-            </Grid> */}
+          )}
+        </Grid>
+      </Grid>
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
+            label="Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            disabled={!isEditing}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
+            label="Email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={!isEditing}
+          />
+        </Grid>
+        {isEditing && (
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="New Password"
+              type={showPassword ? 'text' : 'password'} // Toggle between 'password' and 'text'
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              helperText="Leave blank to keep current password"
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={handleClickShowPassword}
+                      onMouseDown={handleMouseDownPassword}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
           </Grid>
-        </CardContent>
-      </Card>
-    </Box>
+        )}
+        <Grid item xs={12}>
+          <FormControl fullWidth disabled={!isEditing}>
+            <InputLabel id="user-type-label">User Type</InputLabel>
+            <Select
+              labelId="user-type-label"
+              value={userType}
+              label="User Type"
+              onChange={(e) => setUserType(e.target.value as 'admin' | 'user')}
+            >
+              <MenuItem value="user">User</MenuItem>
+              <MenuItem value="admin">Admin</MenuItem>
+            </Select>
+          </FormControl>
+        </Grid>
+        <Grid item xs={12}>
+          {!isEditing ? (
+            ""
+          ) : (
+            <>
+              <Button variant="contained" onClick={handleUpdate} sx={{ mr: 2 }}>
+                Save Changes
+              </Button>
+              <Button variant="outlined" onClick={() => {
+                setIsEditing(false);
+                setPassword('');
+              }}>
+                Cancel
+              </Button>
+            </>
+          )}
+        </Grid>
+      </Grid>
+    </>
   );
 }
