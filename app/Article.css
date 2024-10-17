@@ -1,0 +1,14 @@
+/* MyComponent.module.css */
+.markdown a {
+  color: blue !important;
+  text-decoration: underline !important;
+}
+
+.markdown a:hover {
+  text-decoration: underline;
+}
+
+/* Other styles for the markdown content */
+.markdown {
+  padding: 20px;
+}

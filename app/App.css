@@ -55,6 +55,14 @@ pre {
   white-space: pre-wrap;       /* Since CSS 2.1 */
   
 }
+.process-text a {
+  color: blue !important;
+  text-decoration: underline !important;
+}
+
+.process-text a:hover {
+  text-decoration: underline;
+}
 .info {
   background-color: rgba(75, 75, 231, 0.1); /* Blue color with 50% opacity */
   padding: 20px;

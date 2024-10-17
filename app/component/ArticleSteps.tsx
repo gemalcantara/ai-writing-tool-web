@@ -9,7 +9,7 @@ import ArticlesResult from './ArticlesResult';
 import { generateArticle, generateOutline } from '../helpers/openaiApi';
 import removeMd from 'remove-markdown';
 import { useParams } from "react-router-dom";
-
+import { apStyleTitleCase } from 'ap-style-title-case';
 const steps = ['Create Outline', 'Create Article', 'Article Result'];
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_LINK, process.env.NEXT_PUBLIC_SUPABASE_KEY);
 
@@ -79,7 +79,7 @@ export default function ArticleSteps() {
   const [outlineResult, setOutlineResult] = useState<any>();
   const [outlineResultField, setOutlineResultField] = useState<any>();
   useEffect(() => { fetchData('clients', setClients); fetchData('pages', setPages); }, []);
-
+ 
   useEffect(() => {
     if (articleId) {
 
@@ -164,6 +164,7 @@ export default function ArticleSteps() {
     let internalKeywords = linkFields.keywords.map((link, index) => link.value.trim()).join(', ');
     let authorityLinksArray = linkFields.authorityLinks.map((link, index) => link.value.trim()).join(', ');
     let competitorLinksArray = linkFields.competitorLinks.map((link, index) => link.value.trim()).join(", ");
+
     try {
       setLoadingOutline(true);
       const generatedOutline = await generateOutline(internalKeywords, inputFieldStaticOutline.articleDescription, inputFieldStaticOutline.clientName, inputFieldStaticOutline.pageName, internalLinksArray, authorityLinksArray, competitorLinksArray);
@@ -179,9 +180,9 @@ export default function ArticleSteps() {
       const generatedOutline = await generateOutline(internalKeywords, inputFieldStaticOutline.articleDescription, inputFieldStaticOutline.clientName, inputFieldStaticOutline.pageName, internalLinksArray, authorityLinksArray, competitorLinksArray);
       // console.log(generatedOutline);
       // return 
-      const result = removeMd(generatedOutline);
-      setOutline(result);
-      parseOutlineResultFillArticleField(result);
+      // const result = removeMd(generatedOutline);
+      setOutline(generatedOutline);
+      parseOutlineResultFillArticleField(generatedOutline);
       setLoadingOutline(false);
       handleComplete();
     }
@@ -214,7 +215,7 @@ export default function ArticleSteps() {
     const articleSections = formData.sections.map((section, index) => {
       return `
     Section ${index + 1}
-    Section Title: ${section.headingLevel} ${section.sectionTitle}
+    Section Title: ${section.headingLevel} ${apStyleTitleCase(section.sectionTitle)}
     Section Details: ${section.description}
     Section Links: ${section.links.join(', ')}
     `
@@ -226,7 +227,7 @@ export default function ArticleSteps() {
       let oulineFields = JSON.stringify({ inputFieldStaticOutline, inputFieldStaticArticle, linkFields, inputFields })
       // return
       await createHistory(data, pageTitle, cookies.user.user.email, outline, oulineFields);
-      const plainText = removeMd(data);
+      const plainText = data  ;
       console.log(plainText)
       setToCopy(plainText);
       setResponse(data);

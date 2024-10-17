@@ -12,7 +12,7 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Sections from './Sections';
 import { useEffect } from 'react';
-
+import {apStyleTitleCase} from 'ap-style-title-case'
 
   export default function ArticlesForm({
     handleSubmitArticle, inputFieldStaticArticle,setInputFields, setInputFieldStaticArticle, clients, pages, inputFields, loadingResult,handleAddFields,
@@ -61,7 +61,7 @@ import { useEffect } from 'react';
                   id="pageTitle"
                   label="Page Title"
                   name="pageTitle"
-                  value={inputFieldStaticArticle.pageTitle}
+                  value={apStyleTitleCase(inputFieldStaticArticle.pageTitle)}
                   variant="outlined"
                   onChange={(event) => setInputFieldStaticArticle({...inputFieldStaticArticle,[event.target.name]: event.target.value})}
                 />
