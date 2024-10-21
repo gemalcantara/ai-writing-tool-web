@@ -1,4 +1,6 @@
 "use client"
+
+import React, { useState, useEffect } from 'react';
 import Button from '@mui/material/Button';
 import { Divider, Grid } from '@mui/material';
 import TextField from '@mui/material/TextField';
@@ -10,50 +12,104 @@ import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import CircularProgress from '@mui/material/CircularProgress';
 import Sections from './Sections';
-import { useEffect } from 'react';
-import {apStyleTitleCase} from 'ap-style-title-case'
+import { apStyleTitleCase } from 'ap-style-title-case';
 
-  export default function ArticlesForm({
-    handleSubmitArticle, inputFieldStaticArticle,setInputFields, setInputFieldStaticArticle, clients, pages, inputFields, loadingResult,handleAddFields,
-    handleRemoveFields,
-    handleInputChange,handleAddFieldLink,handleRemoveFieldLink}: any) {
-      const getNameById = (list: any,id: any) => {
-        const entry = list.find((item: { id: any; }) => item.id === id);
-        return entry.name;
-    };
+const ProgressIndicator = ({ open, onClose }: { open: boolean; onClose: () => void }) => (
+  <Dialog open={open} onClose={onClose}>
+    <DialogTitle>Generating Article</DialogTitle>
+    <DialogContent>
+      <DialogContentText>
+        This process is taking longer than expected. Please wait while we generate your article.
+      </DialogContentText>
+      <CircularProgress style={{ display: 'block', margin: '20px auto' }} />
+    </DialogContent>
+  </Dialog>
+);
 
-    const getGuielineById = (list: any,id: any) => {
-      const entry = list.find((item: { id: any; }) => item.id === id);
-      return entry.guideline;
-    };
-    useEffect (()=>{
-      if (inputFieldStaticArticle.selectedClient && inputFieldStaticArticle.selectedPage) {
-        
-        setInputFieldStaticArticle({
-          ...inputFieldStaticArticle,
-          clientName: getNameById(clients,inputFieldStaticArticle.selectedClient),
-          clientGuideline:  getGuielineById(clients,inputFieldStaticArticle.selectedClient), 
-          pageName:  getNameById(pages,inputFieldStaticArticle.selectedPage),
-          articlePrompt : getGuielineById(pages,inputFieldStaticArticle.selectedPage)
-        })
+export default function ArticlesForm({
+  handleSubmitArticle,
+  inputFieldStaticArticle,
+  setInputFields,
+  setInputFieldStaticArticle,
+  clients,
+  pages,
+  inputFields,
+  loadingResult,
+  handleAddFields,
+  handleRemoveFields,
+  handleInputChange,
+  handleAddFieldLink,
+  handleRemoveFieldLink
+}: any) {
+  const [showProgress, setShowProgress] = useState(false);
+  const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
+
+  const getNameById = (list: any, id: any) => {
+    const entry = list.find((item: { id: any }) => item.id === id);
+    return entry.name;
+  };
+
+  const getGuidelineById = (list: any, id: any) => {
+    const entry = list.find((item: { id: any }) => item.id === id);
+    return entry.guideline;
+  };
+
+  useEffect(() => {
+    if (inputFieldStaticArticle.selectedClient && inputFieldStaticArticle.selectedPage) {
+      setInputFieldStaticArticle({
+        ...inputFieldStaticArticle,
+        clientName: getNameById(clients, inputFieldStaticArticle.selectedClient),
+        clientGuideline: getGuidelineById(clients, inputFieldStaticArticle.selectedClient),
+        pageName: getNameById(pages, inputFieldStaticArticle.selectedPage),
+        articlePrompt: getGuidelineById(pages, inputFieldStaticArticle.selectedPage)
+      });
+    }
+  }, [inputFieldStaticArticle.selectedClient, inputFieldStaticArticle.selectedPage]);
+
+  useEffect(() => {
+    if (loadingResult) {
+      const newTimer = setTimeout(() => {
+        setShowProgress(true);
+      }, 60000); // 2 minutes
+      setTimer(newTimer);
+    } else {
+      if (timer) {
+        clearTimeout(timer);
       }
+      setShowProgress(false);
+    }
 
-    },[inputFieldStaticArticle.selectedClient,inputFieldStaticArticle.selectedPage])
+    return () => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+    };
+  }, [loadingResult]);
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    handleSubmitArticle(event);
+  };
+
   return (
-     
     <div>
       <h1>Create Article</h1>
-      <form onSubmit={handleSubmitArticle}>
-          <Accordion sx={{border: "solid", borderWidth: "1px"}}>
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              aria-controls="panel1-content"
-              id="panel1-header"
-            >
-              Article Details
-            </AccordionSummary>
-            <AccordionDetails>
+      <form onSubmit={handleSubmit}>
+        <Accordion sx={{ border: "solid", borderWidth: "1px" }}>
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon />}
+            aria-controls="panel1-content"
+            id="panel1-header"
+          >
+            Article Details
+          </AccordionSummary>
+          <AccordionDetails>
             <Grid container spacing={2}>
               <Grid item xs={12}>
                 <TextField
@@ -63,26 +119,26 @@ import {apStyleTitleCase} from 'ap-style-title-case'
                   name="pageTitle"
                   value={apStyleTitleCase(inputFieldStaticArticle.pageTitle)}
                   variant="outlined"
-                  onChange={(event) => setInputFieldStaticArticle({...inputFieldStaticArticle,[event.target.name]: event.target.value})}
+                  onChange={(event) => setInputFieldStaticArticle({ ...inputFieldStaticArticle, [event.target.name]: event.target.value })}
                 />
               </Grid>
               <Grid item xs={12}>
                 <FormControl fullWidth>
                   <InputLabel id="clientLabel">Select Client</InputLabel>
                   <Select
-                  labelId="clientLabel"
-                  id="selectedClient"
-                  name="selectedClient"
-                  value={inputFieldStaticArticle.selectedClient}
-                  label="client"
-                  onChange={(event) => setInputFieldStaticArticle({
-                    ...inputFieldStaticArticle,
-                    [event.target.name]: event.target.value, 
-                    clientName: getNameById(clients,event.target.value),
-                    clientGuideline:  getGuielineById(clients,event.target.value)
-                  })}
+                    labelId="clientLabel"
+                    id="selectedClient"
+                    name="selectedClient"
+                    value={inputFieldStaticArticle.selectedClient}
+                    label="client"
+                    onChange={(event) => setInputFieldStaticArticle({
+                      ...inputFieldStaticArticle,
+                      [event.target.name]: event.target.value,
+                      clientName: getNameById(clients, event.target.value),
+                      clientGuideline: getGuidelineById(clients, event.target.value)
+                    })}
                   >
-                  {clients.map((client :any) => (<MenuItem key={client.id} value={client.id}>{client.name}</MenuItem>))}
+                    {clients.map((client: any) => (<MenuItem key={client.id} value={client.id}>{client.name}</MenuItem>))}
                   </Select>
                 </FormControl>
               </Grid>
@@ -90,59 +146,58 @@ import {apStyleTitleCase} from 'ap-style-title-case'
                 <FormControl fullWidth>
                   <InputLabel id="pageLabel">Page Template</InputLabel>
                   <Select
-                  name="selectedPage"
-                  labelId="pageLabel"
-                  id="page"
-                  value={inputFieldStaticArticle.selectedPage}
-                  label="page"
-                  onChange={(event) => setInputFieldStaticArticle({
-                    ...inputFieldStaticArticle,
-                    [event.target.name]: event.target.value, 
-                    pageName:  getNameById(pages,event.target.value),
-                    articlePrompt : getGuielineById(pages,event.target.value)
-                  })}
+                    name="selectedPage"
+                    labelId="pageLabel"
+                    id="page"
+                    value={inputFieldStaticArticle.selectedPage}
+                    label="page"
+                    onChange={(event) => setInputFieldStaticArticle({
+                      ...inputFieldStaticArticle,
+                      [event.target.name]: event.target.value,
+                      pageName: getNameById(pages, event.target.value),
+                      articlePrompt: getGuidelineById(pages, event.target.value)
+                    })}
                   >
-                  {pages.map((page : any) => (<MenuItem key={page.id} value={page.id}>{page.name}</MenuItem>))}
+                    {pages.map((page: any) => (<MenuItem key={page.id} value={page.id}>{page.name}</MenuItem>))}
                   </Select>
                 </FormControl>
               </Grid>
               <Grid item xs={12} hidden>
-              <TextField
-                name="clientGuideline"
+                <TextField
+                  name="clientGuideline"
                   id="clientGuideline"
                   label="Client Guidelines"
                   value={inputFieldStaticArticle.clientGuideline}
-                  onChange={(event) => setInputFieldStaticArticle({...inputFieldStaticArticle,[event.target.name]: event.target.value})}
+                  onChange={(event) => setInputFieldStaticArticle({ ...inputFieldStaticArticle, [event.target.name]: event.target.value })}
                   multiline
                   fullWidth
                   rows={5}
-                  
                 />
               </Grid>
               <Grid item xs={12} hidden>
-                <TextField 
-                    id="articleGuideline"
-                    label="Article Guidelines"
-                    name="articleGuideline"
-                    value={inputFieldStaticArticle.articleGuideline}
-                    onChange={(event) => setInputFieldStaticArticle({...inputFieldStaticArticle,[event.target.name]: event.target.value})}
-                    multiline
-                    fullWidth
-                    rows={5}
-                  />
+                <TextField
+                  id="articleGuideline"
+                  label="Article Guidelines"
+                  name="articleGuideline"
+                  value={inputFieldStaticArticle.articleGuideline}
+                  onChange={(event) => setInputFieldStaticArticle({ ...inputFieldStaticArticle, [event.target.name]: event.target.value })}
+                  multiline
+                  fullWidth
+                  rows={5}
+                />
               </Grid>
               <Grid item xs={12}>
                 <TextField
                   name="instruction"
                   label="Article Instructions"
                   variant="outlined"
-                    multiline
+                  multiline
                   fullWidth
                   rows={5}
                   value={inputFieldStaticArticle.instruction}
                   onChange={(event) => setInputFieldStaticArticle({
                     ...inputFieldStaticArticle,
-                    [event.target.name]: event.target.value, 
+                    [event.target.name]: event.target.value,
                   })}
                 />
               </Grid>
@@ -154,37 +209,36 @@ import {apStyleTitleCase} from 'ap-style-title-case'
                   name="keywords"
                   value={inputFieldStaticArticle.keywords}
                   variant="outlined"
-                  onChange={(event) => setInputFieldStaticArticle({...inputFieldStaticArticle,[event.target.name]: event.target.value})}
+                  onChange={(event) => setInputFieldStaticArticle({ ...inputFieldStaticArticle, [event.target.name]: event.target.value })}
                 />
               </Grid>
             </Grid>
-            </AccordionDetails>
-          </Accordion>
-          <br />
-          <Divider />
-          <br />
-          <Sections 
-           inputFields={inputFields}
-           handleInputChange={handleInputChange}
-           handleAddFields={handleAddFields}
-           handleRemoveFields={handleRemoveFields}
-           handleAddFieldLink = {handleAddFieldLink}
-           handleRemoveFieldLink = {handleRemoveFieldLink}
-           setInputFields ={setInputFields}
-          />
+          </AccordionDetails>
+        </Accordion>
+        <br />
+        <Divider />
+        <br />
+        <Sections
+          inputFields={inputFields}
+          handleInputChange={handleInputChange}
+          handleAddFields={handleAddFields}
+          handleRemoveFields={handleRemoveFields}
+          handleAddFieldLink={handleAddFieldLink}
+          handleRemoveFieldLink={handleRemoveFieldLink}
+          setInputFields={setInputFields}
+        />
         <Button
-        variant="outlined"
-        color="primary"
-        style={{ marginTop: '16px' }}
-        fullWidth
-        disabled={loadingResult}
-        type='submit'
-      >
-        {loadingResult ? 'Generating...' : 'Generate Article'}
-
-      </Button>
+          variant="outlined"
+          color="primary"
+          style={{ marginTop: '16px' }}
+          fullWidth
+          disabled={loadingResult}
+          type='submit'
+        >
+          {loadingResult ? 'Generating...' : 'Generate Article'}
+        </Button>
       </form>
+      <ProgressIndicator open={showProgress} onClose={() => setShowProgress(false)} />
     </div>
-    
   );
 }
