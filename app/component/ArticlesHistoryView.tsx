@@ -79,6 +79,13 @@ export default function ArticleHistoryView() {
       // alert("Result copied"); // Consider replacing with a snackbar for better UX
     }
   };
+  // Custom components for ReactMarkdown
+  const components = {
+    //@ts-ignore
+  a: ({ node, ...props }) => (
+    <a target="_blank" rel="noopener noreferrer" {...props} />
+  ),
+};
 
   return (
     <>
@@ -93,7 +100,11 @@ export default function ArticleHistoryView() {
         </Grid>
       </Grid>
       {error && <p style={{ color: "red" }}>{error}</p>}
-        <ReactMarkdown className="process-text" remarkPlugins={[remarkGfm]}>
+        <ReactMarkdown 
+        className="process-text" 
+        remarkPlugins={[remarkGfm]}
+          //@ts-ignore
+        components={components}>
           {article?.article_output}
         </ReactMarkdown>
     </>

@@ -1,4 +1,5 @@
 "use client"
+
 import * as React from 'react';
 import Button from '@mui/material/Button';
 import '../App.css';
@@ -7,7 +8,7 @@ import remarkGfm from 'remark-gfm'
 import ReactMarkdown from 'react-markdown';
 import {marked} from 'marked';
 
-export default function ArticlesResult({ pageTitle, toCopy, response, loadingResult }: any) {
+export default function ArticlesResult({ pageTitle, toCopy, response, loadingResult }: { pageTitle: string, toCopy: boolean, response: string, loadingResult: boolean }) {
   const convertMarkdownToHTML = (markdown: string) => {
     return marked(markdown); // marked converts markdown to HTML
   };    
@@ -19,7 +20,7 @@ export default function ArticlesResult({ pageTitle, toCopy, response, loadingRes
       // Copy styled content (HTML) to the clipboard
       await navigator.clipboard.write([
         new ClipboardItem({
-          // @ts-expect-error need this for copy
+          //@ts-ignore
           'text/html': new Blob([htmlContent], { type: 'text/html' }), // Ensure this is a resolved string
           'text/plain': new Blob([plainTextContent], { type: 'text/plain' }), // Fallback to plain text
         })
@@ -28,6 +29,14 @@ export default function ArticlesResult({ pageTitle, toCopy, response, loadingRes
     } catch (err) {
       console.error('Error copying text: ', err);
     }
+  };
+
+  // Custom components for ReactMarkdown
+  const components = {
+      //@ts-ignore
+    a: ({ node, ...props }) => (
+      <a target="_blank" rel="noopener noreferrer" {...props} />
+    ),
   };
 
   return (
@@ -44,15 +53,18 @@ export default function ArticlesResult({ pageTitle, toCopy, response, loadingRes
         </Grid>
       </Grid>
 
-
-      {
-        loadingResult ?? <p>Loading...</p>
-      }
-      <ReactMarkdown className="process-text" remarkPlugins={[remarkGfm]}>{response}
-
-      </ReactMarkdown>
-
+      {loadingResult ? (
+        <p>Loading...</p>
+      ) : (
+        <ReactMarkdown 
+          className="process-text" 
+          remarkPlugins={[remarkGfm]}
+          //@ts-ignore
+          components={components}
+        >
+          {response}
+        </ReactMarkdown>
+      )}
     </div>
-
   );
 }

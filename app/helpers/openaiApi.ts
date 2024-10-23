@@ -92,10 +92,9 @@ async function generateOutline(
 async function generateArticle(formData: string, sectionData: string) {
   let articlePrompt: any = {}
   let response: any = {};
-  articlePrompt = [{ role: "user", content: [{type: "text", text: formData + JSON.parse(sectionData).map((section: string) => section).join("\n")} ,{ type: "text", text: "merge all results into one article with mardown" }]} ];
+  articlePrompt = [{ role: "user", content: [{type: "text", text: formData + JSON.parse(sectionData).map((section: string) => section).join("\n")} ,{ type: "text", text: "REMINDER: All links must be incorporated; under no circumstances should you create an ‘Additional Resources’ or ‘Further Reading’ section at the end. merge all results into one article with mardown" }]} ];
   // console.log(articlePrompt);
   // return
-
     response = await anthropic.messages.create({
       model: "claude-3-5-sonnet-20240620",
       max_tokens: 8100,
