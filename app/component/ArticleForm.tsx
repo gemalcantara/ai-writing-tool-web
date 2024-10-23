@@ -203,6 +203,7 @@ export default function ArticlesForm({
         <br />
         <Sections
           inputFields={inputFields}
+          //@ts-ignore
           handleInputChange={handleInputChange}
           handleAddFields={handleAddFields}
           handleRemoveFields={handleRemoveFields}
