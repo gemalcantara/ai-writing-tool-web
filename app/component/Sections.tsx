@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect,useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { TextField, Button, Grid, IconButton } from '@mui/material';
 import { Add, Close, DragIndicator } from '@mui/icons-material';
 import Accordion from '@mui/material/Accordion';
@@ -8,7 +8,8 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { apStyleTitleCase } from 'ap-style-title-case';
-import { DragDropContext, Droppable, Draggable, DropResult,DroppableProps } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable, Draggable, DropResult, DroppableProps } from 'react-beautiful-dnd';
+
 export const StrictModeDroppable = ({ children, ...props }: DroppableProps) => {
   const [enabled, setEnabled] = useState(false);
 
@@ -27,8 +28,26 @@ export const StrictModeDroppable = ({ children, ...props }: DroppableProps) => {
 
   return <Droppable {...props}>{children}</Droppable>;
 };
-const Sections = ({ inputFields, setInputFields }: any) => {
+
+interface InputField {
+  sectionTitle: string;
+  description: string;
+  links: { link: string }[];
+  headingLevel: 'h2' | 'h3';
+}
+
+const Sections = ({ inputFields, setInputFields }: { inputFields: InputField[], setInputFields: React.Dispatch<React.SetStateAction<InputField[]>> }) => {
   const [expandedPanel, setExpandedPanel] = useState<number | false>(false);
+
+  useEffect(() => {
+    // Ensure all input fields have a headingLevel
+    setInputFields(prevFields => 
+      prevFields.map(field => ({
+        ...field,
+        headingLevel: field.headingLevel || 'h2'
+      }))
+    );
+  }, []);
 
   const handleAddFields = () => {
     setInputFields([...inputFields, { sectionTitle: '', description: '', links: [{link: ''}], headingLevel: 'h2' }]);
@@ -47,13 +66,13 @@ const Sections = ({ inputFields, setInputFields }: any) => {
   ) => {
     const { name, value } = event.target;
   
-    setInputFields((prevFields: any[]) =>
+    setInputFields((prevFields) =>
       prevFields.map((field, i) => {
         if (i === parentIndex) {
           if (childIndex === null) {
             return { ...field, [name]: value };
           } else {
-            const updatedLinks = field.links.map((link: any, j: number) =>
+            const updatedLinks = field.links.map((link, j) =>
               j === childIndex ? { ...link, [name]: value } : link
             );
             return { ...field, links: updatedLinks };
@@ -65,7 +84,7 @@ const Sections = ({ inputFields, setInputFields }: any) => {
   };
 
   const handleAddFieldLink = (index: number) => {
-    setInputFields((prevFields: any[]) =>
+    setInputFields((prevFields) =>
       prevFields.map((field, i) =>
         i === index
           ? { ...field, links: [...field.links, { link: '' }] }
@@ -75,10 +94,10 @@ const Sections = ({ inputFields, setInputFields }: any) => {
   };
 
   const handleRemoveFieldLink = (parentIndex: number, linkIndex: number) => {
-    setInputFields((prevFields: any[]) =>
+    setInputFields((prevFields) =>
       prevFields.map((field, i) =>
         i === parentIndex
-          ? { ...field, links: field.links.filter((_: any, j: number) => j !== linkIndex) }
+          ? { ...field, links: field.links.filter((_, j) => j !== linkIndex) }
           : field
       )
     );
@@ -86,9 +105,13 @@ const Sections = ({ inputFields, setInputFields }: any) => {
 
   const toggleHeadingLevel = (e: React.MouseEvent, index: number) => {
     e.stopPropagation();
-    const newFields = [...inputFields];
-    newFields[index].headingLevel = newFields[index].headingLevel === 'h2' ? 'h3' : 'h2';
-    setInputFields(newFields);
+    setInputFields(prevFields => 
+      prevFields.map((field, i) => 
+        i === index
+          ? { ...field, headingLevel: field.headingLevel === 'h2' ? 'h3' : 'h2' }
+          : field
+      )
+    );
   };
 
   const handleAccordionChange = (panel: number) => (event: React.SyntheticEvent, isExpanded: boolean) => {
@@ -120,8 +143,8 @@ const Sections = ({ inputFields, setInputFields }: any) => {
       <StrictModeDroppable droppableId="sections">  
         {(provided) => (
           <div {...provided.droppableProps} ref={provided.innerRef}>
-            {inputFields.map((inputField: any, index: number) => (
-              <Draggable key={index} draggableId={`section-${index}`} index={index} isDragDisabled={inputField.headingLevel !== 'h2'}>
+            {inputFields.map((inputField, index) => (
+              <Draggable key={index} draggableId={`section-${index}`} index={index}>
                 {(provided, snapshot) => (
                   <div
                     ref={provided.innerRef}
@@ -139,7 +162,7 @@ const Sections = ({ inputFields, setInputFields }: any) => {
                       sx={{
                         border: "solid", 
                         borderWidth: "1px",
-                        marginLeft: inputField.headingLevel === 'h2' ? '0' : '2rem'
+                        marginLeft: inputField.headingLevel === 'h3' ? '2rem' : '0'
                       }}
                     >
                       <AccordionSummary
@@ -147,13 +170,11 @@ const Sections = ({ inputFields, setInputFields }: any) => {
                         aria-controls={`panel${index}-content`}
                         id={`panel${index}-header`}
                       >
-                        {inputField.headingLevel === 'h2' && (
-                          <div {...provided.dragHandleProps} style={{ cursor: 'move', marginRight: '8px' }}>
-                            <DragIndicator />
-                          </div>
-                        )}
+                        <div {...provided.dragHandleProps} style={{ cursor: 'move', marginRight: '8px' }}>
+                          <DragIndicator />
+                        </div>
                         <Button variant="text" size='large' onClick={(e) => toggleHeadingLevel(e, index)}>
-                          {inputField.headingLevel === 'h2' ? 'H2 ' : 'H3 '}
+                          {inputField.headingLevel}
                         </Button>
                         {inputField.headingLevel === 'h2' ? (
                           <h2> { apStyleTitleCase(inputField.sectionTitle) || `Section ${index + 1}`}</h2>
@@ -185,7 +206,7 @@ const Sections = ({ inputFields, setInputFields }: any) => {
                               onChange={(event) => handleInputChange(index, null, event)}
                             />
                           </Grid>
-                          {inputField.links.map((link: any, linkIndex: number) => (
+                          {inputField.links.map((link, linkIndex) => (
                             <Grid container spacing={2} key={linkIndex} style={{ marginLeft: '1rem', marginTop: '1rem' }} >
                               <Grid container>
                                 <Grid item xs={11}>

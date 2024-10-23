@@ -1,8 +1,16 @@
+"use client"
+
 import React, { useEffect, useState } from 'react';
 import { Box, Button, FormControl, Grid, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import { createClient } from '@supabase/supabase-js';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import CircularProgress from '@mui/material/CircularProgress';
 import '../App.css';
 import DynamicFieldsComponent from './OutlineDynamicLinks';
+
 const supaBaseLink = process.env.NEXT_PUBLIC_SUPABASE_LINK;
 const supaBaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY
 
@@ -11,6 +19,17 @@ const supabase = createClient(
   supaBaseKey
 );
 
+const ProgressIndicator = ({ open }: { open: boolean }) => (
+  <Dialog open={open} disableEscapeKeyDown>
+    <DialogTitle>Generating Outline</DialogTitle>
+    <DialogContent>
+      <DialogContentText>
+        Please wait while we generate your article outline.
+      </DialogContentText>
+      <CircularProgress style={{ display: 'block', margin: '20px auto' }} />
+    </DialogContent>
+  </Dialog>
+);
 
 function AiToolSelector() {
   let aiTool = sessionStorage.getItem('aiTool');
@@ -32,7 +51,6 @@ function AiToolSelector() {
         label="LLM"
         fullWidth
         id="llm"
-
       >
         <MenuItem value={'chatGpt'}>Chat GPT</MenuItem>
         <MenuItem value={'claude'}>Claude AI</MenuItem>
@@ -42,12 +60,18 @@ function AiToolSelector() {
 }
 
 const ArticleOutlineForm = ({ handleSubmit, inputFieldStaticOutline, setInputFieldStaticOutline, clients, pages, loadingOutline, linkFields, setLinkFields }: any) => {
+  const [showProgress, setShowProgress] = useState(false);
+
   const getNameById = (list: any, id: any) => {
     const entry = list.find((item: { id: any; }) => item.id === id);
     return entry.name;
   };
-  return (
 
+  useEffect(() => {
+    setShowProgress(loadingOutline);
+  }, [loadingOutline]);
+
+  return (
     <div>
       <h1>Create Outline</h1>
       <form onSubmit={handleSubmit}>
@@ -115,7 +139,7 @@ const ArticleOutlineForm = ({ handleSubmit, inputFieldStaticOutline, setInputFie
             />
           </Grid>
           <Grid item xs={12}>
-            <DynamicFieldsComponent linkFields={linkFields} setLinkFields={setLinkFields}></DynamicFieldsComponent>
+            <DynamicFieldsComponent linkFields={linkFields} setLinkFields={setLinkFields} />
           </Grid>
         </Grid>
         <Button
@@ -129,15 +153,7 @@ const ArticleOutlineForm = ({ handleSubmit, inputFieldStaticOutline, setInputFie
           {loadingOutline ? 'Generating...' : 'Generate Outline'}
         </Button>
       </form>
-
-      {/* {outline && (
-        <div>
-          <h2>Generated Article Outline:</h2>
-          <Markdown className="process-text" remarkPlugins={[remarkGfm]}>{outline}
-
-          </Markdown>
-        </div>
-      )} */}
+      <ProgressIndicator open={showProgress} />
     </div>
   );
 };

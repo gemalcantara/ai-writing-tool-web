@@ -20,12 +20,12 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Sections from './Sections';
 import { apStyleTitleCase } from 'ap-style-title-case';
 
-const ProgressIndicator = ({ open, onClose }: { open: boolean; onClose: () => void }) => (
-  <Dialog open={open} onClose={onClose}>
+const ProgressIndicator = ({ open }: { open: boolean }) => (
+  <Dialog open={open} disableEscapeKeyDown>
     <DialogTitle>Generating Article</DialogTitle>
     <DialogContent>
       <DialogContentText>
-        This process is taking longer than expected. Please wait while we generate your article.
+        Please wait while we generate your article.
       </DialogContentText>
       <CircularProgress style={{ display: 'block', margin: '20px auto' }} />
     </DialogContent>
@@ -48,7 +48,6 @@ export default function ArticlesForm({
   handleRemoveFieldLink
 }: any) {
   const [showProgress, setShowProgress] = useState(false);
-  const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
 
   const getNameById = (list: any, id: any) => {
     const entry = list.find((item: { id: any }) => item.id === id);
@@ -73,23 +72,7 @@ export default function ArticlesForm({
   }, [inputFieldStaticArticle.selectedClient, inputFieldStaticArticle.selectedPage]);
 
   useEffect(() => {
-    if (loadingResult) {
-      const newTimer = setTimeout(() => {
-        setShowProgress(true);
-      }, 60000); // 2 minutes
-      setTimer(newTimer);
-    } else {
-      if (timer) {
-        clearTimeout(timer);
-      }
-      setShowProgress(false);
-    }
-
-    return () => {
-      if (timer) {
-        clearTimeout(timer);
-      }
-    };
+    setShowProgress(loadingResult);
   }, [loadingResult]);
 
   const handleSubmit = (event: React.FormEvent) => {
@@ -238,7 +221,7 @@ export default function ArticlesForm({
           {loadingResult ? 'Generating...' : 'Generate Article'}
         </Button>
       </form>
-      <ProgressIndicator open={showProgress} onClose={() => setShowProgress(false)} />
+      <ProgressIndicator open={showProgress} />
     </div>
   );
 }
