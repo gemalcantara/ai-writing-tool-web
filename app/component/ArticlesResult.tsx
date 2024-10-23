@@ -8,7 +8,7 @@ import remarkGfm from 'remark-gfm'
 import ReactMarkdown from 'react-markdown';
 import {marked} from 'marked';
 
-export default function ArticlesResult({ pageTitle, toCopy, response, loadingResult }: { pageTitle: string, toCopy: boolean, response: string, loadingResult: boolean }) {
+export default function ArticlesResult({ pageTitle, toCopy, response, loadingResult }: any) {
   const convertMarkdownToHTML = (markdown: string) => {
     return marked(markdown); // marked converts markdown to HTML
   };    

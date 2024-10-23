@@ -273,7 +273,6 @@ export default function ArticleSteps() {
         {
           0: <ArticleOutlineForm {...{ handleSubmit, inputFieldStaticOutline, setInputFieldStaticOutline, clients, pages, loadingOutline, linkFields, setLinkFields }} />,
           1: <ArticlesForm {...{ handleSubmitArticle, inputFieldStaticArticle, setInputFieldStaticArticle, clients, pages, inputFields, setInputFields, loadingResult }} />,
-          //@ts-ignore
           2: <ArticlesResult {...{ pageTitle, toCopy, response, loadingResult }} />
         }[activeStep]
       )}
