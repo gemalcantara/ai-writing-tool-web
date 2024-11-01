@@ -149,7 +149,8 @@ export default function ArticleSteps() {
 
   const fetchData = async (table: string, setter: Function) => {
     try {
-      const { data, error } = await supabase.from(table).select('*');
+      const { data, error } = await supabase.from(table).select('*').order('name', { ascending: true });
+      ;
       if (error) throw error;
       setter(data || []);
     } catch (error) {

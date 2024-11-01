@@ -137,7 +137,8 @@ const ClientList = () => {
   useEffect(() => {
     const fetchClients = async () => {
       try {
-        const { data, error } = await supabase.from('clients').select('*');
+        const { data, error } = await supabase.from('clients').select('*').order('name', { ascending: true });
+        ;
         if (error) throw error;
         setClients(data || []);
       } catch (error) {
