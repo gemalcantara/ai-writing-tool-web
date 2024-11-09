@@ -15,8 +15,11 @@ import { createClient } from "@supabase/supabase-js";
 import { useParams, useNavigate } from "react-router-dom";
 import { marked } from "marked";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { CKEditor } from "@ckeditor/ckeditor5-react";
-import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import dynamic from 'next/dynamic';
+const Editor = dynamic(() => import('../helpers/Editor'), {
+    ssr: false,
+    loading: () => <p>Loading editor...</p>
+  });
 import "../App.css";
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_LINK!,
@@ -194,14 +197,13 @@ export default function MergedArticleHistoryView() {
 
       {editMode ? (
         <div className="mb-4" style={{ marginTop: "1rem"}}>
-          <CKEditor
-            editor={ClassicEditor}
+            <Editor
             data={editedContent}
-            onChange={(event: any, editor: any) => {
-              const data = editor.getData();
-              setEditedContent(data);
+            onChange={(event, editor) => {
+                const data = editor.getData();
+                setEditedContent(data);
             }}
-          />
+            />
         </div>
       ) : (
         <div className="prose max-w-none" style={{ marginTop: "1rem"}}>
