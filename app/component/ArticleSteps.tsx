@@ -248,7 +248,11 @@ export default function ArticleSteps() {
 
   const createHistory = async (output: string, article_title: string, created_by: string, outline: string, oulineFields: any) => {
     try {
-      await supabase.from('history').insert({ created_by, article_output: output, article_title, outline, outline_input_data: oulineFields });
+      const dateNow = new Date().toLocaleDateString('en-US', {
+        month: '2-digit',
+        year: '2-digit'
+    });
+      await supabase.from('history').insert({ created_by, article_output: output, article_title, outline, outline_input_data: oulineFields,production_date: dateNow });
       alert(`${article_title} has been saved.`);
     } catch (error: any) {
       alert(error.message);
