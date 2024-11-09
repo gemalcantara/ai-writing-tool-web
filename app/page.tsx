@@ -25,6 +25,7 @@ import ArticleHistoryView from './component/ArticlesHistoryView';
 import ArticleSteps from './component/ArticleSteps';
 import ArticlesHistoryOutline from './component/ArticlesHistoryOutlineView';
 import Profile from './component/Profile';
+import ArticleView from './component/ArticleView';
 
 export default function App() {
   // console.log(createUser());
@@ -48,7 +49,7 @@ export default function App() {
           <Route path="articles/create/:articleId" element={< ArticleSteps /> } />
           {/* <Route path="articles/create" element={< ArticlesForm /> } /> */}
           <Route path="articles/view" element={< ArticleHistory /> } />
-          <Route path="articles/view/:articleId" element={< ArticleHistoryView /> } />
+          <Route path="articles/view/:articleId" element={< ArticleView /> } />
           <Route path="articles/view/:articleId/output" element={< ArticlesHistoryOutline /> } />
         </Route>
       </Routes>

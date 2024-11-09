@@ -1,135 +1,187 @@
-"use client"
-import * as React from 'react';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import Typography from '@mui/material/Typography';
-import { Grid, IconButton, TextField } from '@mui/material';
-import { PersonAdd, Visibility } from '@mui/icons-material';
-import { Link, useNavigate } from 'react-router-dom';
-import { createClient } from '@supabase/supabase-js';
-import { useState, useEffect } from 'react';
+"use client";
+
+import React, { useState, useEffect } from "react";
+import { DataGrid, GridColDef, GridRenderEditCellParams } from "@mui/x-data-grid";
+import { Typography, Grid, IconButton, TextField } from "@mui/material";
+import { Visibility } from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
+import { createClient } from "@supabase/supabase-js";
 
 const supaBaseLink = process.env.NEXT_PUBLIC_SUPABASE_LINK;
-const supaBaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY
+const supaBaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY;
 
-const supabase = createClient(
-  supaBaseLink,
-  supaBaseKey
-);
-
+const supabase = createClient(supaBaseLink, supaBaseKey);
 
 interface History {
   id: string;
-  created_by: string;
+  outline_input_data: string;
+  production_date: string;
+  client_name: string;
+  keywords: string;
   created_at: string;
-  article_title: string;
 }
+
 export default function ArticleHistory() {
   const [histories, setHistories] = useState<History[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
   const [filteredArticles, setFilteredArticles] = useState<History[]>([]);
-  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
 
-  const fetchHistory = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('history')
-        .select('*').order('id', { ascending: false });
-
-      if (error) throw error;
-      setHistories(data as History[]);
-      setFilteredArticles(data);
-    } catch (error) {
-      setError('Failed to fetch history');
-    } finally {
-      setLoading(false);
-    }
-  };
   useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        const { data, error } = await supabase.from("history").select("*").order("id", { ascending: false });
+        if (error) throw error;
+        setHistories(data as History[]);
+        organizeRows(data);
+      } catch (err) {
+        console.error("Failed to fetch history:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchHistory();
   }, []);
-  let rows: any[] | undefined = [];
-  histories.map((history) => (
-    rows.push({ id: history.id, created_by: history.created_by, article_title: history.article_title })
-  ));
 
-  const handleDelete = async (id: string | number) => {
-    const stringId = id.toString(); // Ensuring id is a string
-    const { error } = await supabase.from('history').delete().eq('id', stringId);
-
-    if (error) {
-      console.error('Error deleting article:', error);
-    } else {
-      setFilteredArticles(histories.filter((history) => history.id !== stringId));
-    }
+  const organizeRows = (histories: History[]) => {
+    let rows: any[] = [];
+      histories.map((history) => {
+      let clientName = "";
+      let keywords = "";
+      let productionDate = history.production_date;
+  
+      if (history.outline_input_data) {
+        const articleData = JSON.parse(history.outline_input_data);
+        clientName = articleData.inputFieldStaticOutline?.clientName || "";
+        keywords = articleData.linkFields?.keywords.map((item: { value: string }) => item.value).join(", ") || "";
+      }
+  
+      // If production_date is null or empty, use created_at and format it
+      if (!productionDate || productionDate.trim() === "") {
+        const createdAt = history.created_at; // Assuming `created_at` is in ISO format
+        const date = new Date(createdAt);
+        const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed
+        const year = String(date.getFullYear()).slice(-2); // Get last two digits
+        productionDate = `${month}/${year}`;
+      }
+      rows.push({
+        id: history.id,
+        client_name: clientName,
+        keywords,
+        production_date: productionDate,
+      });
+    });
+  
+    setFilteredArticles(rows);
   };
-
-  // const handleView = async (id: string | number) => {
-  //   const stringId = id.toString(); // Ensuring id is a string
-  //   const { data } = await supabase.from('history').select('*').eq('id', stringId).single();
-  //   console.log(data)
-  //   sessionStorage.setItem('selectedArticle', JSON.stringify(data.article_output));
-  //   sessionStorage.setItem('selectedArticleTitle', JSON.stringify(data.article_title));
-  //   navigate('/dashboard/articles/view');
-  // };
-  // Handle the search input change
+  
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value.toLowerCase();
     setSearchTerm(value);
+    const filteredData = histories.filter((history) => {
+      let clientName = "";
+      if (history.outline_input_data) {
+        const articleData = JSON.parse(history.outline_input_data);
+        clientName = articleData.inputFieldStaticOutline?.clientName || "";
+      }
+      return clientName.toLowerCase().includes(value);
+    });
+    organizeRows(filteredData);
+  };
 
-    const filteredData = histories.filter((history) =>
-      history.article_title.toLowerCase().includes(value)
-    );
-    setFilteredArticles(filteredData);
+  const handleProductionDateChange = async (id: string, value: string) => {
+    const formattedValue = value.replace(/\D/g, "").slice(0, 4).replace(/^(\d{2})/, "$1/");
+    try {
+      await supabase.from("history").update({ production_date: formattedValue }).eq("id", id);
+    } catch (err) {
+      console.error("Failed to update production date:", err);
+    }
   };
 
   const columns: GridColDef[] = [
-    // { field: 'id', headerName: 'ID', width: 150 },
-    { field: 'article_title', headerName: 'Title', width: 250 },
-    { field: 'created_by', headerName: 'Created By', width: 250 },
-    { field: 'created_at', headerName: 'Created At', width: 200 },
+    { field: "client_name", headerName: "Client Name", width: 300 },
     {
-      field: 'view_result',
-      headerName: 'View Result',
+      field: "production_date",
+      headerName: "Production Date",
+      width: 150,
+      editable: true,
+      sortComparator: (v1, v2) => {
+        const parseDate = (value: string | null | undefined) => {
+          if (!value || value.trim() === "") {
+            // Return a default date for empty or null values, e.g., far in the past
+            return new Date(1900, 0); // January 1900
+          }
+          const [month, year] = value.split("/").map(Number);
+          return new Date(year + 2000, month - 1); // Adjust for 21st century
+        };
+    
+        return parseDate(v1).getTime() - parseDate(v2).getTime();
+      },
+      renderEditCell: (params: GridRenderEditCellParams) => {
+        const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+          const rawValue = e.target.value.replace(/\D/g, "").slice(0, 4);
+          const formattedValue = rawValue.replace(/^(\d{2})/, "$1/");
+          params.api.setEditCellValue({ ...params, value: formattedValue }, e);
+        };
+        const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+          if (e.key === "Enter") {
+            params.api.stopCellEditMode({ id: params.id, field: params.field });
+            handleProductionDateChange(params.id.toString(), params.value as string);
+          }
+        };
+        const handleBlur = () => {
+          if (params.value) {
+            handleProductionDateChange(params.id.toString(), params.value as string);
+          }
+        };
+    
+        return (
+          <TextField
+            value={params.value || ""}
+            onChange={handleInputChange}
+            onKeyDown={handleKeyDown}
+            onBlur={handleBlur}
+            placeholder="MM/YY"
+            inputProps={{ pattern: "\\d{2}/\\d{2}" }}
+          />
+        );
+      },
+    },    
+    { field: "keywords", headerName: "Keywords", width: 350 },
+    {
+      field: "view",
+      headerName: "View",
       width: 150,
       renderCell: (params) => (
         <IconButton aria-label="view" color="primary" onClick={() => navigate(`${params.row.id}`)}>
           <Visibility />
         </IconButton>
       ),
-    }, {
-      field: 'view_output',
-      headerName: 'View Outline',
-      width: 150,
-      renderCell: (params) => (params.row.outline ?
-        <IconButton aria-label="view" color="primary" onClick={() => navigate(`${params.row.id}/output`)}>
-          <Visibility />
-        </IconButton>
-        :
-        ''
-      ),
     },
   ];
+
   return (
     <>
       <Grid container spacing={2}>
         <Grid item xs={8}>
-          <Typography
-            variant="h4"
-            fontWeight="bold"
-            color="text.primary"
-            gutterBottom
-          >
+          <Typography variant="h4" fontWeight="bold" color="text.primary" gutterBottom>
             Article Outputs
           </Typography>
         </Grid>
         <Grid item xs={4}>
-          <TextField id="standard-basic" label="Search by title" variant="standard" value={searchTerm} onChange={handleSearchChange} sx={{ float: 'right' }} />
+          <TextField
+            id="standard-basic"
+            label="Search by client name"
+            variant="standard"
+            value={searchTerm}
+            onChange={handleSearchChange}
+            sx={{ float: "right" }}
+          />
         </Grid>
       </Grid>
 
-      <div style={{ height: 650, width: '100%', backgroundColor: '#fff' }}>
+      <div style={{ height: 650, width: "100%", backgroundColor: "#fff" }}>
         <DataGrid
           rows={filteredArticles}
           columns={columns}
