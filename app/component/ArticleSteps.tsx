@@ -167,14 +167,14 @@ export default function ArticleSteps() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    let internalLinksArray = linkFields.internalLinks.map((link, index) => link.value.trim()).join(', ');
+    // let internalLinksArray = linkFields.internalLinks.map((link, index) => link.value.trim()).join(', ');
     let internalKeywords = linkFields.keywords.map((link, index) => link.value.trim()).join(', ');
-    let authorityLinksArray = linkFields.authorityLinks.map((link, index) => link.value.trim()).join(', ');
+    // let authorityLinksArray = linkFields.authorityLinks.map((link, index) => link.value.trim()).join(', ');
     let competitorLinksArray = linkFields.competitorLinks.map((link, index) => link.value.trim()).join(", ");
 
     try {
       setLoadingOutline(true);
-      const generatedOutline = await generateOutline(internalKeywords, inputFieldStaticOutline.articleDescription, inputFieldStaticOutline.clientName, inputFieldStaticOutline.pageName, internalLinksArray, authorityLinksArray, competitorLinksArray);
+      const generatedOutline = await generateOutline(internalKeywords, inputFieldStaticOutline.articleDescription, inputFieldStaticOutline.clientName, inputFieldStaticOutline.pageName, competitorLinksArray);
       // console.log(generatedOutline);
       // return 
       // const result = removeMd(generatedOutline);
@@ -184,7 +184,7 @@ export default function ArticleSteps() {
       handleComplete();
     } catch (error) {
       setLoadingOutline(true);
-      const generatedOutline = await generateOutline(internalKeywords, inputFieldStaticOutline.articleDescription, inputFieldStaticOutline.clientName, inputFieldStaticOutline.pageName, internalLinksArray, authorityLinksArray, competitorLinksArray);
+      const generatedOutline = await generateOutline(internalKeywords, inputFieldStaticOutline.articleDescription, inputFieldStaticOutline.clientName, inputFieldStaticOutline.pageName, competitorLinksArray);
       // console.log(generatedOutline);
       // return 
       // const result = removeMd(generatedOutline);
@@ -217,16 +217,17 @@ export default function ArticleSteps() {
     event.preventDefault();
     const formData = { sections: inputFields, main: inputFieldStaticArticle };
     let prompt = formData.main.articlePrompt.replace("{{client_guidelines}}", formData.main.clientGuideline).replace("{{article_instructions}}", formData.main.instruction).replace("{{keywords}}", formData.main.keywords);
-    // console.log(formData);
-    // return ;
     const articleSections = formData.sections.map((section, index) => {
+      const joinedLinks = section.links.map(item => item.link).join(', ');
       return `
-    Section ${index + 1}
-    Section Title: ${section.headingLevel} ${apStyleTitleCase(section.sectionTitle)}
-    Section Details: ${section.description}
-    Section Links: ${section.links.join(', ')}
-    `
+      Section ${index + 1}
+      Section Title: ${section.headingLevel} ${apStyleTitleCase(section.sectionTitle)}
+      Section Details: ${section.description}
+      Section Links: ${joinedLinks}
+      `
     });
+    // console.log(articleSections);
+    // return ;
     try {
       // console.log(prompt)
       setLoadingResult(true);
@@ -373,7 +374,7 @@ const handleAuthorityLinks = async () => {
     }
   };
   return (
-    <>
+    <div>
       <Stepper nonLinear activeStep={activeStep} alternativeLabel>
         {steps.map((label, index) => (
           <Step key={label} completed={completed[index]}>
@@ -417,6 +418,6 @@ const handleAuthorityLinks = async () => {
         <Button onClick={handleNext} disabled={activeStep === steps.length - 1}>Next</Button>
         {activeStep !== steps.length && (completed[activeStep] ? <Typography variant="caption" sx={{ display: 'inline-block' }}>Step {activeStep + 1} already completed</Typography> : <Button onClick={handleComplete}>Complete Step</Button>)}
       </Box>
-    </>
+    </div>
   );
 }

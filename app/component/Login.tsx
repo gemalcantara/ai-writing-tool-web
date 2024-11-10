@@ -61,6 +61,7 @@ export default function Login() {
   };
 
   return (
+    <div className='login'>
     <Card sx={{ minWidth: 500 }}>
       <CardContent>
         <Typography variant="h4" gutterBottom>
@@ -102,5 +103,6 @@ export default function Login() {
         </form>
       </CardContent>
     </Card>
+    </div>
   );
 }

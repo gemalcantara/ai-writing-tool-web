@@ -9,9 +9,25 @@ body {
   background: white;
   font-family: 'IBM Plex Sans', sans-serif;
   /* overflow-y: hidden; */
-  display: flex;
   justify-content: center;
   /* align-items: center; */
+}
+
+.login {
+  position: relative;
+  color: white;
+  height: 100vh;
+  background: linear-gradient(
+    200.96deg,
+    #4fbc85 -29.09%,
+    #4f75bc 51.77%,
+    #113662 129.35%
+  );
+  font-family: 'IBM Plex Sans', sans-serif;
+  overflow-y: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 space-between {
