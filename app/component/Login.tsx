@@ -1,108 +1,109 @@
 "use client"
-import * as React from 'react';
-import { useState, useEffect } from 'react';
-import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import Typography from '@mui/material/Typography';
+
+import React, { useState, useEffect } from 'react';
+import { Button, TextField, Card, CardContent, Typography, CircularProgress } from '@mui/material';
+import { createClient } from '@supabase/supabase-js';
+import { useCookies } from 'react-cookie';
+import { useNavigate } from 'react-router-dom';
 import '../App.css';
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
-import { createClient } from '@supabase/supabase-js';
-import { CookiesProvider, useCookies  } from 'react-cookie';
-import { useNavigate  } from 'react-router-dom';
-
-const supaBaseLink = process.env.NEXT_PUBLIC_SUPABASE_LINK;
-const supaBaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY
 
 const supabase = createClient(
-  supaBaseLink,
-  supaBaseKey
+  process.env.NEXT_PUBLIC_SUPABASE_LINK!,
+  process.env.NEXT_PUBLIC_SUPABASE_KEY!
 );
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  // const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const [cookies, setCookie] = useCookies(['user']);
   const navigate = useNavigate();
-  useEffect(() => {
-    // Check for the cookie
-    if (cookies.user) { 
-      if (cookies.user.session) {
-        // Redirect to the dashboard if the cookie is set
-        navigate('/dashboard');
-      }
-    }
-  }, [navigate]);
-  
-  const handleSubmit = async (event: any) => {
-    event.preventDefault();
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    if (error) {
-      alert(error.message);
-      // setError(error.message);
-    } else {
-      let loginDate = {
-        user: data.session.user,
-        session: data.session.access_token
-      }
-      setCookie('user', loginDate, { path: '/' });
-      alert('Login Success');
-      navigate('/dashboard');
 
+  useEffect(() => {
+    if (cookies.user?.session) {
+      navigate('/dashboard');
+    }
+  }, [cookies.user, navigate]);
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setError(null);
+    setLoading(true);
+
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+
+      const loginDate = {
+        user: data.user,
+        session: data.session?.access_token
+      };
+      setCookie('user', loginDate, { path: '/' });
+      navigate('/dashboard');
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'An unexpected error occurred');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className='login'>
-    <Card sx={{ minWidth: 500 }}>
-      <CardContent>
-        <Typography variant="h4" gutterBottom>
-          AI Writing Tool
-        </Typography>
-        <form onSubmit={handleSubmit}>
-          <center>
+      <Card sx={{ minWidth: 300, maxWidth: 400, width: '100%' }}>
+        <CardContent>
+          <Typography variant="h4" gutterBottom align="center">
+            AI Writing Tool
+          </Typography>
+          <form onSubmit={handleSubmit}>
             <TextField
               id="email"
               value={email}
               fullWidth
-              style={{ paddingRight: '10px' }}
+              margin="normal"
               label="Email"
               type="email"
-              variant="standard"
+              variant="outlined"
               onChange={(e) => setEmail(e.target.value)}
+              required
             />
-            <br />
             <TextField
               id="password"
               value={password}
               label="Password"
               type="password"
               fullWidth
-              style={{ paddingRight: '10px' }}
-              variant="standard"
+              margin="normal"
+              variant="outlined"
               onChange={(e) => setPassword(e.target.value)}
+              required
             />
-            <br />
+            {error && (
+              <Typography color="error" variant="body2" align="center" sx={{ mt: 2 }}>
+                {error}
+              </Typography>
+            )}
             <Button
               size="large"
               type="submit"
               variant="outlined"
-              style={{ marginTop: '1rem' }}
+              fullWidth
+              sx={{ mt: 3 }}
+              disabled={loading}
             >
-              Login
+              {loading ? <CircularProgress size={24} color="inherit" /> : 'Login'}
             </Button>
-          </center>
-        </form>
-      </CardContent>
-    </Card>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }

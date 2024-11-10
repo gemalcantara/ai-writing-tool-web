@@ -80,7 +80,7 @@ async function generateOutline(
    // @ts-ignore
       messages: messages,
     });
-    console.log(response);
+    // console.log(response);
     return response.content[0].text || '';
   } catch (error) {
     console.error('Error generating article outline:', error);
@@ -102,5 +102,72 @@ async function generateArticle(formData: string, sectionData: string) {
     return response.content[0].text || '';
 }
 
+async function generateAuthorityLink(formData: any, articleSections: any) {
+  const prompt = `
+  ### STEPS
+  1. **Understand the Article's Purpose:**  
+    Review the information in the "Article Instructions" to understand the overall purpose and context of the article.
+  2. **Review the Outline Sections:**  
+    Read through each section in the outline to understand how they contribute to the article's structure and objectives.
+  3. **Research and Gather References:**  
+    Use the Internet to **search for 1–10 online resources** (e.g., articles, studies, surveys) that will strengthen the content in each section of the outline.
+  4. **Provide a Standardized Output:**  
+    List your recommended resources in a consistent format, including the article's name, URL, and the corresponding outline section.
+  ---
 
-export {generateOutline,generateArticle}
+  ### GUIDELINES
+
+  1. **Approved Sources:**  
+  Only suggest high-quality sources by prioritizing government websites (.gov) and legal statutes first, followed by reputable sources such as scholarly articles, university studies, publications from non-profit organizations, and reputable news outlets (e.g. CNN, New York Times).
+  2. **Disallowed Sources:**  
+    - **Law Firm Websites:** Avoid references from law firm websites or directories (e.g., Justia.com, FindLaw.com) since our articles are intended for potential clients, and we do not feature competing legal content.
+    - **User-Generated Content:** Do not use articles from platforms like LinkedIn, Medium, or other social media sites.
+  3. **Select Only the Best Resources:**  
+    Aim for the **highest quality over quantity**. It is acceptable to suggest fewer than 10 resources if they represent the best possible references. Prioritize **quality over volume** in your selections.
+  ---
+  ### INPUT
+  #### Article Instructions:
+  ${formData.main.instruction}.
+  #### Article Outline:
+  ${articleSections.join('\n ')}
+  ---
+
+  ### OUTPUT FORMAT
+  1. **(ARTICLE NAME)**  
+    *(ARTICLE URL)*  
+    **(SECTION WHERE ARTICLE SHOULD BE ADDED)**
+  2. **(ARTICLE NAME)**  
+    *(ARTICLE URL)*  
+    **(SECTION WHERE ARTICLE SHOULD BE ADDED)**`;
+
+  const perplexityKey = process.env.NEXT_PUBLIC_PERPLEXITY_AI_API_KEY;
+  const options = {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${perplexityKey}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      model: "llama-3.1-sonar-small-128k-online",
+      messages: [
+        { role: "system", content: "You are a **research assistant** for our Content Writing team. Your task is to **analyze an article outline** and then **provide a list of high-quality references** from the Internet that will enhance the final article's quality. In your output, list the **name of the article**, the **URL**, and specify the **section where the article should be added** as a reference." },
+        { role: "user", content: prompt }
+      ],
+      temperature: 0.2,
+      top_p: 0.9,
+      search_domain_filter: ["perplexity.ai"],
+      return_images: false,
+      return_related_questions: false,
+      top_k: 0,
+      stream: false,
+      presence_penalty: 0,
+      frequency_penalty: 1
+    })
+  };
+  const response = await fetch('https://api.perplexity.ai/chat/completions', options);
+  const data = await response.json();
+
+    return data;
+}
+
+export {generateOutline,generateArticle,generateAuthorityLink}
