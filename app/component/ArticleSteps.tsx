@@ -232,9 +232,16 @@ export default function ArticleSteps() {
       // console.log(prompt)
       setLoadingResult(true);
       const data: any = await sendRequest(prompt, JSON.stringify(articleSections));
-      let oulineFields = JSON.stringify({ inputFieldStaticOutline, inputFieldStaticArticle, linkFields, inputFields })
-      // return
-      await createHistory(data, pageTitle, cookies.user.user.email, outline, oulineFields);
+      let oulineFields = JSON.stringify({ inputFieldStaticOutline, inputFieldStaticArticle, linkFields, inputFields });
+      let outlineParse = JSON.parse(outline);
+      let outlineToSave = {
+        title: outlineParse.title ,
+        meta_description: outlineParse.meta_description,
+        slug: outlineParse.slug ,
+        sections: inputFields
+      };
+
+      await createHistory(data, pageTitle, cookies.user.user.email, JSON.stringify(outlineToSave), oulineFields);
       const plainText = data  ;
       // console.log(plainText)
       setToCopy(plainText);
