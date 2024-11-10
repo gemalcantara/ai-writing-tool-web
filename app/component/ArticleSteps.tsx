@@ -12,6 +12,7 @@ import { useParams } from "react-router-dom";
 import { apStyleTitleCase } from 'ap-style-title-case';
 const steps = ['Create Outline', 'Create Article', 'Article Result'];
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_LINK, process.env.NEXT_PUBLIC_SUPABASE_KEY);
+import { marked } from "marked";
 
 const defaultOutlineFields = {
   keywords: '',
@@ -78,6 +79,11 @@ export default function ArticleSteps() {
   const [article, setArticle] = useState<Article>();
   const [outlineResult, setOutlineResult] = useState<any>();
   const [outlineResultField, setOutlineResultField] = useState<any>();
+  const [authorityLinks, setAuthorityLinks] = useState("");
+  const [internalLinks, setInternalLinks] = useState("");
+  const [loadingAuthority, setLoadingAuthority] = useState(false);
+  const [loadingInternal, setLoadingInternal] = useState(false);
+
   useEffect(() => { fetchData('clients', setClients); fetchData('pages', setPages); }, []);
  
   useEffect(() => {
@@ -254,7 +260,118 @@ export default function ArticleSteps() {
       alert(error.message);
     }
   };
+const handleAuthorityLinks = async () => {
+    setLoadingAuthority(true);
+    try {
+      const formData = { sections: inputFields, main: inputFieldStaticArticle };
+      const articleSections = formData.sections.map((section: { headingLevel: any; sectionTitle: string | undefined; description: any; links: any[]; }, index: number) => {
+        return ` ${index + 1}. **${apStyleTitleCase(section.sectionTitle)}**`
+      });
+      const prompt = `
+      ### STEPS
+      1. **Understand the Article's Purpose:**  
+        Review the information in the "Article Instructions" to understand the overall purpose and context of the article.
+      2. **Review the Outline Sections:**  
+        Read through each section in the outline to understand how they contribute to the article's structure and objectives.
+      3. **Research and Gather References:**  
+        Use the Internet to **search for 1–10 online resources** (e.g., articles, studies, surveys) that will strengthen the content in each section of the outline.
+      4. **Provide a Standardized Output:**  
+        List your recommended resources in a consistent format, including the article's name, URL, and the corresponding outline section.
+      ---
 
+      ### GUIDELINES
+
+      1. **Approved Sources:**  
+      Only suggest high-quality sources by prioritizing government websites (.gov) and legal statutes first, followed by reputable sources such as scholarly articles, university studies, publications from non-profit organizations, and reputable news outlets (e.g. CNN, New York Times).
+      2. **Disallowed Sources:**  
+        - **Law Firm Websites:** Avoid references from law firm websites or directories (e.g., Justia.com, FindLaw.com) since our articles are intended for potential clients, and we do not feature competing legal content.
+        - **User-Generated Content:** Do not use articles from platforms like LinkedIn, Medium, or other social media sites.
+      3. **Select Only the Best Resources:**  
+        Aim for the **highest quality over quantity**. It is acceptable to suggest fewer than 10 resources if they represent the best possible references. Prioritize **quality over volume** in your selections.
+      ---
+      ### INPUT
+      #### Article Instructions:
+      ${formData.main.instruction}.
+      #### Article Outline:
+      ${articleSections.join('\n ')}
+      ---
+
+      ### OUTPUT FORMAT
+      1. **(ARTICLE NAME)**  
+        *(ARTICLE URL)*  
+        **(SECTION WHERE ARTICLE SHOULD BE ADDED)**
+      2. **(ARTICLE NAME)**  
+        *(ARTICLE URL)*  
+        **(SECTION WHERE ARTICLE SHOULD BE ADDED)**`;
+
+      const perplexityKey = process.env.NEXT_PUBLIC_PERPLEXITY_AI_API_KEY;
+      const options = {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${perplexityKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: "llama-3.1-sonar-small-128k-online",
+          messages: [
+            { role: "system", content: "You are a **research assistant** for our Content Writing team. Your task is to **analyze an article outline** and then **provide a list of high-quality references** from the Internet that will enhance the final article's quality. In your output, list the **name of the article**, the **URL**, and specify the **section where the article should be added** as a reference." },
+            { role: "user", content: prompt }
+          ],
+          temperature: 0.2,
+          top_p: 0.9,
+          search_domain_filter: ["perplexity.ai"],
+          return_images: false,
+          return_related_questions: false,
+          top_k: 0,
+          stream: false,
+          presence_penalty: 0,
+          frequency_penalty: 1
+        })
+      };
+      const response = await fetch('https://api.perplexity.ai/chat/completions', options);
+      const data = await response.json();
+      if (data.choices && data.choices[0] && data.choices[0].message) {
+        const content = data.choices[0].message.content;
+        const htmlContent = await marked(content, {
+          async: true
+        });
+        console.log(htmlContent);
+        setAuthorityLinks(htmlContent);
+      } else {
+        throw new Error('Unexpected response format from Perplexity API');
+      }
+    } catch (error) {
+      console.error('Error fetching authority links:', error);
+      setError('Failed to fetch authority links. Please try again.');
+    } finally {
+      setLoadingAuthority(false);
+    }
+  };
+
+  const handleInternalLinks = async () => {
+    setLoadingInternal(true);
+    try {
+      const response = await fetch('/api/perplexity/internal-links', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: inputFieldStaticArticle.pageTitle,
+          keywords: inputFieldStaticArticle.keywords,
+          content: inputFieldStaticArticle.instruction
+        }),
+      });
+
+      const data = await response.json();
+      setInternalLinks(data.links);
+    } catch (error) {
+      console.error('Error fetching internal links:', error);
+      setError('Failed to fetch internal links. Please try again.');
+    } finally {
+      setLoadingInternal(false);
+    }
+  };
   return (
     <>
       <Stepper nonLinear activeStep={activeStep} alternativeLabel>
@@ -273,7 +390,24 @@ export default function ArticleSteps() {
       ) : (
         {
           0: <ArticleOutlineForm {...{ handleSubmit, inputFieldStaticOutline, setInputFieldStaticOutline, clients, pages, loadingOutline, linkFields, setLinkFields }} />,
-          1: <ArticlesForm {...{ handleSubmitArticle, inputFieldStaticArticle, setInputFieldStaticArticle, clients, pages, inputFields, setInputFields, loadingResult }} />,
+          1: <ArticlesForm 
+               {...{ 
+                 handleSubmitArticle, 
+                 inputFieldStaticArticle, 
+                 setInputFieldStaticArticle, 
+                 clients, 
+                 pages, 
+                 inputFields, 
+                 setInputFields, 
+                 loadingResult,
+                 handleAuthorityLinks,
+                 handleInternalLinks,
+                 authorityLinks,
+                 internalLinks,
+                 loadingAuthority,
+                 loadingInternal
+               }} 
+             />,
           2: <ArticlesResult {...{ pageTitle, toCopy, response, loadingResult }} />
         }[activeStep]
       )}

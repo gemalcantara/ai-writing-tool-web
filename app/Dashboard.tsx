@@ -1,5 +1,4 @@
-/* eslint-disable no-use-before-define */
-"use client";
+"use client"
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link, Outlet } from 'react-router-dom';
@@ -13,17 +12,26 @@ import {
   Typography,
   Divider,
   Collapse,
-  Paper,
-  Card,
-  CardContent,
+  IconButton,
   ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
   ListSubheader,
 } from '@mui/material';
-
-import { Person, Article, PermContactCalendar, Pages, Logout, TableChart, AddCircleOutline, ExpandLess, ExpandMore } from '@mui/icons-material';
+import {
+  Person,
+  Article,
+  PermContactCalendar,
+  Pages,
+  Logout,
+  TableChart,
+  AddCircleOutline,
+  ExpandLess,
+  ExpandMore,
+  Menu as MenuIcon,
+  ChevronLeft as ChevronLeftIcon,
+} from '@mui/icons-material';
 import { createClient } from '@supabase/supabase-js';
 import useLogout from './component/Logout';
 import './App.css';
@@ -40,7 +48,7 @@ interface ClientsList {
   name: string;
 }
 
-const SidebarList = () => {
+const SidebarList = ({ open }: { open: boolean }) => {
   const [page, setPage] = useState(false);
   const [client, setClient] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(1);
@@ -79,8 +87,9 @@ const SidebarList = () => {
         icon={<Article />}
         text="Create Article"
         to="articles/create"
+        open={open}
       />
-          <Divider />
+      <Divider />
       <SidebarItem
         index={7}
         selectedIndex={selectedIndex}
@@ -88,43 +97,42 @@ const SidebarList = () => {
         icon={<TableChart />}
         text="Article Output Lists"
         to="articles/view"
+        open={open}
       />
       <ListItemButton selected={selectedIndex === 1} onClick={() => { handleClickPage(); handleListItemClick(1); }}>
         <ListItemIcon><Pages /></ListItemIcon>
-        <ListItemText primary="Page Templates" />
-        {page ? <ExpandLess /> : <ExpandMore />}
+        {open && <ListItemText primary="Page Templates" />}
+        {open && (page ? <ExpandLess /> : <ExpandMore />)}
       </ListItemButton>
-      <Collapse in={page} timeout="auto" unmountOnExit><PageList /></Collapse>
+      <Collapse in={page && open} timeout="auto" unmountOnExit><PageList /></Collapse>
 
       <ListItemButton selected={selectedIndex === 2} onClick={() => { handleClickClient(); handleListItemClick(2); }}>
         <ListItemIcon><PermContactCalendar /></ListItemIcon>
-        <ListItemText primary="Client" />
-        {client ? <ExpandLess /> : <ExpandMore />}
+        {open && <ListItemText primary="Client" />}
+        {open && (client ? <ExpandLess /> : <ExpandMore />)}
       </ListItemButton>
-      <Collapse in={client} timeout="auto" unmountOnExit><ClientList /></Collapse>
-          <Divider />
-
-      <SidebarItem index={6} selectedIndex={selectedIndex} onClick={handleListItemClick} icon={<Person />} text="Users" to="users" />
-      <SidebarItem index={11} selectedIndex={selectedIndex} onClick={handleListItemClick} icon={<Person />} text="Profile" to="users/profile" />
-      <ListItemButton selected={selectedIndex === 5} onClick={logout}>
-        <ListItemIcon><Logout /></ListItemIcon>
-        <ListItemText primary="Logout" />
-      </ListItemButton>
+      <Collapse in={client && open} timeout="auto" unmountOnExit><ClientList /></Collapse>
       <Divider />
 
+      <SidebarItem index={6} selectedIndex={selectedIndex} onClick={handleListItemClick} icon={<Person />} text="Users" to="users" open={open} />
+      <SidebarItem index={11} selectedIndex={selectedIndex} onClick={handleListItemClick} icon={<Person />} text="Profile" to="users/profile" open={open} />
+      <ListItemButton selected={selectedIndex === 5} onClick={logout}>
+        <ListItemIcon><Logout /></ListItemIcon>
+        {open && <ListItemText primary="Logout" />}
+      </ListItemButton>
+      <Divider />
     </List>
   );
 };
 
-const SidebarItem = ({ index, selectedIndex, onClick, icon, text, to }: any) => (
+const SidebarItem = ({ index, selectedIndex, onClick, icon, text, to, open }: any) => (
   <ListItemButton selected={selectedIndex === index} onClick={() => onClick(index)} component={Link} to={to}>
     <ListItemIcon>{icon}</ListItemIcon>
-    {
-      index == 4 ? 
-       <ListItemText primary={text}  
-      classes={{primary: "awt-font-large"}}
-      /> : <ListItemText primary={text} />
-    }
+    {open && (
+      index === 4 ? 
+        <ListItemText primary={text} classes={{primary: "awt-font-large"}} />
+        : <ListItemText primary={text} />
+    )}
   </ListItemButton>
 );
 
@@ -138,7 +146,6 @@ const ClientList = () => {
     const fetchClients = async () => {
       try {
         const { data, error } = await supabase.from('clients').select('*').order('name', { ascending: true });
-        ;
         if (error) throw error;
         setClients(data || []);
       } catch (error) {
@@ -214,37 +221,57 @@ const PageList = () => {
 };
 
 const ClippedDrawer = () => {
+  const [open, setOpen] = useState(true);
+
+  const handleDrawerToggle = () => {
+    setOpen(!open);
+  };
+
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex', }}>
       <CssBaseline />
       <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
         <Toolbar>
-          <Typography variant="h6" noWrap sx={{ flexGrow: 1 }}>AI Writing Tool</Typography>
+          <IconButton
+            color="inherit"
+            aria-label="toggle drawer"
+            onClick={handleDrawerToggle}
+            edge="start"
+            sx={{ mr: 2 }}
+          >
+            {open ? <ChevronLeftIcon /> : <MenuIcon />}
+          </IconButton>
+          <Typography variant="h6" noWrap sx={{ flexGrow: 1 }}>
+            AI Writing Tool
+          </Typography>
         </Toolbar>
       </AppBar>
       <Drawer
         variant="permanent"
         sx={{
-          width: drawerWidth,
+          width: open ? drawerWidth : 64,
           flexShrink: 0,
           [`& .MuiDrawer-paper`]: {
-            width: drawerWidth,
+            width: open ? drawerWidth : 64,
             boxSizing: 'border-box',
+            overflowX: 'hidden',
+            boxShadow: 5,
+            transition: (theme) =>
+              theme.transitions.create('width', {
+                easing: theme.transitions.easing.sharp,
+                duration: theme.transitions.duration.enteringScreen,
+              }),
           },
         }}
       >
         <Toolbar />
-        <SidebarList />
+        <SidebarList open={open} />
       </Drawer>
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-        <Toolbar />
-        <Paper elevation={0}>
-          <Card sx={{ minWidth: "130vh", maxWidth: "130vh", minHeight: "80vh", maxHeight: '80vh', overflowY: "scroll" }}>
-            <CardContent>
-              <Outlet />
-            </CardContent>
-          </Card>
-        </Paper>
+        <Toolbar /> {/* This empty Toolbar pushes content below AppBar */}
+        <div>
+          <Outlet />
+        </div>
       </Box>
     </Box>
   );

@@ -1,28 +1,37 @@
 "use client"
 
 import * as React from 'react';
+import { useState, useEffect } from 'react';
 import Button from '@mui/material/Button';
 import '../App.css';
 import Grid from '@mui/material/Grid';
 import remarkGfm from 'remark-gfm'
 import ReactMarkdown from 'react-markdown';
-import {marked} from 'marked';
+import { marked } from 'marked';
 
 export default function ArticlesResult({ pageTitle, toCopy, response, loadingResult }: any) {
-  const convertMarkdownToHTML = (markdown: string) => {
-    return marked(markdown); // marked converts markdown to HTML
-  };    
+  const [htmlContent, setHtmlContent] = useState('');
+
+  useEffect(() => {
+    const convertToHtml = async () => {
+      if (response) {
+        const html = await marked(response, { async: true });
+        setHtmlContent(renderLinksWithTargetBlank(html));
+      }
+    };
+
+    convertToHtml();
+  }, [response]);
+
   const handleCopy = async () => {
-    const htmlContent = convertMarkdownToHTML(response); // Ensure this is a string
     const plainTextContent = response; // The plain markdown as fallback
 
     try {
       // Copy styled content (HTML) to the clipboard
       await navigator.clipboard.write([
         new ClipboardItem({
-          //@ts-ignore
-          'text/html': new Blob([htmlContent], { type: 'text/html' }), // Ensure this is a resolved string
-          'text/plain': new Blob([plainTextContent], { type: 'text/plain' }), // Fallback to plain text
+          'text/html': new Blob([htmlContent], { type: 'text/html' }),
+          'text/plain': new Blob([plainTextContent], { type: 'text/plain' }),
         })
       ]);
       alert('Result copied.');
@@ -31,14 +40,17 @@ export default function ArticlesResult({ pageTitle, toCopy, response, loadingRes
     }
   };
 
-  // Custom components for ReactMarkdown
-  const components = {
-      //@ts-ignore
-    a: ({ node, ...props }) => (
-      <a target="_blank" rel="noopener noreferrer" {...props} />
-    ),
+  const renderLinksWithTargetBlank = (html: string) => {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const links = doc.getElementsByTagName('a');
+    for (let i = 0; i < links.length; i++) {
+      links[i].setAttribute('target', '_blank');
+      links[i].setAttribute('rel', 'noopener noreferrer');
+    }
+    return doc.body.innerHTML;
   };
-
+  
   return (
     <div>
       <h1>Article Result:</h1>
@@ -56,14 +68,13 @@ export default function ArticlesResult({ pageTitle, toCopy, response, loadingRes
       {loadingResult ? (
         <p>Loading...</p>
       ) : (
-        <ReactMarkdown 
-          className="process-text" 
-          remarkPlugins={[remarkGfm]}
-          //@ts-ignore
-          components={components}
-        >
-          {response}
-        </ReactMarkdown>
+        <div className="prose max-w-none" style={{ marginTop: "1rem"}}>
+          <div 
+            className="pl-5 ck ck-content" 
+            style={{ marginLeft: "1rem"}} 
+            dangerouslySetInnerHTML={{ __html: htmlContent }}
+          />
+        </div>
       )}
     </div>
   );
