@@ -4,6 +4,17 @@
  */
 body {
   position: relative;
+  color: black;
+  /* height: 100vh; */
+  background: white;
+  font-family: 'IBM Plex Sans', sans-serif;
+  /* overflow-y: hidden; */
+  justify-content: center;
+  /* align-items: center; */
+}
+
+.login {
+  position: relative;
   color: white;
   height: 100vh;
   background: linear-gradient(

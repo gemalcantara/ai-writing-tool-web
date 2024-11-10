@@ -93,7 +93,7 @@ const DynamicFieldsComponent = ({linkFields, setLinkFields}:any) => {
       </Grid>
 
       {/* Internal Links Field */}
-      <Grid item xs={12}>
+      {/* <Grid item xs={12}>
         <h3>Internal Links</h3>
         {linkFields.internalLinks.map((field: any, index: any) => (
           <Grid key={field.id} container spacing={2} sx={{marginBottom: '1rem'}} alignItems="center">
@@ -118,10 +118,10 @@ const DynamicFieldsComponent = ({linkFields, setLinkFields}:any) => {
               endIcon={<Add />} onClick={() => handleAddField('internalLinks')}>
           Add Internal Link
         </Button>
-      </Grid>
+      </Grid> */}
 
       {/* Authority Links Field */}
-      <Grid item xs={12}>
+      {/* <Grid item xs={12}>
         <h3>Authority Links</h3>
         {linkFields.authorityLinks.map((field: any, index: any) => (
           <Grid key={field.id} container spacing={2} sx={{marginBottom: '1rem'}} alignItems="center">
@@ -146,7 +146,7 @@ const DynamicFieldsComponent = ({linkFields, setLinkFields}:any) => {
               endIcon={<Add />} onClick={() => handleAddField('authorityLinks')}>
           Add Authority Link
         </Button>
-      </Grid>
+      </Grid> */}
     </Grid>
   );
 };

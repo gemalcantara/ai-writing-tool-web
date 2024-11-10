@@ -184,7 +184,7 @@ const Sections = ({ inputFields, setInputFields }: { inputFields: InputField[], 
                       </AccordionSummary>
                       <AccordionDetails>
                         <Grid container spacing={2}>
-                          <Grid item xs={11}>
+                          <Grid item xs={12}>
                             <TextField
                               name="sectionTitle"
                               label="Section Title"

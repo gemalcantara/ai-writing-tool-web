@@ -85,7 +85,7 @@ export default function Users() {
         </Grid>
       </Grid>
 
-      <div style={{ height: 400, width: '100%', backgroundColor: '#fff' }}>
+      <div>
         <DataGrid
           rows={rows}
           columns={columns}

@@ -126,14 +126,23 @@ export default function MergedArticleHistoryView() {
       <a target="_blank" rel="noopener noreferrer" {...props} />
     ),
   };
-
+  const renderLinksWithTargetBlank = (html: string) => {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const links = doc.getElementsByTagName('a');
+    for (let i = 0; i < links.length; i++) {
+      links[i].setAttribute('target', '_blank');
+      links[i].setAttribute('rel', 'noopener noreferrer');
+    }
+    return doc.body.innerHTML;
+  };
   return (
     <div className="container mx-auto px-4 py-8">
       <Grid container spacing={3} className="mb-6">
-        <Grid item xs={8}>
+        <Grid item xs={9}>
           <h3 className="text-2xl font-bold">{article?.article_title}</h3>
         </Grid>
-        <Grid item xs={4} className="flex justify-end">
+        <Grid item xs={3} className="flex justify-end">
           <Button style={{ marginRight: "3px"}}
             variant="outlined"
             onClick={() => navigate(`/dashboard/articles/create/${articleId}`)}
@@ -164,7 +173,7 @@ export default function MergedArticleHistoryView() {
         <AccordionDetails>
           {outline &&
             outline.sections.map((section: any, index: number) => (
-              <div key={index} className="mb-4"  style={{ marginLeft: "1rem"}}>
+              <div key={index} className="mb-4 ck ck-content"  style={{ marginLeft: "1rem"}}>
                 {section.headingLevel === "h2" ? (
                   <h2 className="text-xl font-semibold mb-2">
                     {section.sectionTitle}
@@ -190,7 +199,7 @@ export default function MergedArticleHistoryView() {
                     </li>
                   ))}
                 </ul>
-              </div>
+                </div>
             ))}
         </AccordionDetails>
       </Accordion>
@@ -207,7 +216,7 @@ export default function MergedArticleHistoryView() {
         </div>
       ) : (
         <div className="prose max-w-none" style={{ marginTop: "1rem"}}>
-            <div className="pl-5 process-text" style={{ marginLeft: "1rem"}} dangerouslySetInnerHTML={{ __html: editedContent}}></div>
+            <div className="pl-5 ck ck-content" style={{ marginLeft: "1rem"}} dangerouslySetInnerHTML={{ __html: renderLinksWithTargetBlank(editedContent)}}></div>
           {/* <ReactMarkdown
             className="process-text"
             remarkPlugins={[remarkGfm]}
