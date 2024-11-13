@@ -194,9 +194,28 @@ export default function ArticleSteps() {
       handleComplete();
     }
   };
+  const handleParseJson = (text : string) => {
 
+    try {
+      // Use a regex to match and extract the JSON part between `{` and `}`
+      const jsonMatch = text.match(/{[\s\S]*}/);
+      
+      if (jsonMatch) {
+        const jsonString = jsonMatch[0];
+        
+        // Parse the JSON
+        const parsedJson = JSON.parse(jsonString);
+        return parsedJson;
+      } else {
+        console.error("No JSON found in the input string.");
+      }
+    } catch (error) {
+      console.error("Failed to parse JSON:", error);
+    }
+  };
   const parseOutlineResultFillArticleField = (outline: string) => {
-    const parsedOutline = JSON.parse(outline);
+    const parsedOutline = handleParseJson(outline);
+    
     setInputFieldStaticArticle(prev => ({
       ...prev, instruction: parsedOutline.metaDescription ?? inputFieldStaticOutline.articleDescription, pageTitle: parsedOutline.title, keywords: inputFieldStaticOutline.keywords, selectedClient: inputFieldStaticOutline.selectedClient,
       selectedPage: inputFieldStaticOutline.selectedPage
@@ -205,7 +224,7 @@ export default function ArticleSteps() {
     setInputFields(parsedOutline.sections || []);
   };
   const parseOutlineResultFillArticleFieldPreload = (outline: string, inputFields: any) => {
-    const parsedOutline = JSON.parse(outline);
+    const parsedOutline = handleParseJson(outline);
     setInputFieldStaticArticle(prev => ({
       ...prev, instruction: parsedOutline.metaDescription ?? inputFieldStaticOutline.articleDescription, pageTitle: parsedOutline.title, keywords: inputFieldStaticOutline.keywords, selectedClient: inputFieldStaticOutline.selectedClient,
       selectedPage: inputFieldStaticOutline.selectedPage
@@ -233,7 +252,7 @@ export default function ArticleSteps() {
       setLoadingResult(true);
       const data: any = await sendRequest(prompt, JSON.stringify(articleSections));
       let oulineFields = JSON.stringify({ inputFieldStaticOutline, inputFieldStaticArticle, linkFields, inputFields });
-      let outlineParse = JSON.parse(outline);
+      let outlineParse = handleParseJson(outline);
       let outlineToSave = {
         title: outlineParse.title ,
         meta_description: outlineParse.meta_description,
@@ -306,7 +325,6 @@ const handleAuthorityLinks = async () => {
         const htmlContent = await marked(content, {
           async: true
         });
-        console.log(htmlContent);
       setInternalLinks(htmlContent);
       } else {
         throw new Error('Unexpected response format from Pinecone API');
