@@ -6,7 +6,7 @@ import { createClient } from '@supabase/supabase-js';
 import ArticleOutlineForm from './ArticleOutlineForm';
 import ArticlesForm from './ArticleForm';
 import ArticlesResult from './ArticlesResult';
-import { generateArticle, generateOutline,generateAuthorityLink } from '../helpers/openaiApi';
+import { generateArticle, generateOutline,generateAuthorityLink, generateInternalLink } from '../helpers/openaiApi';
 import removeMd from 'remove-markdown';
 import { useParams } from "react-router-dom";
 import { apStyleTitleCase } from 'ap-style-title-case';
@@ -296,20 +296,21 @@ const handleAuthorityLinks = async () => {
   const handleInternalLinks = async () => {
     setLoadingInternal(true);
     try {
-      const response = await fetch('/api/perplexity/internal-links', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          title: inputFieldStaticArticle.pageTitle,
-          keywords: inputFieldStaticArticle.keywords,
-          content: inputFieldStaticArticle.instruction
-        }),
+      const formData = { sections: inputFields, main: inputFieldStaticArticle };
+      const articleSections = formData.sections.map((section: { headingLevel: any; sectionTitle: string | undefined; description: any; links: any[]; }, index: number) => {
+        return ` ${index + 1}. **${apStyleTitleCase(section.sectionTitle)}**`
       });
-
-      const data = await response.json();
-      setInternalLinks(data.links);
+      const data = await generateInternalLink(formData, articleSections);
+      if (data.message) {
+        const content = data.message.content;
+        const htmlContent = await marked(content, {
+          async: true
+        });
+        console.log(htmlContent);
+      setInternalLinks(htmlContent);
+      } else {
+        throw new Error('Unexpected response format from Pinecone API');
+      }
     } catch (error) {
       console.error('Error fetching internal links:', error);
       setError('Failed to fetch internal links. Please try again.');
