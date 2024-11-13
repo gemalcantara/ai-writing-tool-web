@@ -365,7 +365,7 @@ export default function ArticlesForm({
 
             {showLinks && (
               <>
-                <Tabs value={activeTab} onChange={handleTabChange} aria-label="link tabs">
+                <Tabs value={activeTab} onChange={handleTabChange} aria-label="link tabs" centered>
                   <Tab label="Authority Links" />
                   <Tab label="Internal Links" />
                 </Tabs>
