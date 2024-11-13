@@ -60,7 +60,6 @@ async function generateOutline(
       CLIENT:  ${clientName}
       PAGE TYPE:  ${pageName}
       ARTICLE INSTRUCTION: ${articleDescription}
-      REMINDER: All links must be incorporated into the outline; under no circumstances should you create an ‘Additional Resources’ or ‘Further Reading’ section at the end. 
       
      Return the response strictly following this JSON template, ensuring valid JSON formatting and no markdown, extraneous content or code block syntax. I will use this with JSON.parse(), so it should be in valid JSON format.'
      
@@ -74,7 +73,7 @@ async function generateOutline(
           \"description\": \"concatenate all subsections\",
           \"links\": [
             {
-              \"link\": \"\"
+              \"link\": \"leave this empty\"
             }
           ]
         }
@@ -87,8 +86,9 @@ async function generateOutline(
   try {
     let response: any = {};
     response = await anthropic.messages.create({
-      model: "claude-3-5-sonnet-20240620",
-      max_tokens: 8000,
+      model: "claude-3-opus-20240229",
+      // model: "claude-3-5-sonnet-20241022",
+      max_tokens: 4096,
    // @ts-ignore
       messages: messages,
     });
@@ -106,8 +106,9 @@ async function generateArticle(formData: string, sectionData: string) {
   // console.log(articlePrompt);
   // return
     response = await anthropic.messages.create({
-      model: "claude-3-5-sonnet-20240620",
-      max_tokens: 8100,
+      model: "claude-3-opus-20240229",
+      // model: "claude-3-5-sonnet-20241022",
+      max_tokens: 4096,
     // @ts-ignore
       messages: articlePrompt,
     });
