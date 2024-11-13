@@ -12,6 +12,18 @@ const openai = new OpenAI({
   dangerouslyAllowBrowser: true
 });
 
+
+interface Message {
+  role: "user" | "assistant";
+  content: string;
+}
+
+interface RequestPayload {
+  messages: Message[];
+  stream: boolean;
+  model: string;
+}
+
 async function generateOutline(  
   keywords: string,
   articleDescription: string,
@@ -139,7 +151,7 @@ async function generateAuthorityLink(formData: any, articleSections: any) {
   2. **(ARTICLE NAME)**  
     *(ARTICLE URL)*  
     **(SECTION WHERE ARTICLE SHOULD BE ADDED)**`;
-
+console.log(prompt);
   const perplexityKey = process.env.NEXT_PUBLIC_PERPLEXITY_AI_API_KEY;
   const options = {
     method: 'POST',
@@ -170,4 +182,37 @@ async function generateAuthorityLink(formData: any, articleSections: any) {
     return data;
 }
 
-export {generateOutline,generateArticle,generateAuthorityLink}
+async function generateInternalLink(formData: any, articleSections: any) {
+  const prompt = `
+  #### Article Outline:
+  ${articleSections.join('\n ')}`;
+  const payload: RequestPayload = {
+    messages: [
+      {
+        role: "user",
+        content: prompt,
+      },
+    ],
+    stream: false,
+    model: "gpt-4o",
+  };
+
+  const response = await fetch(`https://prod-1-data.ke.pinecone.io/assistant/chat/internal-linking`, {
+    method: "POST",
+    headers: {
+      "Api-Key": process.env.NEXT_PUBLIC_PINECONE_AI_API_KEY,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Error: ${response.statusText}`);
+  }
+
+  const data = await response.json();
+
+    return data;
+}
+
+export {generateOutline,generateArticle,generateAuthorityLink,generateInternalLink}

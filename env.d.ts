@@ -6,8 +6,9 @@ declare namespace NodeJS {
       NEXT_PUBLIC_CHAT_GPT_API_KEY: string;
       NEXT_PUBLIC_CHAT_GPT_PROJECT_ID: string;
       NEXT_PUBLIC_CHAT_GPT_ORGANIZATION: string;
-      NEXT_PUBLIC_CLAUDE_AI_API_KEY: string
-      NEXT_PUBLIC_PERPLEXITY_AI_API_KEY: string
+      NEXT_PUBLIC_CLAUDE_AI_API_KEY: string;
+      NEXT_PUBLIC_PERPLEXITY_AI_API_KEY: string;
+      NEXT_PUBLIC_PINECONE_AI_API_KEY: string;
       // Add other variables here
     }
   }

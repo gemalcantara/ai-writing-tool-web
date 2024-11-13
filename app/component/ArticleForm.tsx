@@ -21,7 +21,9 @@ import {
   Paper,
   Typography,
   Box,
-  styled
+  styled,
+  Tabs,
+  Tab
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
@@ -137,6 +139,9 @@ export default function ArticlesForm({
 }: any) {
   const [showProgress, setShowProgress] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState(0);
+  const [showLinks, setShowLinks] = useState(true);
+
 
   const getNameById = (list: any, id: any) => {
     const entry = list.find((item: { id: any }) => item.id === id);
@@ -156,7 +161,21 @@ export default function ArticlesForm({
     const entry = list.find((item: { id: any }) => item.id === id);
     return entry?.guideline;
   };
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setActiveTab(newValue);
+  };
 
+  const handleAuthorityLinksClick = () => {
+    handleAuthorityLinks();
+    setActiveTab(0);
+    setShowLinks(true);
+  };
+
+  const handleInternalLinksClick = () => {
+    handleInternalLinks();
+    setActiveTab(1);
+    setShowLinks(true);
+  };
   useEffect(() => {
     if (inputFieldStaticArticle.selectedClient && inputFieldStaticArticle.selectedPage) {
       setInputFieldStaticArticle({
@@ -324,7 +343,7 @@ export default function ArticlesForm({
           </form>
         </Grid>
         <Grid item xs={12} md={3}>
-          <StyledPaper elevation={3}>
+        <StyledPaper elevation={3}>
             <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2, textAlign: 'center' }}>
               Editor Tools
             </Typography>
@@ -333,33 +352,32 @@ export default function ArticlesForm({
               <EditorTool
                 icon={<LinkIcon />}
                 label="Authority Links"
-                onClick={handleAuthorityLinks}
+                onClick={handleAuthorityLinksClick}
                 loading={loadingAuthority}
               />
               <EditorTool
                 icon={<Refresh />}
                 label="Internal Links"
-                onClick={handleInternalLinks}
+                onClick={handleInternalLinksClick}
                 loading={loadingInternal}
               />
             </EditorToolsContainer>
 
-            {authorityLinks && (
-              <LinksContainer>
-                <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>
-                  Authority Links
-                </Typography>
-                <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: renderLinksWithTargetBlank(authorityLinks) }}></div>
-              </LinksContainer>
-            )}
-
-            {internalLinks && (
-              <LinksContainer>
-                <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>
-                  Internal Links
-                </Typography>
-                <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: renderLinksWithTargetBlank(internalLinks) }}></div>
-              </LinksContainer>
+            {showLinks && (
+              <>
+                <Tabs value={activeTab} onChange={handleTabChange} aria-label="link tabs">
+                  <Tab label="Authority Links" />
+                  <Tab label="Internal Links" />
+                </Tabs>
+                <LinksContainer>
+                  {activeTab === 0 && authorityLinks && (
+                    <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: renderLinksWithTargetBlank(authorityLinks) }}></div>
+                  )}
+                  {activeTab === 1 && internalLinks && (
+                    <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: renderLinksWithTargetBlank(internalLinks) }}></div>
+                  )}
+                </LinksContainer>
+              </>
             )}
           </StyledPaper>
         </Grid>
