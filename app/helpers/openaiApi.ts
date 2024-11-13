@@ -117,15 +117,19 @@ async function generateArticle(formData: string, sectionData: string) {
 
 async function generateAuthorityLink(formData: any, articleSections: any) {
   const prompt = `
+  ### BACKGROUND
+  The article outline will be used to create an article for one of our clients who is a law firm. It’s essential that you do not cite other law firm websites in your output. The references you suggest for the article should only come from our pre-approved list sources cited in the instructions below.  
+  ---
+
   ### STEPS
-  1. **Understand the Article's Purpose:**  
+  1. **Understand the Article’s Purpose:**  
     Review the information in the "Article Instructions" to understand the overall purpose and context of the article.
   2. **Review the Outline Sections:**  
     Read through each section in the outline to understand how they contribute to the article's structure and objectives.
   3. **Research and Gather References:**  
     Use the Internet to **search for 1–10 online resources** (e.g., articles, studies, surveys) that will strengthen the content in each section of the outline.
   4. **Provide a Standardized Output:**  
-    List your recommended resources in a consistent format, including the article's name, URL, and the corresponding outline section.
+    List your recommended resources in a consistent format, including the article’s name, URL, and the corresponding outline section.
   ---
 
   ### GUIDELINES
@@ -133,10 +137,27 @@ async function generateAuthorityLink(formData: any, articleSections: any) {
   1. **Approved Sources:**  
   Only suggest high-quality sources by prioritizing government websites (.gov) and legal statutes first, followed by reputable sources such as scholarly articles, university studies, publications from non-profit organizations, and reputable news outlets (e.g. CNN, New York Times).
   2. **Disallowed Sources:**  
-    - **Law Firm Websites:** Avoid references from law firm websites or directories (e.g., Justia.com, FindLaw.com) since our articles are intended for potential clients, and we do not feature competing legal content.
-    - **User-Generated Content:** Do not use articles from platforms like LinkedIn, Medium, or other social media sites.
+    - **Legal Directory Websites:** Avoid references from law firm directories. Never suggest links from the following websites:
+  https://www.avvo.com/
+  https://www.findlaw.com/
+  https://www.hg.org/
+  https://www.martindale.com/
+  https://www.justia.com/ 
+  https://www.superlawyers.com/
+  https://www.nolo.com/
+  https://www.lawyers.com/
+  https://thenationaltriallawyers.org/
+  https://www.lawinfo.com/
+  https://www.bestlawyers.com/
+    - **Law Firm Websites:** Our articles are intended for potential clients, and we do not feature competing legal content from other attorneys. Never suggest links that come from websites which include these keywords in their URLs:
+  Lawfirm
+  Llc
+  Law
+  firm
+    - **User-Generated Content:** Do not use articles from platforms like LinkedIn, Medium, Reddit or other social media sites like: 
+
   3. **Select Only the Best Resources:**  
-    Aim for the **highest quality over quantity**. It is acceptable to suggest fewer than 10 resources if they represent the best possible references. Prioritize **quality over volume** in your selections.
+    Aim for the **highest quality over quantity**. Prioritize **quality over volume** in your selections. You may only suggest a total of 1-3 resource links for each Section. 
   ---
   ### INPUT
   #### Article Instructions:
@@ -144,15 +165,26 @@ async function generateAuthorityLink(formData: any, articleSections: any) {
   #### Article Outline:
   ${articleSections.join('\n ')}
   ---
-
   ### OUTPUT FORMAT
-  1. **(ARTICLE NAME)**  
-    *(ARTICLE URL)*  
-    **(SECTION WHERE ARTICLE SHOULD BE ADDED)**
-  2. **(ARTICLE NAME)**  
-    *(ARTICLE URL)*  
-    **(SECTION WHERE ARTICLE SHOULD BE ADDED)**`;
-console.log(prompt);
+  1. **(SUGGESTED SECTION FOR LINK)**  [Use Bold Formatting]
+  *(ARTICLE URL)*  [Use Itallics Formatting]
+  *(ARTICLE TITLE)* [Use Itallics Formatting]
+
+  ---
+
+  ### EXAMPLE OUTPUT
+  1. **Why Law Firms Need SEO**  
+  https://url.org/12349hsd
+  SEO Basics Explained   
+  2. **On-Page SEO for Law Firms**
+  https://url.org/12349hsd
+  On-Page Mastery for Newbies  
+  3. **Off-Page SEO for Law Firms**  
+  https://url.org/12349hsd
+  10 Off-Page SEO Lessons  
+  4. **Technical SEO for Law Firms**  
+  https://url.org/12349hsd
+  2024 Guide to Technical SEO  `;
   const perplexityKey = process.env.NEXT_PUBLIC_PERPLEXITY_AI_API_KEY;
   const options = {
     method: 'POST',
@@ -163,7 +195,7 @@ console.log(prompt);
     body: JSON.stringify({
       model: "llama-3.1-sonar-small-128k-online",
       messages: [
-        { role: "system", content: "You are a **research assistant** for our Content Writing team. Your task is to **analyze an article outline** and then **provide a list of high-quality references** from the Internet that will enhance the final article's quality. In your output, list the **name of the article**, the **URL**, and specify the **section where the article should be added** as a reference." },
+        { role: "system", content: "You are a **research assistant** for our Content Writing team. Your task is to **analyze an article outline** and then **provide a list of high-quality references** from the Internet to enhance the final article’s quality." },
         { role: "user", content: prompt }
       ],
       temperature: 0.2,
