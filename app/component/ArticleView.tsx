@@ -93,7 +93,7 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
   flexDirection: 'column',
   gap: theme.spacing(2),
   width: '100%', // Increased width
-  maxWidth: '400px', // Maximum width to prevent it from becoming too wide
+  maxWidth: '100%', // Maximum width to prevent it from becoming too wide
   margin: '0 auto', // Center the paper if it's not full width
 }));
 
