@@ -25,6 +25,7 @@ import { CheckCircle, BookOpen, Scale, Search } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import OpenAI from 'openai';
 import "../App.css";
+import { checkForPlagiarism } from "../helpers/openaiApi";
 
 const Editor = dynamic(() => import('../helpers/Editor'), {
   ssr: false,
@@ -280,7 +281,13 @@ export default function MergedArticleHistoryView() {
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
   };
+  const createPlagiarismMessage = async(content: string) => {
+    //@ts-ignore
+    const htmlContent = await checkForPlagiarism(article.article_output);
+    console.log(htmlContent);
+    setPlagiarismResults(htmlContent);
 
+  }
   const createAssistantMessage = async (content: string, instruction: string, assistantId: string) => {
     setLoading(true);
     setError(null);
@@ -371,10 +378,8 @@ export default function MergedArticleHistoryView() {
 
   const handlePlagiarism = async () => {
     const content = editedContent;
-    const assistantId = "asst_plagiarism_id"; // Replace with actual assistant ID
-    const instruction = "plagiarism"
     setActiveTab(3);
-    await createAssistantMessage(content, instruction, assistantId);
+    await createPlagiarismMessage(content);
   };
 
   return (

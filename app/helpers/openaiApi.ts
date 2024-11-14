@@ -7,6 +7,9 @@ const anthropic = new Anthropic({
 });
 
 const apiKey = process.env.NEXT_PUBLIC_CHAT_GPT_API_KEY;
+const COPYSCOPE_API_USERNAME = process.env.NEXT_PUBLIC_COPYSCAPE_USERNAME;
+const COPYSCOPE_API_KEY = process.env.NEXT_PUBLIC_COPYSCAPE_API_KEY;
+
 const openai = new OpenAI({
   apiKey,
   dangerouslyAllowBrowser: true
@@ -86,9 +89,10 @@ async function generateOutline(
   try {
     let response: any = {};
     response = await anthropic.messages.create({
-      model: "claude-3-opus-20240229",
+      // model: "claude-3-opus-20240229",
       // model: "claude-3-5-sonnet-20241022",
-      max_tokens: 4096,
+      model: "claude-3-5-sonnet-20240620",
+      max_tokens: 8192,
    // @ts-ignore
       messages: messages,
     });
@@ -106,9 +110,10 @@ async function generateArticle(formData: string, sectionData: string) {
   // console.log(articlePrompt);
   // return
     response = await anthropic.messages.create({
-      model: "claude-3-opus-20240229",
+      // model: "claude-3-opus-20240229",
       // model: "claude-3-5-sonnet-20241022",
-      max_tokens: 4096,
+      model: "claude-3-5-sonnet-20240620",
+      max_tokens: 8192,
     // @ts-ignore
       messages: articlePrompt,
     });
@@ -248,4 +253,33 @@ async function generateInternalLink(formData: any, articleSections: any) {
     return data;
 }
 
-export {generateOutline,generateArticle,generateAuthorityLink,generateInternalLink}
+
+
+async function checkForPlagiarism(text: string) {
+  try {
+    // Construct the URL with necessary parameters, including `output=json`
+    const url = `https://www.copyscape.com/api/?u=${COPYSCOPE_API_USERNAME}&k=${COPYSCOPE_API_KEY}&o=csearch&q=${encodeURIComponent(text)}&f=json`;
+
+    // Make the API call
+    const response = await fetch(url, {
+      method: 'GET'
+    });
+
+    // Check if response is OK
+    if (!response.ok) {
+      throw new Error(`Error: ${response.statusText}`);
+    }
+
+    // Directly parse the JSON response
+    const json = await response.json();
+
+    // Log or return JSON response
+    console.log(json);
+    return json;
+
+  } catch (error) {
+    console.error("API call failed:", error);
+  }
+}
+
+export {generateOutline,generateArticle,generateAuthorityLink,generateInternalLink,checkForPlagiarism}
