@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   Button,
   Grid,
@@ -53,17 +53,11 @@ interface Article {
   article_title: string;
   article_output: string;
   outline: string;
-  client: string;
-  keyword: string;
-  meta: string;
-  slug: string;
-}
-
-interface EditorToolProps {
-  icon: React.ReactNode;
-  label: string;
-  onClick: () => void;
-  loading?: boolean;
+  article_details?: ArticleDetails;
+  fact_checker_result?: string;
+  style_guide_result?: string;
+  legal_rules_result?: string;
+  plagiarism_result?: PlagiarismData;
 }
 
 interface ArticleDetails {
@@ -72,6 +66,7 @@ interface ArticleDetails {
   meta: string;
   slug: string;
 }
+
 interface PlagiarismResult {
   index: number;
   url: string;
@@ -85,6 +80,7 @@ interface PlagiarismData {
   count: number;
   result: PlagiarismResult[];
 }
+
 const StyledPaper = styled(Paper)(({ theme }) => ({
   position: 'sticky',
   top: theme.spacing(2),
@@ -92,9 +88,9 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
   gap: theme.spacing(2),
-  width: '100%', // Increased width
-  maxWidth: '100%', // Maximum width to prevent it from becoming too wide
-  margin: '0 auto', // Center the paper if it's not full width
+  width: '100%',
+  maxWidth: '100%',
+  margin: '0 auto',
 }));
 
 const DetailsContainer = styled(Box)(({ theme }) => ({
@@ -130,6 +126,7 @@ const LinksContainer = styled(Box)(({ theme }) => ({
     },
   },
 }));
+
 const EditorToolsContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexWrap: 'wrap',
@@ -145,7 +142,12 @@ const ScrollableTabs = styled(Tabs)(({ theme }) => ({
   },
 }));
 
-const EditorTool = ({ icon, label, onClick, loading }: EditorToolProps) => (
+const EditorTool = ({ icon, label, onClick, loading }: {
+  icon: React.ReactNode;
+  label: string;
+  onClick: () => void;
+  loading?: boolean;
+}) => (
   <Button
     variant="outlined"
     startIcon={icon}
@@ -166,11 +168,166 @@ const EditorTool = ({ icon, label, onClick, loading }: EditorToolProps) => (
   </Button>
 );
 
+const ArticleOutline = ({ outline }: { outline: any }) => (
+  <Accordion className="mb-6" style={{ marginTop: "1rem"}}>
+    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+      <h2>Outline</h2>
+    </AccordionSummary>
+    <AccordionDetails>
+      {outline &&
+        outline.sections.map((section: any, index: number) => (
+          <div key={index} className="mb-4 ck ck-content" style={{ marginLeft: "1rem"}}>
+            {section.headingLevel === "h2" ? (
+              <h2 className="text-xl font-semibold mb-2">
+                {section.sectionTitle}
+              </h2>
+            ) : (
+              <h3 className="text-lg font-semibold mb-2">
+                {section.sectionTitle}
+              </h3>
+            )}
+            <Typography className="mb-2">{section.description}</Typography>
+            <Typography className="font-semibold">Links:</Typography>
+            <ul className="list-disc pl-5">
+              {section.links.map((link: any, linkIndex: number) => (
+                <li key={linkIndex}>
+                  <a
+                    href={link.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline"
+                  >
+                    {link.link}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+    </AccordionDetails>
+  </Accordion>
+);
+
+const ArticleDetails = ({ articleDetails,handleArticleDetailsChange }: { articleDetails: ArticleDetails,handleArticleDetailsChange: any }) => (
+  <Accordion className="mb-6" style={{ marginTop: "1rem"}}>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2 }}>
+                    Details
+                  </Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12}>
+                      <TextField
+                        fullWidth
+                        label="Client"
+                        value={articleDetails.client}
+                        onChange={(e) => handleArticleDetailsChange('client', e.target.value)}
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <TextField
+                        fullWidth
+                        label="Keyword"
+                        value={articleDetails.keyword}
+                        onChange={(e) => handleArticleDetailsChange('keyword', e.target.value)}
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <TextField
+                        multiline
+                        fullWidth
+                        rows={3}
+                        label="Meta"
+                        value={articleDetails.meta}
+                        onChange={(e) => handleArticleDetailsChange('meta', e.target.value)}
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <TextField
+                        fullWidth
+                        label="Slug"
+                        value={articleDetails.slug}
+                        onChange={(e) => handleArticleDetailsChange('slug', e.target.value)}
+                      />
+                    </Grid>
+                  </Grid>
+                </AccordionDetails>
+              </Accordion>
+);
+
+const PlagiarismResults = ({ data }: { data: PlagiarismData }) => (
+  <Box>
+    <Typography variant="h6" gutterBottom>
+      Plagiarism Check Results
+    </Typography>
+    <Typography variant="body1" gutterBottom>
+      Total matches found: {data.count}
+    </Typography>
+    <List>
+      {data.result.map((item, index) => (
+        <ListItem key={index} alignItems="flex-start">
+          
+          <ListItemText
+            primary={
+              <>
+               <Typography component="span" variant="h6" color="text.primary">
+                  {index + 1 + '. '}
+                </Typography>
+              <Link href={item.url} target="_blank" rel="noopener noreferrer">
+                {item.title}
+              </Link>
+              </>
+            }
+            secondary={
+              <>
+                <Typography component="span" variant="body2" color="text.primary">
+                  Minimum words matched: {item.minwordsmatched}
+                </Typography>
+                <br />
+                <Link href={item.viewurl} target="_blank" rel="noopener noreferrer">
+                  View comparison
+                </Link>
+                <br />
+                <Typography component="span" variant="body2">
+                  Snippet:
+                </Typography>
+                <div dangerouslySetInnerHTML={{ __html: item.htmlsnippet }} />
+              </>
+            }
+          />
+        </ListItem>
+      ))}
+    </List>
+  </Box>
+);
+const updateArticleInSupabase = async (
+  articleId: any,
+  updates: Partial<Article>
+) => {
+  try {
+    const { error } = await supabase
+      .from("history")
+      .update(updates)
+      .eq("id", articleId);
+
+    if (error) throw error;
+    console.log("Article updated successfully");
+  } catch (error) {
+    console.error("Error updating article:", error);
+    throw error;
+  }
+};
 export default function MergedArticleHistoryView() {
   const [article, setArticle] = useState<Article | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [outline, setOutline] = useState<any>();
-  const [articleDetails, setArticleDetails] = useState<ArticleDetails>();
+  const [articleDetails, setArticleDetails] = useState<ArticleDetails>({
+    client: '',
+    keyword: '',
+    meta: '',
+    slug: ''
+  });
   const { articleId } = useParams();
   const navigate = useNavigate();
   const [editMode, setEditMode] = useState(false);
@@ -182,7 +339,6 @@ export default function MergedArticleHistoryView() {
   const [factCheckResults, setFactCheckResults] = useState<string>('');
   const [styleGuideResults, setStyleGuideResults] = useState<string>('');
   const [legalRulesResults, setLegalRulesResults] = useState<string>('');
-  const [plagiarismResults, setPlagiarismResults] = useState<string>('');
   const [plagiarismData, setPlagiarismData] = useState<PlagiarismData | null>(null);
   
   useEffect(() => {
@@ -198,25 +354,30 @@ export default function MergedArticleHistoryView() {
           setError(`Error fetching article: ${error.message}`);
         } else {
           setArticle(data);
-          if (data.outline_input_data) {
+          if (data.article_details) {
+            setArticleDetails(JSON.parse(data.article_details));
+          } else if (data.outline_input_data) {
             const articleData = JSON.parse(data.outline_input_data);
             const outlineData = JSON.parse(data.outline);
-            let client = articleData.inputFieldStaticOutline?.clientName || "";
-            let keyword = articleData.linkFields?.keywords.map((item: { value: string }) => item.value).join(", ") || "";
-            let meta = outlineData.meta_description;
-            let slug = outlineData.slug;
-            setArticleDetails({
-              client,
-              keyword,
-              meta,
-              slug,
-            })
+            const newArticleDetails = {
+              client: articleData.inputFieldStaticOutline?.clientName || "",
+              keyword: articleData.linkFields?.keywords.map((item: { value: string }) => item.value).join(", ") || "",
+              meta: outlineData.meta_description,
+              slug: outlineData.slug,
+            };
+            setArticleDetails(newArticleDetails);
+            // Update Supabase with the new article details
+            await updateArticleInSupabase(articleId, { article_details: newArticleDetails });
           }
           setOutline(JSON.parse(data.outline));
           const htmlContent = await marked(data.article_output, {
             async: true
           });
           setEditedContent(htmlContent);
+          setFactCheckResults(data.fact_checker_result || '');
+          setStyleGuideResults(data.style_guide_result || '');
+          setLegalRulesResults(data.legal_rules_result || '');
+          setPlagiarismData(JSON.parse(data.plagiarism_result) || null);
         }
       } catch (error) {
         setError(`Error fetching article: ${error}`);
@@ -226,7 +387,7 @@ export default function MergedArticleHistoryView() {
     fetchArticleById();
   }, [articleId]);
 
-  const handleCopy = async () => {
+  const handleCopy = useCallback(async () => {
     if (article) {
       const htmlContent = await marked(article.article_output, {
         async: true
@@ -245,34 +406,30 @@ export default function MergedArticleHistoryView() {
         console.error("Error copying text: ", err);
       }
     }
-  };
+  }, [article]);
 
-  const handleEdit = () => {
+  const handleEdit = useCallback(() => {
     setEditMode(true);
-  };
+  }, []);
 
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
     try {
-      const { error } = await supabase
-        .from("history")
-        .update({ article_output: editedContent })
-        .eq("id", articleId);
-
-      if (error) {
-        throw error;
-      }
+      await updateArticleInSupabase(articleId, { 
+        article_output: editedContent,
+        article_details: articleDetails
+      });
 
       setEditMode(false);
       setArticle((prev) =>
-        prev ? { ...prev, article_output: editedContent } : null
+        prev ? { ...prev, article_output: editedContent, article_details: articleDetails } : null
       );
     } catch (error) {
       console.error("Error saving changes:", error);
       alert("Failed to save changes. Please try again.");
     }
-  };
+  }, [articleId, editedContent, articleDetails]);
 
-  const renderLinksWithTargetBlank = (html: string) => {
+  const renderLinksWithTargetBlank = useCallback((html: string) => {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
     const links = doc.getElementsByTagName('a');
@@ -281,25 +438,16 @@ export default function MergedArticleHistoryView() {
       links[i].setAttribute('rel', 'noopener noreferrer');
     }
     return doc.body.innerHTML;
-  };
+  }, []);
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = useCallback((event: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
-  };
-  const createPlagiarismMessage = async(content: string) => {
-    // setLoading(true);
-    // setError(null);
-    //@ts-ignore
-    const htmlContent = await checkForPlagiarism(article.article_output);
-    console.log(htmlContent);
-    setPlagiarismResults(htmlContent);
+  }, []);
 
-  }
-  const createAssistantMessage = async (content: string, instruction: string, assistantId: string) => {
+  const createAssistantMessage = useCallback(async (content: string, instruction: string, assistantId: string) => {
     setLoading(true);
     setError(null);
     try {
-
       const run = await openai.beta.threads.createAndRun({
         assistant_id: assistantId,
         thread: {
@@ -329,24 +477,16 @@ export default function MergedArticleHistoryView() {
 
         switch (instruction) {
           case "factCheck":
-              setFactCheckResults(htmlContent);
+            setFactCheckResults(htmlContent);
+            await updateArticleInSupabase(articleId, { fact_checker_result: htmlContent });
             break;
-
-            case "styleGuide":
-              setStyleGuideResults(htmlContent);
+          case "styleGuide":
+            setStyleGuideResults(htmlContent);
+            await updateArticleInSupabase(articleId, { style_guide_result: htmlContent });
             break;
-            case "legalRules":
-              setLegalRulesResults(htmlContent);
-            break;
-            case "plagiarism":
-              setPlagiarismResults(htmlContent);
-            break;
-        
-          default:
-            setFactCheckResults("");
-            setStyleGuideResults("");
-            setLegalRulesResults("");
-            setPlagiarismResults("");
+          case "legalRules":
+            setLegalRulesResults(htmlContent);
+            await updateArticleInSupabase(articleId, { legal_rules_result: htmlContent });
             break;
         }
         setShowResults(true);
@@ -357,43 +497,39 @@ export default function MergedArticleHistoryView() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [articleId]);
   
-  const handleFactCheck = async () => {
-    const content = editedContent;
-    const assistantId = "asst_vQQJIXDjR7IZ801n9zxanYER"; // Replace with actual assistant ID
-    const instruction = "factCheck";
+  const handleFactCheck = useCallback(async () => {
+    const assistantId = "asst_vQQJIXDjR7IZ801n9zxanYER";
     setActiveTab(0);
-    await createAssistantMessage(content, instruction, assistantId);
-  };
+    await createAssistantMessage(editedContent, "factCheck", assistantId);
+  }, [editedContent, createAssistantMessage]);
 
-  const handleStyleGuide = async () => {
-    const content = editedContent;
-    const assistantId = "asst_iufG2r0lLTIq5HJl4CQIu0YG"; // Replace with actual assistant ID
-    const instruction = "styleGuide";
+  const handleStyleGuide = useCallback(async () => {
+    const assistantId = "asst_iufG2r0lLTIq5HJl4CQIu0YG";
     setActiveTab(1);
-    await createAssistantMessage(content, instruction, assistantId);
-  };
+    await createAssistantMessage(editedContent, "styleGuide", assistantId);
+  }, [editedContent, createAssistantMessage]);
 
-  const handleLegalRules = async () => {
-    const content = editedContent;
-    const assistantId = "asst_d2vnrAH6MNssLkkRgnGNfohK"; // Replace with actual assistant ID
-    const instruction = "legalRules"
+  const handleLegalRules = useCallback(async () => {
+    const assistantId = "asst_d2vnrAH6MNssLkkRgnGNfohK";
     setActiveTab(2);
-    await createAssistantMessage(content, instruction, assistantId);
-  };
+    await createAssistantMessage(editedContent, "legalRules", assistantId);
+  }, [editedContent, createAssistantMessage]);
 
-  const handlePlagiarism = async () => {
+  const handlePlagiarism = useCallback(async () => {
     setLoading(true);
     setError(null);
     setActiveTab(3);
     try {
       const response = await checkForPlagiarism(editedContent);
       if (response.success && response.data) {
-        setPlagiarismData({
+        const plagiarismResult = {
           count: response.data.count,
           result: response.data.result
-        });
+        };
+        setPlagiarismData(plagiarismResult);
+        await updateArticleInSupabase(articleId, { plagiarism_result: plagiarismResult });
       } else {
         throw new Error("Failed to fetch plagiarism data");
       }
@@ -403,51 +539,11 @@ export default function MergedArticleHistoryView() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [editedContent, articleId]);
 
-  const renderPlagiarismResults = () => {
-    if (!plagiarismData) return null;
-
-    return (
-      <Box>
-        <Typography variant="h6" gutterBottom>
-          Plagiarism Check Results
-        </Typography>
-        <Typography variant="body1" gutterBottom>
-          Total matches found: {plagiarismData.count}
-        </Typography>
-        <List>
-          {plagiarismData.result.map((item, index) => (
-            <ListItem key={index} alignItems="flex-start">
-              <ListItemText
-                primary={
-                  <Link href={item.url} target="_blank" rel="noopener noreferrer">
-                    {item.title}
-                  </Link>
-                }
-                secondary={
-                  <>
-                    <Typography component="span" variant="body2" color="text.primary">
-                      Minimum words matched: {item.minwordsmatched}
-                    </Typography>
-                    <br />
-                    <Link href={item.viewurl} target="_blank" rel="noopener noreferrer">
-                      View comparison
-                    </Link>
-                    <br />
-                    <Typography component="span" variant="body2">
-                      Snippet:
-                    </Typography>
-                    <div dangerouslySetInnerHTML={{ __html: item.htmlsnippet }} />
-                  </>
-                }
-              />
-            </ListItem>
-          ))}
-        </List>
-      </Box>
-    );
-  };
+  const handleArticleDetailsChange = useCallback((field: keyof ArticleDetails, value: string) => {
+    setArticleDetails(prev => ({ ...prev, [field]: value }));
+  }, []);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -479,43 +575,7 @@ export default function MergedArticleHistoryView() {
       </Grid>
       {error && <p className="text-red-500 mb-4">{error}</p>}
 
-      <Accordion className="mb-6" style={{ marginTop: "1rem"}}>
-        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <h2>Outline</h2>
-        </AccordionSummary>
-        <AccordionDetails>
-          {outline &&
-            outline.sections.map((section: any, index: number) => (
-              <div key={index} className="mb-4 ck ck-content"  style={{ marginLeft: "1rem"}}>
-                {section.headingLevel === "h2" ? (
-                  <h2 className="text-xl font-semibold mb-2">
-                    {section.sectionTitle}
-                  </h2>
-                ) : (
-                  <h3 className="text-lg font-semibold mb-2">
-                    {section.sectionTitle}
-                  </h3>
-                )}
-                <Typography className="mb-2">{section.description}</Typography>
-                <Typography className="font-semibold">Links:</Typography>
-                <ul className="list-disc pl-5">
-                  {section.links.map((link: any, linkIndex: number) => (
-                    <li key={linkIndex}>
-                      <a
-                        href={link.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline"
-                      >
-                        {link.link}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-        </AccordionDetails>
-      </Accordion>
+      <ArticleOutline outline={outline} />
 
       <Grid container spacing={3} >
         <Grid item xs={12} md={8}>
@@ -538,47 +598,7 @@ export default function MergedArticleHistoryView() {
         <Grid item xs={12} md={4} >
           <StyledPaper elevation={3} style={{ marginTop: "1rem"}}>
             <DetailsContainer>
-            <Accordion className="mb-6" style={{ marginTop: "1rem"}}>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2 }}>
-                Details
-              </Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-            <Grid container spacing={2}>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label="Client"
-                    value={articleDetails?.client || ''}
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label="Keyword"
-                    value={articleDetails?.keyword || ''}
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    multiline
-                    fullWidth
-                    rows={3}
-                    label="Meta"
-                    value={articleDetails?.meta || ''}
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label="Slug"
-                    value={articleDetails?.slug || ''}
-                  />
-                </Grid>
-              </Grid>
-            </AccordionDetails>
-          </Accordion>
+              <ArticleDetails articleDetails={articleDetails} handleArticleDetailsChange={handleArticleDetailsChange} />
             </DetailsContainer>
 
             <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2, textAlign: 'center' }}>
@@ -651,7 +671,7 @@ export default function MergedArticleHistoryView() {
                   )}
                   {activeTab === 3 && plagiarismData && (
                     <div className="prose max-w-none">
-                      {renderPlagiarismResults()}
+                      <PlagiarismResults data={plagiarismData} />
                     </div>
                   )}
                 </LinksContainer>
