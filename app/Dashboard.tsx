@@ -5,11 +5,8 @@ import { useNavigate, Link, Outlet } from 'react-router-dom';
 import {
   Box,
   Drawer,
-  AppBar,
   CssBaseline,
-  Toolbar,
   List,
-  Typography,
   Divider,
   Collapse,
   IconButton,
@@ -18,6 +15,9 @@ import {
   ListItemIcon,
   ListItemText,
   ListSubheader,
+  Typography,
+  Tooltip,
+  Paper,
 } from '@mui/material';
 import {
   Person,
@@ -78,7 +78,7 @@ const SidebarList = ({ open }: { open: boolean }) => {
       sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}
       component="nav"
       aria-labelledby="nested-list-subheader"
-      subheader={<ListSubheader component="div">Dashboard</ListSubheader>}
+      subheader={<ListSubheader component="div">{open ? "Dashboard" : ''}</ListSubheader>}
     >
       <SidebarItem
         index={4}
@@ -99,41 +99,49 @@ const SidebarList = ({ open }: { open: boolean }) => {
         to="articles/view"
         open={open}
       />
-      <ListItemButton selected={selectedIndex === 1} onClick={() => { handleClickPage(); handleListItemClick(1); }}>
-        <ListItemIcon><Pages /></ListItemIcon>
-        {open && <ListItemText primary="Page Templates" />}
-        {open && (page ? <ExpandLess /> : <ExpandMore />)}
-      </ListItemButton>
+      <Tooltip title={open ? "" : "Page Templates"} placement="right">
+        <ListItemButton selected={selectedIndex === 1} onClick={() => { handleClickPage(); handleListItemClick(1); }}>
+          <ListItemIcon><Pages /></ListItemIcon>
+          {open && <ListItemText primary="Page Templates" />}
+          {open && (page ? <ExpandLess /> : <ExpandMore />)}
+        </ListItemButton>
+      </Tooltip>
       <Collapse in={page && open} timeout="auto" unmountOnExit><PageList /></Collapse>
 
-      <ListItemButton selected={selectedIndex === 2} onClick={() => { handleClickClient(); handleListItemClick(2); }}>
-        <ListItemIcon><PermContactCalendar /></ListItemIcon>
-        {open && <ListItemText primary="Client" />}
-        {open && (client ? <ExpandLess /> : <ExpandMore />)}
-      </ListItemButton>
+      <Tooltip title={open ? "" : "Client"} placement="right">
+        <ListItemButton selected={selectedIndex === 2} onClick={() => { handleClickClient(); handleListItemClick(2); }}>
+          <ListItemIcon><PermContactCalendar /></ListItemIcon>
+          {open && <ListItemText primary="Client" />}
+          {open && (client ? <ExpandLess /> : <ExpandMore />)}
+        </ListItemButton>
+      </Tooltip>
       <Collapse in={client && open} timeout="auto" unmountOnExit><ClientList /></Collapse>
       <Divider />
 
       <SidebarItem index={6} selectedIndex={selectedIndex} onClick={handleListItemClick} icon={<Person />} text="Users" to="users" open={open} />
       <SidebarItem index={11} selectedIndex={selectedIndex} onClick={handleListItemClick} icon={<Person />} text="Profile" to="users/profile" open={open} />
-      <ListItemButton selected={selectedIndex === 5} onClick={logout}>
-        <ListItemIcon><Logout /></ListItemIcon>
-        {open && <ListItemText primary="Logout" />}
-      </ListItemButton>
+      <Tooltip title={open ? "" : "Logout"} placement="right">
+        <ListItemButton selected={selectedIndex === 5} onClick={logout}>
+          <ListItemIcon><Logout /></ListItemIcon>
+          {open && <ListItemText primary="Logout" />}
+        </ListItemButton>
+      </Tooltip>
       <Divider />
     </List>
   );
 };
 
 const SidebarItem = ({ index, selectedIndex, onClick, icon, text, to, open }: any) => (
-  <ListItemButton selected={selectedIndex === index} onClick={() => onClick(index)} component={Link} to={to}>
-    <ListItemIcon>{icon}</ListItemIcon>
-    {open && (
-      index === 4 ? 
-        <ListItemText primary={text} classes={{primary: "awt-font-large"}} />
-        : <ListItemText primary={text} />
-    )}
-  </ListItemButton>
+  <Tooltip title={open ? "" : text} placement="right">
+    <ListItemButton selected={selectedIndex === index} onClick={() => onClick(index)} component={Link} to={to}>
+      <ListItemIcon>{icon}</ListItemIcon>
+      {open && (
+        index === 4 ? 
+          <ListItemText primary={text} classes={{primary: "awt-font-large"}} />
+          : <ListItemText primary={text} />
+      )}
+    </ListItemButton>
+  </Tooltip>
 );
 
 const ClientList = () => {
@@ -228,50 +236,56 @@ const ClippedDrawer = () => {
   };
 
   return (
-    <Box sx={{ display: 'flex', }}>
+    <Box sx={{ display: 'flex' }}>
       <CssBaseline />
-      <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="toggle drawer"
-            onClick={handleDrawerToggle}
-            edge="start"
-            sx={{ mr: 2 }}
-          >
-            {open ? <ChevronLeftIcon /> : <MenuIcon />}
-          </IconButton>
-          <Typography variant="h6" noWrap sx={{ flexGrow: 1 }}>
-            AI Writing Tool
-          </Typography>
-        </Toolbar>
-      </AppBar>
-      <Drawer
-        variant="permanent"
+      <Paper
+        elevation={4}
         sx={{
           width: open ? drawerWidth : 64,
           flexShrink: 0,
-          [`& .MuiDrawer-paper`]: {
-            width: open ? drawerWidth : 64,
-            boxSizing: 'border-box',
-            overflowX: 'hidden',
-            boxShadow: 5,
-            transition: (theme) =>
-              theme.transitions.create('width', {
-                easing: theme.transitions.easing.sharp,
-                duration: theme.transitions.duration.enteringScreen,
-              }),
-          },
+          height: '100vh',
+          position: 'fixed',
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+          transition: (theme) =>
+            theme.transitions.create('width', {
+              easing: theme.transitions.easing.sharp,
+              duration: theme.transitions.duration.enteringScreen,
+            }),
         }}
       >
-        <Toolbar />
-        <SidebarList open={open} />
-      </Drawer>
-      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-        <Toolbar /> {/* This empty Toolbar pushes content below AppBar */}
-        <div>
-          <Outlet />
-        </div>
+        <Drawer
+          variant="permanent"
+          sx={{
+            width: open ? drawerWidth : 64,
+            flexShrink: 0,
+            [`& .MuiDrawer-paper`]: {
+              width: open ? drawerWidth : 64,
+              boxSizing: 'border-box',
+              overflowX: 'hidden',
+              border: 'none',
+              boxShadow: 'none',
+              transition: (theme) =>
+                theme.transitions.create('width', {
+                  easing: theme.transitions.easing.sharp,
+                  duration: theme.transitions.duration.enteringScreen,
+                }),
+            },
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 1 }}>
+            <Typography variant="h6" sx={{ flexGrow: 1, display: open ? 'block' : 'none' }}>
+              Article Writing Tool
+            </Typography>
+            <IconButton onClick={handleDrawerToggle}>
+              {open ? <ChevronLeftIcon /> : <MenuIcon />}
+            </IconButton>
+          </Box>
+          <Divider />
+          <SidebarList open={open} />
+        </Drawer>
+      </Paper>
+      <Box component="main" sx={{ flexGrow: 1, p: 3, marginLeft: open ? `${drawerWidth}px` : '64px' }}>
+        <Outlet />
       </Box>
     </Box>
   );
