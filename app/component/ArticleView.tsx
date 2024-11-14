@@ -101,19 +101,6 @@ const DetailsContainer = styled(Box)(({ theme }) => ({
   marginBottom: theme.spacing(3),
 }));
 
-const ResultsContainer = styled(Box)(({ theme }) => ({
-  maxHeight: '50vh',
-  overflowY: 'auto',
-  overflowX: 'hidden',
-  padding: theme.spacing(2),
-  marginTop: theme.spacing(2),
-  border: `1px solid ${theme.palette.divider}`,
-  borderRadius: theme.shape.borderRadius,
-  '& pre': {
-    whiteSpace: 'pre-wrap',
-    wordBreak: 'break-word',
-  }
-}));
 const LinksContainer = styled(Box)(({ theme }) => ({
   maxHeight: '75vh',
   overflowY: 'auto',
@@ -531,7 +518,7 @@ export default function MergedArticleHistoryView() {
       </Accordion>
 
       <Grid container spacing={3} >
-        <Grid item xs={12} md={9}>
+        <Grid item xs={12} md={8}>
           {editMode ? (
             <div className="mb-4" style={{ marginTop: "1rem"}}>
               <Editor
@@ -548,19 +535,22 @@ export default function MergedArticleHistoryView() {
             </div>
           )}
         </Grid>
-        <Grid item xs={12} md={3} >
+        <Grid item xs={12} md={4} >
           <StyledPaper elevation={3} style={{ marginTop: "1rem"}}>
             <DetailsContainer>
-              <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2 }}>
+            <Accordion className="mb-6" style={{ marginTop: "1rem"}}>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2 }}>
                 Details
               </Typography>
-              <Grid container spacing={2}>
+            </AccordionSummary>
+            <AccordionDetails>
+            <Grid container spacing={2}>
                 <Grid item xs={12}>
                   <TextField
                     fullWidth
                     label="Client"
                     value={articleDetails?.client || ''}
-                    disabled
                   />
                 </Grid>
                 <Grid item xs={12}>
@@ -568,7 +558,6 @@ export default function MergedArticleHistoryView() {
                     fullWidth
                     label="Keyword"
                     value={articleDetails?.keyword || ''}
-                    disabled
                   />
                 </Grid>
                 <Grid item xs={12}>
@@ -578,7 +567,6 @@ export default function MergedArticleHistoryView() {
                     rows={3}
                     label="Meta"
                     value={articleDetails?.meta || ''}
-                    disabled
                   />
                 </Grid>
                 <Grid item xs={12}>
@@ -586,10 +574,11 @@ export default function MergedArticleHistoryView() {
                     fullWidth
                     label="Slug"
                     value={articleDetails?.slug || ''}
-                    disabled
                   />
                 </Grid>
               </Grid>
+            </AccordionDetails>
+          </Accordion>
             </DetailsContainer>
 
             <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2, textAlign: 'center' }}>
