@@ -44,7 +44,7 @@ async function checkForPlagiarism(text: string) {
   formData.append('o', 'csearch')
   formData.append('t', text)
   formData.append('f', 'json')
-  formData.append('x', '1') // enable this for testing
+  // formData.append('x', '1') // enable this for testing
 
   const response = await fetch(url, {
     method: 'POST',
