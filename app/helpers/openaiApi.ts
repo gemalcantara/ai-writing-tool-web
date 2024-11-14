@@ -257,28 +257,24 @@ async function generateInternalLink(formData: any, articleSections: any) {
 
 async function checkForPlagiarism(text: string) {
   try {
-    // Construct the URL with necessary parameters, including `output=json`
-    const url = `https://www.copyscape.com/api/?u=${COPYSCOPE_API_USERNAME}&k=${COPYSCOPE_API_KEY}&o=csearch&q=${encodeURIComponent(text)}&f=json`;
+    const response = await fetch('/api/check-plagiarism', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ text }),
+    })
 
-    // Make the API call
-    const response = await fetch(url, {
-      method: 'GET'
-    });
+    const data = await response.json()
+    console.log(data);
+    if (data.success) {
+      return await data;
 
-    // Check if response is OK
-    if (!response.ok) {
-      throw new Error(`Error: ${response.statusText}`);
+    } else {
+      console.log(data.error || 'An unknown error occurred')
     }
-
-    // Directly parse the JSON response
-    const json = await response.json();
-
-    // Log or return JSON response
-    console.log(json);
-    return json;
-
-  } catch (error) {
-    console.error("API call failed:", error);
+  } catch (err) {
+    throw new Error(`Error: ${err}`)
   }
 }
 

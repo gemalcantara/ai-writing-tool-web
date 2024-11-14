@@ -15,7 +15,11 @@ import {
   Tabs,
   Tab,
   CircularProgress,
-  Alert
+  Alert,
+  List,
+  ListItem,
+  ListItemText,
+  Link
 } from "@mui/material";
 import { createClient } from "@supabase/supabase-js";
 import { useParams, useNavigate } from "react-router-dom";
@@ -68,7 +72,19 @@ interface ArticleDetails {
   meta: string;
   slug: string;
 }
+interface PlagiarismResult {
+  index: number;
+  url: string;
+  title: string;
+  minwordsmatched: string;
+  viewurl: string;
+  htmlsnippet: string;
+}
 
+interface PlagiarismData {
+  count: number;
+  result: PlagiarismResult[];
+}
 const StyledPaper = styled(Paper)(({ theme }) => ({
   position: 'sticky',
   top: theme.spacing(2),
@@ -180,6 +196,8 @@ export default function MergedArticleHistoryView() {
   const [styleGuideResults, setStyleGuideResults] = useState<string>('');
   const [legalRulesResults, setLegalRulesResults] = useState<string>('');
   const [plagiarismResults, setPlagiarismResults] = useState<string>('');
+  const [plagiarismData, setPlagiarismData] = useState<PlagiarismData | null>(null);
+  
   useEffect(() => {
     const fetchArticleById = async () => {
       try {
@@ -282,6 +300,8 @@ export default function MergedArticleHistoryView() {
     setActiveTab(newValue);
   };
   const createPlagiarismMessage = async(content: string) => {
+    // setLoading(true);
+    // setError(null);
     //@ts-ignore
     const htmlContent = await checkForPlagiarism(article.article_output);
     console.log(htmlContent);
@@ -351,7 +371,7 @@ export default function MergedArticleHistoryView() {
       setLoading(false);
     }
   };
-
+  
   const handleFactCheck = async () => {
     const content = editedContent;
     const assistantId = "asst_vQQJIXDjR7IZ801n9zxanYER"; // Replace with actual assistant ID
@@ -377,9 +397,69 @@ export default function MergedArticleHistoryView() {
   };
 
   const handlePlagiarism = async () => {
-    const content = editedContent;
+    setLoading(true);
+    setError(null);
     setActiveTab(3);
-    await createPlagiarismMessage(content);
+    try {
+      const response = await checkForPlagiarism(editedContent);
+      if (response.success && response.data) {
+        setPlagiarismData({
+          count: response.data.count,
+          result: response.data.result
+        });
+      } else {
+        throw new Error("Failed to fetch plagiarism data");
+      }
+    } catch (err) {
+      console.error('Error:', err);
+      setError('Failed to check for plagiarism. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const renderPlagiarismResults = () => {
+    if (!plagiarismData) return null;
+
+    return (
+      <Box>
+        <Typography variant="h6" gutterBottom>
+          Plagiarism Check Results
+        </Typography>
+        <Typography variant="body1" gutterBottom>
+          Total matches found: {plagiarismData.count}
+        </Typography>
+        <List>
+          {plagiarismData.result.map((item, index) => (
+            <ListItem key={index} alignItems="flex-start">
+              <ListItemText
+                primary={
+                  <Link href={item.url} target="_blank" rel="noopener noreferrer">
+                    {item.title}
+                  </Link>
+                }
+                secondary={
+                  <>
+                    <Typography component="span" variant="body2" color="text.primary">
+                      Minimum words matched: {item.minwordsmatched}
+                    </Typography>
+                    <br />
+                    <Link href={item.viewurl} target="_blank" rel="noopener noreferrer">
+                      View comparison
+                    </Link>
+                    <br />
+                    <Typography component="span" variant="body2">
+                      Snippet:
+                    </Typography>
+                    <div dangerouslySetInnerHTML={{ __html: item.htmlsnippet }} />
+                  </>
+                }
+              />
+            </ListItem>
+          ))}
+        </List>
+      </Box>
+    );
   };
 
   return (
@@ -577,14 +657,15 @@ export default function MergedArticleHistoryView() {
                   {activeTab === 1 && styleGuideResults && (
                     <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: renderLinksWithTargetBlank(styleGuideResults) }}></div>
                   )}
-                     {activeTab === 2 && legalRulesResults && (
+                  {activeTab === 2 && legalRulesResults && (
                     <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: renderLinksWithTargetBlank(legalRulesResults) }}></div>
                   )}
-                  {activeTab === 3 && plagiarismResults && (
-                    <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: renderLinksWithTargetBlank(plagiarismResults) }}></div>
+                  {activeTab === 3 && plagiarismData && (
+                    <div className="prose max-w-none">
+                      {renderPlagiarismResults()}
+                    </div>
                   )}
                 </LinksContainer>
-                
               </>
             )}
           </StyledPaper>
