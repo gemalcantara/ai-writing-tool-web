@@ -11,6 +11,8 @@ declare namespace NodeJS {
       NEXT_PUBLIC_PINECONE_AI_API_KEY: string;
       NEXT_PUBLIC_COPYSCAPE_USERNAME: string;
       NEXT_PUBLIC_COPYSCAPE_API_KEY: string;
+      NEXT_PUBLIC_MONGODB_URI: string;
+      NEXT_PUBLIC_JWT_TOKEN: string;
       // Add other variables here
     }
   }

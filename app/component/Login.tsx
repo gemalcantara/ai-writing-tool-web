@@ -1,60 +1,65 @@
 "use client"
 
-import React, { useState, useEffect } from 'react';
-import { Button, TextField, Card, CardContent, Typography, CircularProgress } from '@mui/material';
-import { createClient } from '@supabase/supabase-js';
+import React, { useEffect, useState } from 'react'
+import { Button, TextField, Card, CardContent, Typography, CircularProgress } from '@mui/material'
+import { useRouter } from 'next/navigation'
+import '@fontsource/roboto/300.css'
+import '@fontsource/roboto/400.css'
+import '@fontsource/roboto/500.css'
+import '@fontsource/roboto/700.css'
+import { useNavigate } from 'react-router-dom'
 import { useCookies } from 'react-cookie';
-import { useNavigate } from 'react-router-dom';
-import '../App.css';
-import '@fontsource/roboto/300.css';
-import '@fontsource/roboto/400.css';
-import '@fontsource/roboto/500.css';
-import '@fontsource/roboto/700.css';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_LINK!,
-  process.env.NEXT_PUBLIC_SUPABASE_KEY!
-);
+import { verifyToken } from '@/lib/jwt';
 
 export default function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
   const [cookies, setCookie] = useCookies(['user']);
+  const router = useRouter()
   const navigate = useNavigate();
 
+
   useEffect(() => {
-    if (cookies.user?.session) {
+    if (cookies.user?.session && verifyToken(cookies.user.session)) {
       navigate('/dashboard');
     }
   }, [cookies.user, navigate]);
-
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setError(null);
-    setLoading(true);
+    event.preventDefault()
+    setError(null)
+    setLoading(true)
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      })
 
-      if (error) throw error;
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Login failed')
+      }
 
-      const loginDate = {
+      const data = await response.json()
+      const tokenData = {
+        session: data.token,
         user: data.user,
-        session: data.session?.access_token
       };
-      setCookie('user', loginDate, { path: '/' });
-      navigate('/dashboard');
+      // Store the token in a cookie
+      // document.cookie = `token=${data.token}; path=/; secure; samesite=strict`
+      setCookie('user', tokenData, { path: '/' });
+      navigate('/dashboard')
+      // router.push('/dashboard')
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'An unexpected error occurred');
+      setError(error instanceof Error ? error.message : 'An unexpected error occurred')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
+
 
   return (
     <div className='login'>
@@ -105,5 +110,5 @@ export default function Login() {
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }
