@@ -1,6 +1,6 @@
 "use client"
 import {
-  MemoryRouter as Router,
+  HashRouter as Router,
   Routes,
   Route,
 } from 'react-router-dom';
@@ -26,6 +26,8 @@ import ArticleSteps from './component/ArticleSteps';
 import ArticlesHistoryOutline from './component/ArticlesHistoryOutlineView';
 import Profile from './component/Profile';
 import ArticleView from './component/ArticleView';
+import SiteOptions from './component/SiteOptions';
+import SiteOptionForm from './component/SiteOptionsForm';
 
 export default function App() {
   // console.log(createUser());
@@ -35,6 +37,9 @@ export default function App() {
         <Route path="/" element={ <Login /> } />
         <Route path="/dashboard" element={<Dashboard />}>
           <Route path="users" element={ <Users /> } />
+          <Route path="site-options" element={ <SiteOptions /> } />
+          <Route path="site-options/new" element={<SiteOptionForm />} />
+          <Route path="site-options/edit/:id" element={<SiteOptionForm />} />  
           <Route path="users/create" element={ <UsersForm /> } />
           <Route path="users/profile" element={ <Profile /> } />
           <Route path="pages" element={ <Pages /> } />
