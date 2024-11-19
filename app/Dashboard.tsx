@@ -34,6 +34,7 @@ import {
 } from '@mui/icons-material';
 import useLogout from './component/Logout';
 import './App.css';
+import { Cog } from 'lucide-react';
 
 const drawerWidth = 240;
 
@@ -118,6 +119,7 @@ const SidebarList = ({ open }: { open: boolean }) => {
 
       <SidebarItem index={6} selectedIndex={selectedIndex} onClick={handleListItemClick} icon={<Person />} text="Users" to="users" open={open} />
       <SidebarItem index={11} selectedIndex={selectedIndex} onClick={handleListItemClick} icon={<Person />} text="Profile" to="users/profile" open={open} />
+      <SidebarItem index={12} selectedIndex={selectedIndex} onClick={handleListItemClick} icon={<Cog />} text="Site Options" to="site-options" open={open} />
       <Tooltip title={open ? "" : "Logout"} placement="right">
         <ListItemButton selected={selectedIndex === 5} onClick={logout}>
           <ListItemIcon><Logout /></ListItemIcon>
