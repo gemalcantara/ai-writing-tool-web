@@ -1,139 +1,145 @@
 "use client"
+
 import * as React from 'react';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import { Link, useParams } from 'react-router-dom';
-import { createClient } from '@supabase/supabase-js';
-import { useState, useEffect } from 'react';
-import { Grid, TextField } from '@mui/material';
+import { Grid, TextField, CircularProgress } from '@mui/material';
 import { DeleteForeverRounded } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 
-const supaBaseLink = process.env.NEXT_PUBLIC_SUPABASE_LINK;
-const supaBaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY
-
-const supabase = createClient(
-  supaBaseLink,
-  supaBaseKey
-);
 interface ClientsList {
-  id: number;
+  _id: string;
   name: string;
   guideline: string;
 }
 
+async function fetchClient(clientId: string): Promise<ClientsList> {
+  const response = await fetch(`/api/clients/${clientId}`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch client');
+  }
+  return response.json();
+}
+
+async function updateClient(clientId: string, data: Partial<ClientsList>) {
+  const response = await fetch(`/api/clients/${clientId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to update client');
+  }
+  return response.json();
+}
+
+async function deleteClient(clientId: string) {
+  const response = await fetch(`/api/clients/${clientId}`, {
+    method: 'DELETE',
+  });
+  if (!response.ok) {
+    throw new Error('Failed to delete client');
+  }
+  return response.json();
+}
 
 export default function Client() {
-  const { clientId } = useParams();
-  const [client, setClient] = useState<ClientsList[]>([]);
+  const router = useRouter();
+  const params = useParams();
+  const clientId = params.clientId as string;
+  const navigate = useNavigate();
+
+  const [client, setClient] = useState<ClientsList | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [guideline, setGuideline] = useState('');
   const [name, setName] = useState('');
+  const [updating, setUpdating] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
-  const navigate = useNavigate();
-
-  const handleChangeName = (event: any) => {
-    setName(event.target.value);
-  };
-  const handleChangeGuideline = (event: any) => {
-    setGuideline(event.target.value);
-  };
   useEffect(() => {
-    const fetchUsers = async () => {
+    const loadClient = async () => {
       try {
-        // Fetch data from Supabase
-        const { data, error } = await supabase
-          .from('clients') // Replace 'users' with your table name
-          .select('*')
-          .eq('id', parseInt(clientId!))
-          .single(); // Ensure that only one row is returned
-
-        if (error) throw error;
-
-        // Update state with fetched data
-        setClient(data || []);
+        const data = await fetchClient(clientId);
+        setClient(data);
         setGuideline(data.guideline);
         setName(data.name);
-        setError(null);
-
       } catch (error) {
-        // Handle error
-        setError(`Failed to fetch page details ${error}`);
+        setError('Failed to fetch client details');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchUsers();
+    loadClient();
   }, [clientId]);
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>{error}</p>;
 
-  // update
+  const handleChangeName = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setName(event.target.value);
+  };
+
+  const handleChangeGuideline = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setGuideline(event.target.value);
+  };
+
   const handleUpdate = async () => {
     const confirmed = window.confirm('Are you sure you want to update this record?');
     if (confirmed) {
+      setUpdating(true);
       try {
-        const { error } = await supabase
-          .from('clients')
-          .update({ name: name, guideline: guideline })
-          .eq('id', clientId);
-
-        if (error) throw error;
-
-        alert('Page updated successfully!');
-        // navigate('/');
+        await updateClient(clientId, { name, guideline });
+        alert('Client updated successfully!');
       } catch (error) {
-        if (error instanceof Error) {
-          setError(error.message);
-        }
+        setError('Failed to update client');
+      } finally {
+        setUpdating(false);
       }
     }
   };
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error}</p>;
-  // delete
   const handleDelete = async () => {
     const confirmed = window.confirm('Are you sure you want to delete this record?');
     if (confirmed) {
+      setDeleting(true);
       try {
-        const { error } = await supabase
-          .from('clients')
-          .delete()
-          .eq('id', clientId);
-
-        if (error) throw error;
-
+        await deleteClient(clientId);
         alert('Client deleted successfully!');
-        navigate('/');
+        router.push('/');
       } catch (error) {
-        if (error instanceof Error) {
-          setError(error.message);
-          navigate('/');
-        }
+        setError('Failed to delete client');
+      } finally {
+        setDeleting(false);
+        navigate('/')
       }
     }
   };
 
+  if (loading) return <CircularProgress />;
+  if (error) return <Typography color="error">{error}</Typography>;
+  if (!client) return <Typography>No client found</Typography>;
 
   return (
     <>
       <Grid container spacing={2} marginBottom={3}>
         <Grid item xs={8}>
-          <Typography
-            variant="h5"
-            color="text.primary"
-          >
+          <Typography variant="h5" color="text.primary">
             Client Guidelines
           </Typography>
         </Grid>
         <Grid item xs={4}>
-          <Button style={{ float: 'right' }} variant="outlined" color='error'
-            onClick={(event) => handleDelete()}
+          <Button 
+            style={{ float: 'right' }} 
+            variant="outlined" 
+            color='error'
+            onClick={handleDelete}
+            disabled={deleting}
           >
-            <DeleteForeverRounded /> Delete Client
+            {deleting ? <CircularProgress size={24} /> : <DeleteForeverRounded />}
+            Delete Client
           </Button>
         </Grid>
         <Grid item xs={12}>
@@ -146,11 +152,10 @@ export default function Client() {
             onChange={handleChangeName}
           />
         </Grid>
-
       </Grid>
       <TextField
         id="guideline"
-        label="Page Guideline"
+        label="Client Guideline"
         onChange={handleChangeGuideline}
         multiline
         fullWidth
@@ -158,9 +163,15 @@ export default function Client() {
         rows={20}
       />
       <Grid sx={{float: 'right', marginTop: '1rem'}}>
-          <Button size="large" variant="contained" color="primary" onClick={(event) => handleUpdate()}>
-            Update
-          </Button>
+        <Button 
+          size="large" 
+          variant="contained" 
+          color="primary" 
+          onClick={handleUpdate}
+          disabled={updating}
+        >
+          {updating ? <CircularProgress size={24} /> : 'Update'}
+        </Button>
       </Grid>
     </>
   );

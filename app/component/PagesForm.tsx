@@ -1,51 +1,58 @@
 "use client"
+
 import * as React from 'react';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import { Grid } from '@mui/material';
+import { Grid, CircularProgress } from '@mui/material';
 import TextField from '@mui/material/TextField';
-import { useState, useEffect } from 'react';
-import { createClient } from '@supabase/supabase-js';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useNavigate } from 'react-router-dom';
 
-const supaBaseLink = process.env.NEXT_PUBLIC_SUPABASE_LINK;
-const supaBaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY
-
-const supabase = createClient(
-  supaBaseLink,
-  supaBaseKey
-);
-
-async function createPage(pageData: any) {
-  const { error } = await supabase.from('pages').insert({
-    name: pageData.name,
-    guideline: pageData.guideline,
+async function createPage(pageData: { name: string; guideline: string }) {
+  const response = await fetch('/api/pages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(pageData),
   });
-  if (error) {
-    alert(error.message);
-    return 0;
-  }
-  alert(`${pageData.name} has been created.`);
-  return 1
 
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to create page');
+  }
+
+  return response.json();
 }
 
 export default function PagesForm() {
   const [name, setName] = useState('');
   const [guideline, setGuideline] = useState('');
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
   const navigate = useNavigate();
-  const handleSubmit = async (event: any) => {
+
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    let data = {
-      name,
-      guideline
-    };
-    let isCreated = await createPage(data);
-    if (isCreated) {
+    setLoading(true);
+    try {
+      const data = {
+        name,
+        guideline
+      };
+      await createPage(data);
+      alert(`${name} has been created.`);
+      router.push('/');
+    } catch (error) {
+      alert(error);
+    } finally {
+      setLoading(false);
       navigate('/');
+      
     }
   };
-  const session = supabase.auth.getSession();
+
   return (
     <>
       <Typography
@@ -99,16 +106,19 @@ export default function PagesForm() {
               value={name}
               variant="outlined"
               onChange={(e) => setName(e.target.value)}
+              disabled={loading}
             />
           </Grid>
           <Grid item xs={12}>
             <TextField
               id="guideline"
               label="Page Guideline"
+              value={guideline}
               onChange={(e) => setGuideline(e.target.value)}
               multiline
               fullWidth
               rows={20}
+              disabled={loading}
             />
           </Grid>
           <Grid item xs={12}>
@@ -118,8 +128,13 @@ export default function PagesForm() {
               id="submit"
               type="submit"
               variant="outlined"
+              disabled={loading}
             >
-              Save
+              {loading ? (
+                <CircularProgress size={24} />
+              ) : (
+                'Save'
+              )}
             </Button>
           </Grid>
         </Grid>

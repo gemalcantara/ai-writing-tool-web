@@ -15,6 +15,7 @@ const options = {
 
 let client: MongoClient
 let clientPromise: Promise<MongoClient>
+
 // In production mode, it's best to not use a global variable.
 client = new MongoClient(uri, options)
 clientPromise = client.connect()

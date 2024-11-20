@@ -32,19 +32,17 @@ import {
   Menu as MenuIcon,
   ChevronLeft as ChevronLeftIcon,
 } from '@mui/icons-material';
-import { createClient } from '@supabase/supabase-js';
 import useLogout from './component/Logout';
 import './App.css';
 
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_LINK!, process.env.NEXT_PUBLIC_SUPABASE_KEY!);
 const drawerWidth = 240;
 
 interface PagesList {
-  id: number;
+  _id: string;
   name: string;
 }
 interface ClientsList {
-  id: number;
+  _id: string;
   name: string;
 }
 
@@ -153,11 +151,15 @@ const ClientList = () => {
   useEffect(() => {
     const fetchClients = async () => {
       try {
-        const { data, error } = await supabase.from('clients').select('*').order('name', { ascending: true });
-        if (error) throw error;
-        setClients(data || []);
+        const response = await fetch('/api/clients');
+        if (!response.ok) {
+          throw new Error('Failed to fetch clients');
+        }
+        const data = await response.json();
+        setClients(data);
       } catch (error) {
         setError('Failed to fetch clients');
+        console.error('Error fetching clients:', error);
       } finally {
         setLoading(false);
       }
@@ -171,8 +173,8 @@ const ClientList = () => {
   return (
     <List component="div" disablePadding>
       {clients.map((client) => (
-        <ListItem key={client.id} disablePadding>
-          <ListItemButton sx={{ pl: 4 }} onClick={() => navigate(`clients/view/${client.id}`)}>
+        <ListItem key={client._id} disablePadding>
+          <ListItemButton sx={{ pl: 4 }} onClick={() => navigate(`clients/view/${client._id}`)}>
             <ListItemText primary={client.name} />
           </ListItemButton>
         </ListItem>
@@ -195,11 +197,15 @@ const PageList = () => {
   useEffect(() => {
     const fetchPages = async () => {
       try {
-        const { data, error } = await supabase.from('pages').select('*');
-        if (error) throw error;
-        setPages(data || []);
+        const response = await fetch('/api/pages');
+        if (!response.ok) {
+          throw new Error('Failed to fetch pages');
+        }
+        const data = await response.json();
+        setPages(data);
       } catch (error) {
         setError('Failed to fetch pages');
+        console.error('Error fetching pages:', error);
       } finally {
         setLoading(false);
       }
@@ -213,8 +219,8 @@ const PageList = () => {
   return (
     <List component="div" disablePadding>
       {pages.map((page) => (
-        <ListItem key={page.id} disablePadding>
-          <ListItemButton sx={{ pl: 4 }} onClick={() => navigate(`pages/view/${page.id}`)}>
+        <ListItem key={page._id} disablePadding>
+          <ListItemButton sx={{ pl: 4 }} onClick={() => navigate(`pages/view/${page._id}`)}>
             <ListItemText primary={page.name} />
           </ListItemButton>
         </ListItem>
