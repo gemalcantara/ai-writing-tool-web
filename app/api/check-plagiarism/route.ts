@@ -42,6 +42,7 @@ async function checkForPlagiarism(text: string) {
   formData.append('u', process.env.NEXT_PUBLIC_COPYSCAPE_USERNAME)
   formData.append('k', process.env.NEXT_PUBLIC_COPYSCAPE_API_KEY)
   formData.append('o', 'csearch')
+  formData.append('e', 'UTF-8')
   formData.append('t', text)
   formData.append('f', 'json')
   // formData.append('x', '1') // enable this for testing

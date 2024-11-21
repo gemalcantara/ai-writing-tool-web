@@ -90,8 +90,8 @@ async function generateOutline(
     let response: any = {};
     response = await anthropic.messages.create({
       // model: "claude-3-opus-20240229",
-      // model: "claude-3-5-sonnet-20241022",
-      model: "claude-3-5-sonnet-20240620",
+      model: "claude-3-5-sonnet-20241022",
+      // model: "claude-3-5-sonnet-20240620",
       max_tokens: 8192,
    // @ts-ignore
       messages: messages,
@@ -111,8 +111,8 @@ async function generateArticle(formData: string, sectionData: string) {
   // return
     response = await anthropic.messages.create({
       // model: "claude-3-opus-20240229",
-      // model: "claude-3-5-sonnet-20241022",
-      model: "claude-3-5-sonnet-20240620",
+      model: "claude-3-5-sonnet-20241022",
+      // model: "claude-3-5-sonnet-20240620",
       max_tokens: 8192,
     // @ts-ignore
       messages: articlePrompt,
