@@ -31,24 +31,19 @@ interface RequestPayload {
 }
 
 async function getPrompt(type: 'authority' | 'outline') {
-  const { data, error } = await supabase
-    .from('site_options')
-    .select('value,summary')
-    .eq('type', type)
-    .single();
+    const response = await fetch(`/api/site-options?type=${type}`)
+    if (!response.ok) {
+      throw new Error('Failed to fetch site options')
+    }
+    const data = await response.json()
 
-  if (error || !data) { // Ensure `data` is not null or undefined
-    console.error(`Error fetching ${type} prompt:`, error);
-    return ''; // Return an empty string or handle the error as needed
+    const siteOption = {
+      summary: data[0].summary,
+      data: data[0].value,
+    };
+
+    return siteOption; // This will always return a valid object if no error
   }
-
-  const siteOption = {
-    summary: data.summary,
-    data: data.value,
-  };
-
-  return siteOption; // This will always return a valid object if no error
-}
 
 async function generateOutline(
   keywords: string,
@@ -58,7 +53,6 @@ async function generateOutline(
   competitorLinksArray: string
 ) {
   const outlinePrompt = await getPrompt('outline');
-
   if (typeof outlinePrompt === 'string' || !outlinePrompt.data) {
     throw new Error('Outline prompt data is unavailable or invalid.');
   }
