@@ -1,136 +1,127 @@
-"use client";
+"use client"
 
-import React, { useEffect, useState } from "react";
-import Button from "@mui/material/Button";
-import Grid from "@mui/material/Grid";
-import TextField from "@mui/material/TextField";
-import Select from "@mui/material/Select";
-import MenuItem from "@mui/material/MenuItem";
-import InputLabel from "@mui/material/InputLabel";
-import FormControl from "@mui/material/FormControl";
-import Typography from "@mui/material/Typography";
-import { createClient } from "@supabase/supabase-js";
-import { useRouter } from "next/navigation";
-import IconButton from '@mui/material/IconButton';
-import InputAdornment from '@mui/material/InputAdornment';
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
-// Initialize Supabase client
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_LINK, process.env.NEXT_PUBLIC_SUPABASE_KEY);
+import React, { useEffect, useState } from "react"
+import Button from "@mui/material/Button"
+import Grid from "@mui/material/Grid"
+import TextField from "@mui/material/TextField"
+import Select from "@mui/material/Select"
+import MenuItem from "@mui/material/MenuItem"
+import InputLabel from "@mui/material/InputLabel"
+import FormControl from "@mui/material/FormControl"
+import Typography from "@mui/material/Typography"
+import { useRouter } from "next/navigation"
+import IconButton from '@mui/material/IconButton'
+import InputAdornment from '@mui/material/InputAdornment'
+import Visibility from '@mui/icons-material/Visibility'
+import VisibilityOff from '@mui/icons-material/VisibilityOff'
+import { useCookies } from "react-cookie"
+import { verifyToken } from "@/lib/jwt"
 
 interface UserProfile {
-  id: string;
-  name: string;
-  email: string;
-  user_type: 'admin' | 'user';
-  supabase_id: string;
+  _id: string
+  name: string
+  email: string
+  user_type: 'admin' | 'user'
 }
 
 export default function Profile() {
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [userType, setUserType] = useState<'admin' | 'user'>('user');
-  const [isEditing, setIsEditing] = useState(false);
-  const [error, setError] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
+  const [profile, setProfile] = useState<UserProfile | null>(null)
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [userType, setUserType] = useState<'admin' | 'user'>('user')
+  const [isEditing, setIsEditing] = useState(false)
+  const [error, setError] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [cookies, setCookie] = useCookies(['user']);
 
-  const handleClickShowPassword = () => {
-    setShowPassword(!showPassword);
-  };
-
-  const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-  };
-  const router = useRouter();
-
+  const router = useRouter()
   useEffect(() => {
-    fetchProfile();
+    if (cookies.user?.user.id && verifyToken(cookies.user.session)) {
+      fetchProfile(cookies.user.user.id)
+
+    }
   }, []);
 
-  const fetchProfile = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user) {
-      router.push('/login'); // Redirect to login if not authenticated
-      return;
+  const fetchProfile = async (userId: string) => {
+    try {
+      const response = await fetch(`/api/users/${userId}`)
+      if (!response.ok) {
+        if (response.status === 401) {
+          router.push('/')
+          return
+        }
+        throw new Error('Failed to fetch profile')
+      }
+      const data = await response.json()
+      setProfile(data)
+      setName(data.name)
+      setEmail(data.email)
+      setUserType(data.user_type)
+    } catch (error) {
+      console.error('Error fetching profile:', error)
+      setError('Failed to load profile')
     }
-
-    const { data, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('supabase_id', user.id)
-      .single();
-
-    if (error) {
-      console.error('Error fetching profile:', error);
-      setError('Failed to load profile');
-    } else if (data) {
-      setProfile(data);
-      setName(data.name);
-      setEmail(data.email);
-      setUserType(data.user_type);
-    }
-  };
+  }
 
   const handleUpdate = async () => {
-    if (!profile) return;
+    if (!profile) return
 
     const updates = {
       name,
       email,
       user_type: userType,
-    };
-
-    const { error: updateError } = await supabase
-      .from('users')
-      .update(updates)
-      .eq('supabase_id', profile.supabase_id);
-
-    if (updateError) {
-      console.error('Error updating profile:', updateError);
-      setError('Failed to update profile');
-      return;
+      password: password.trim() !== '' ? password : undefined,
     }
 
-    if (password.trim() !== '') {
-      const { error: passwordError } = await supabase.auth.updateUser({ password });
-      if (passwordError) {
-        console.error('Error updating password:', passwordError);
-        setError('Failed to update password');
-        return;
+    try {
+      const response = await fetch(`/api/users/${profile._id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updates),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to update profile')
       }
-    }
 
-    if (email !== profile.email) {
-      const { error: emailError } = await supabase.auth.updateUser({ email });
-      if (emailError) {
-        console.error('Error updating email:', emailError);
-        setError('Failed to update email');
-        return;
-      }
+      const updatedProfile = await response.json()
+      setProfile(updatedProfile)
+      setIsEditing(false)
+      setPassword('')
+      setError('')
+      alert('Profile updated successfully')
+    } catch (error) {
+      console.error('Error updating profile:', error)
+      setError('Failed to update profile')
     }
-
-    setProfile({ ...profile, ...updates });
-    setIsEditing(false);
-    setPassword(''); // Clear the password field after update
-    setError('');
-    alert('Profile updated successfully');
-  };
+  }
 
   const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      console.error('Error signing out:', error);
-      setError('Failed to sign out');
-    } else {
-      router.push('/login');
+    try {
+      const response = await fetch('/api/auth/logout', { method: 'POST' })
+      if (!response.ok) {
+        throw new Error('Failed to logout')
+      }
+      router.push('/login')
+    } catch (error) {
+      console.error('Error signing out:', error)
+      setError('Failed to sign out')
     }
-  };
+  }
+
+  const handleClickShowPassword = () => {
+    setShowPassword(!showPassword)
+  }
+
+  const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault()
+  }
 
   if (!profile) {
-    return <Typography>Loading...</Typography>;
+    return <Typography>Loading...</Typography>
   }
 
   return (
@@ -178,7 +169,7 @@ export default function Profile() {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            disabled={!isEditing}
+            disabled
           />
         </Grid>
         {isEditing && (
@@ -186,7 +177,7 @@ export default function Profile() {
             <TextField
               fullWidth
               label="New Password"
-              type={showPassword ? 'text' : 'password'} // Toggle between 'password' and 'text'
+              type={showPassword ? 'text' : 'password'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               helperText="Leave blank to keep current password"
@@ -223,15 +214,17 @@ export default function Profile() {
         </Grid>
         <Grid item xs={12}>
           {!isEditing ? (
-            ""
+            <Button variant="outlined" onClick={handleLogout}>
+              Logout
+            </Button>
           ) : (
             <>
               <Button variant="contained" onClick={handleUpdate} sx={{ mr: 2 }}>
                 Save Changes
               </Button>
               <Button variant="outlined" onClick={() => {
-                setIsEditing(false);
-                setPassword('');
+                setIsEditing(false)
+                setPassword('')
               }}>
                 Cancel
               </Button>
@@ -240,5 +233,5 @@ export default function Profile() {
         </Grid>
       </Grid>
     </>
-  );
+  )
 }

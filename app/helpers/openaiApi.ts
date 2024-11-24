@@ -31,24 +31,19 @@ interface RequestPayload {
 }
 
 async function getPrompt(type: 'authority' | 'outline') {
-  const { data, error } = await supabase
-    .from('site_options')
-    .select('value,summary')
-    .eq('type', type)
-    .single();
+    const response = await fetch(`/api/site-options?type=${type}`)
+    if (!response.ok) {
+      throw new Error('Failed to fetch site options')
+    }
+    const data = await response.json()
 
-  if (error || !data) { // Ensure `data` is not null or undefined
-    console.error(`Error fetching ${type} prompt:`, error);
-    return ''; // Return an empty string or handle the error as needed
+    const siteOption = {
+      summary: data[0].summary,
+      data: data[0].value,
+    };
+
+    return siteOption; // This will always return a valid object if no error
   }
-
-  const siteOption = {
-    summary: data.summary,
-    data: data.value,
-  };
-
-  return siteOption; // This will always return a valid object if no error
-}
 
 async function generateOutline(
   keywords: string,
@@ -58,7 +53,6 @@ async function generateOutline(
   competitorLinksArray: string
 ) {
   const outlinePrompt = await getPrompt('outline');
-
   if (typeof outlinePrompt === 'string' || !outlinePrompt.data) {
     throw new Error('Outline prompt data is unavailable or invalid.');
   }
@@ -99,9 +93,9 @@ async function generateOutline(
   ];
   try {
     const response: any = await anthropic.messages.create({
-      model: "claude-3-5-sonnet-20240620",
       // model: "claude-3-opus-20240229",
-      // model: "claude-3-5-sonnet-20241022",
+      model: "claude-3-5-sonnet-20241022",
+      // model: "claude-3-5-sonnet-20240620",
       max_tokens: 8192,
       // @ts-ignore
       messages: messages,
@@ -118,15 +112,18 @@ async function generateOutline(
 async function generateArticle(formData: string, sectionData: string) {
   let articlePrompt: any = {}
   let response: any = {};
-  articlePrompt = [{ role: "user", content: [{type: "text", text: formData + JSON.parse(sectionData).map((section: string) => section).join("\n")} ,{ type: "text", text: "REMINDER: All links must be incorporated; under no circumstances should you create an 'Additional Resources' or 'Further Reading' section at the end. merge all results into one article with markdown" }]} ];
-  response = await anthropic.messages.create({
-    // model: "claude-3-5-sonnet-20240620",
-      model: "claude-3-opus-20240229",
-    // model: "claude-3-5-sonnet-20241022",
-    max_tokens: 4096,
-    messages: articlePrompt,
-  });
-  return response.content[0].text || '';
+  articlePrompt = [{ role: "user", content: [{type: "text", text: formData + JSON.parse(sectionData).map((section: string) => section).join("\n")} ,{ type: "text", text: "REMINDER: All links must be incorporated; under no circumstances should you create an ‘Additional Resources’ or ‘Further Reading’ section at the end. merge all results into one article with markdown" }]} ];
+  // console.log(articlePrompt);
+  // return
+    response = await anthropic.messages.create({
+      // model: "claude-3-opus-20240229",
+      model: "claude-3-5-sonnet-20241022",
+      // model: "claude-3-5-sonnet-20240620",
+      max_tokens: 8192,
+    // @ts-ignore
+      messages: articlePrompt,
+    });
+    return response.content[0].text || '';
 }
 
 async function generateAuthorityLink(formData: any, articleSections: any) {

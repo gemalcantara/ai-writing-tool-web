@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from 'react';
 import { Box, Button, FormControl, Grid, InputLabel, MenuItem, Select, TextField } from '@mui/material';
-import { createClient } from '@supabase/supabase-js';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
@@ -11,13 +10,6 @@ import CircularProgress from '@mui/material/CircularProgress';
 import '../App.css';
 import DynamicFieldsComponent from './OutlineDynamicLinks';
 
-const supaBaseLink = process.env.NEXT_PUBLIC_SUPABASE_LINK;
-const supaBaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY
-
-const supabase = createClient(
-  supaBaseLink,
-  supaBaseKey
-);
 
 const ProgressIndicator = ({ open }: { open: boolean }) => (
   <Dialog open={open} disableEscapeKeyDown>
@@ -31,33 +23,6 @@ const ProgressIndicator = ({ open }: { open: boolean }) => (
   </Dialog>
 );
 
-function AiToolSelector() {
-  let aiTool = sessionStorage.getItem('aiTool');
-  const [tool, setTool] = useState(aiTool);
-  if (!aiTool) {
-    sessionStorage.setItem('aiTool', 'chatGpt');
-    setTool('chatGpt');
-  }
-  const handleChange = (event: any) => {
-    setTool(event.target.value);
-    sessionStorage.setItem('aiTool', event.target.value)
-  };
-  return (
-    <FormControl fullWidth>
-      <InputLabel id="llm">LLM</InputLabel>
-      <Select
-        value={tool}
-        onChange={handleChange}
-        label="LLM"
-        fullWidth
-        id="llm"
-      >
-        <MenuItem value={'chatGpt'}>Chat GPT</MenuItem>
-        <MenuItem value={'claude'}>Claude AI</MenuItem>
-      </Select>
-    </FormControl>
-  );
-}
 
 const ArticleOutlineForm = ({ handleSubmit, inputFieldStaticOutline, setInputFieldStaticOutline, clients, pages, loadingOutline, linkFields, setLinkFields }: any) => {
   const [showProgress, setShowProgress] = useState(false);

@@ -1,103 +1,114 @@
-"use client";
+"use client"
 
-import React, { useState, useEffect } from "react";
-import { DataGrid, GridColDef, GridRenderEditCellParams } from "@mui/x-data-grid";
-import { Typography, Grid, IconButton, TextField } from "@mui/material";
-import { Visibility } from "@mui/icons-material";
+import React, { useState, useEffect } from "react"
+import { DataGrid, GridColDef, GridRenderEditCellParams } from "@mui/x-data-grid"
+import { Typography, Grid, IconButton, TextField } from "@mui/material"
+import { Visibility } from "@mui/icons-material"
 import { useNavigate } from "react-router-dom";
-import { createClient } from "@supabase/supabase-js";
-
-const supaBaseLink = process.env.NEXT_PUBLIC_SUPABASE_LINK;
-const supaBaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY;
-
-const supabase = createClient(supaBaseLink, supaBaseKey);
-
 interface History {
-  id: string;
-  outline_input_data: string;
-  production_date: string;
-  client_name: string;
-  keywords: string;
-  created_at: string;
+  _id: string
+  outline_input_data: any
+  production_date: string
+  client_name: string
+  keywords: string
+  created_at: string
 }
 
 export default function ArticleHistory() {
-  const [histories, setHistories] = useState<History[]>([]);
-  const [filteredArticles, setFilteredArticles] = useState<History[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
-  const navigate = useNavigate();
-
+  const [histories, setHistories] = useState<History[]>([])
+  const [filteredArticles, setFilteredArticles] = useState<History[]>([])
+  const [loading, setLoading] = useState(true)
+  const [searchTerm, setSearchTerm] = useState("")
+  const navigate = useNavigate()
+ 
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const { data, error } = await supabase.from("history").select("*").order("id", { ascending: false });
-        if (error) throw error;
-        setHistories(data as History[]);
-        organizeRows(data);
+        const response = await fetch('/api/articles')
+        if (!response.ok) {
+          throw new Error('Failed to fetch articles')
+        }
+        const data = await response.json()
+        setHistories(data)
+        organizeRows(data)
       } catch (err) {
-        console.error("Failed to fetch history:", err);
+        console.error("Failed to fetch history:", err)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
-    fetchHistory();
-  }, []);
+    }
+    fetchHistory()
+  }, [])
 
   const organizeRows = (histories: History[]) => {
-    let rows: any[] = [];
-      histories.map((history) => {
-      let clientName = "";
-      let keywords = "";
-      let productionDate = history.production_date;
-  
+    const rows = histories.map((history) => {
+      let clientName = ""
+      let keywords = ""
+      let productionDate = history.production_date
+
       if (history.outline_input_data) {
-        const articleData = JSON.parse(history.outline_input_data);
-        clientName = articleData.inputFieldStaticOutline?.clientName || "";
-        keywords = articleData.linkFields?.keywords.map((item: { value: string }) => item.value).join(", ") || "";
+        const articleData = history.outline_input_data
+        clientName = articleData.inputFieldStaticOutline?.clientName || ""
+        keywords = articleData.linkFields?.keywords.map((item: { value: string }) => item.value).join(", ") || ""
       }
-  
-      // If production_date is null or empty, use created_at and format it
+
       if (!productionDate || productionDate.trim() === "") {
-        const createdAt = history.created_at; // Assuming `created_at` is in ISO format
-        const date = new Date(createdAt);
-        const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed
-        const year = String(date.getFullYear()).slice(-2); // Get last two digits
-        productionDate = `${month}/${year}`;
+        const createdAt = history.created_at
+        const date = new Date(createdAt)
+        const month = String(date.getMonth() + 1).padStart(2, "0")
+        const year = String(date.getFullYear()).slice(-2)
+        productionDate = `${month}/${year}`
       }
-      rows.push({
-        id: history.id,
+
+      return {
+        ...history,
         client_name: clientName,
         keywords,
         production_date: productionDate,
-      });
-    });
-  
-    setFilteredArticles(rows);
-  };
-  
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value.toLowerCase();
-    setSearchTerm(value);
-    const filteredData = histories.filter((history) => {
-      let clientName = "";
-      if (history.outline_input_data) {
-        const articleData = JSON.parse(history.outline_input_data);
-        clientName = articleData.inputFieldStaticOutline?.clientName || "";
       }
-      return clientName.toLowerCase().includes(value);
-    });
-    organizeRows(filteredData);
-  };
+    })
+
+    setFilteredArticles(rows)
+  }
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value.toLowerCase()
+    setSearchTerm(value)
+    const filteredData = histories.filter((history) => {
+      let clientName = ""
+      if (history.outline_input_data) {
+        const articleData = history.outline_input_data
+        clientName = articleData.inputFieldStaticOutline?.clientName || ""
+      }
+      return clientName.toLowerCase().includes(value)
+    })
+    organizeRows(filteredData)
+  }
 
   const handleProductionDateChange = async (id: string, value: string) => {
-    const formattedValue = value.replace(/\D/g, "").slice(0, 4).replace(/^(\d{2})/, "$1/");
+    const formattedValue = value.replace(/\D/g, "").slice(0, 4).replace(/^(\d{2})/, "$1/")
     try {
-      await supabase.from("history").update({ production_date: formattedValue }).eq("id", id);
+      const response = await fetch(`/api/articles/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ production_date: formattedValue }),
+      })
+      if (!response.ok) {
+        throw new Error('Failed to update production date')
+      }
+      // Update the local state after successful API call
+      setHistories(prevHistories => 
+        prevHistories.map(history => 
+          history._id === id ? { ...history, production_date: formattedValue } : history
+        )
+      )
+      organizeRows(histories)
     } catch (err) {
-      console.error("Failed to update production date:", err);
+      console.error("Failed to update production date:", err)
     }
-  };
+  }
 
   const columns: GridColDef[] = [
     { field: "client_name", headerName: "Client Name", width: 300 },
@@ -109,32 +120,31 @@ export default function ArticleHistory() {
       sortComparator: (v1, v2) => {
         const parseDate = (value: string | null | undefined) => {
           if (!value || value.trim() === "") {
-            // Return a default date for empty or null values, e.g., far in the past
-            return new Date(1900, 0); // January 1900
+            return new Date(1900, 0)
           }
-          const [month, year] = value.split("/").map(Number);
-          return new Date(year + 2000, month - 1); // Adjust for 21st century
-        };
+          const [month, year] = value.split("/").map(Number)
+          return new Date(year + 2000, month - 1)
+        }
     
-        return parseDate(v1).getTime() - parseDate(v2).getTime();
+        return parseDate(v1).getTime() - parseDate(v2).getTime()
       },
       renderEditCell: (params: GridRenderEditCellParams) => {
         const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-          const rawValue = e.target.value.replace(/\D/g, "").slice(0, 4);
-          const formattedValue = rawValue.replace(/^(\d{2})/, "$1/");
-          params.api.setEditCellValue({ ...params, value: formattedValue }, e);
-        };
+          const rawValue = e.target.value.replace(/\D/g, "").slice(0, 4)
+          const formattedValue = rawValue.replace(/^(\d{2})/, "$1/")
+          params.api.setEditCellValue({ ...params, value: formattedValue }, e)
+        }
         const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
           if (e.key === "Enter") {
-            params.api.stopCellEditMode({ id: params.id, field: params.field });
-            handleProductionDateChange(params.id.toString(), params.value as string);
+            params.api.stopCellEditMode({ id: params.id, field: params.field })
+            handleProductionDateChange(params.id.toString(), params.value as string)
           }
-        };
+        }
         const handleBlur = () => {
           if (params.value) {
-            handleProductionDateChange(params.id.toString(), params.value as string);
+            handleProductionDateChange(params.id.toString(), params.value as string)
           }
-        };
+        }
     
         return (
           <TextField
@@ -145,7 +155,7 @@ export default function ArticleHistory() {
             placeholder="MM/YY"
             inputProps={{ pattern: "\\d{2}/\\d{2}" }}
           />
-        );
+        )
       },
     },    
     { field: "keywords", headerName: "Keywords", width: 350 },
@@ -154,12 +164,12 @@ export default function ArticleHistory() {
       headerName: "View",
       width: 150,
       renderCell: (params) => (
-        <IconButton aria-label="view" color="primary" onClick={() => navigate(`${params.row.id}`)}>
+        <IconButton aria-label="view" color="primary" onClick={() => navigate(`${params.row._id}`)}>
           <Visibility />
         </IconButton>
       ),
     },
-  ];
+  ]
 
   return (
     <>
@@ -192,9 +202,9 @@ export default function ArticleHistory() {
           }}
           pageSizeOptions={[10, 20, 50, 100]}
           loading={loading}
-          getRowId={(row) => row.id}
+          getRowId={(row) => row._id}
         />
       </div>
     </>
-  );
+  )
 }

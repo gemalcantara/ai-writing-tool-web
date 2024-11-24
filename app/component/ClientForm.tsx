@@ -1,50 +1,56 @@
 "use client"
+
 import * as React from 'react';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import { Grid } from '@mui/material';
+import { Grid, CircularProgress } from '@mui/material';
 import TextField from '@mui/material/TextField';
-import { useState, useEffect } from 'react';
-import { createClient } from '@supabase/supabase-js';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useNavigate } from 'react-router-dom';
 
-const supaBaseLink = process.env.NEXT_PUBLIC_SUPABASE_LINK;
-const supaBaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY
-
-const supabase = createClient(
-  supaBaseLink,
-  supaBaseKey
-);
-
-async function createLawClient(clientData: any) {
-  const { error } = await supabase.from('clients').insert({
-    name: clientData.name,
-    guideline: clientData.guideline,
+async function createLawClient(clientData: { name: string; guideline: string }) {
+  const response = await fetch('/api/clients', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(clientData),
   });
-  if (error) {
-    alert(error.message);
-    return 0;
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to create client');
   }
-  alert(`${clientData.name} has been created.`);
-  return 1
+
+  return response.json();
 }
 
 export default function ClientsForm() {
-  const navigate = useNavigate();
   const [name, setName] = useState('');
   const [guideline, setGuideline] = useState('');
-  const handleSubmit = async (event: any) => {
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const navigate = useNavigate();
+
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    let data = {
-      name,
-      guideline
-    };
-    let isCreated = await createLawClient(data);
-    if (isCreated) {
+    setLoading(true);
+    try {
+      const data = {
+        name,
+        guideline
+      };
+      await createLawClient(data);
+      alert(`${name} has been created.`);
+      router.push('/');
+    } catch (error) {
+      alert(error);
+    } finally {
+      setLoading(false);
       navigate('/');
     }
   };
-  const session = supabase.auth.getSession();
 
   return (
     <>
@@ -66,16 +72,19 @@ export default function ClientsForm() {
               value={name}
               variant="outlined"
               onChange={(e) => setName(e.target.value)}
+              disabled={loading}
             />
           </Grid>
           <Grid item xs={12}>
             <TextField
               id="guideline"
               label="Client Guideline"
+              value={guideline}
               onChange={(e) => setGuideline(e.target.value)}
               multiline
               fullWidth
               rows={20}
+              disabled={loading}
             />
           </Grid>
           <Grid item xs={12}>
@@ -85,13 +94,17 @@ export default function ClientsForm() {
               id="submit"
               type="submit"
               variant="outlined"
+              disabled={loading}
             >
-              Save
+              {loading ? (
+                <CircularProgress size={24} />
+              ) : (
+                'Save'
+              )}
             </Button>
           </Grid>
         </Grid>
       </form>
     </>
-
   );
 }

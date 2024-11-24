@@ -1,6 +1,6 @@
-"use client";
+"use client"
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback } from "react"
 import {
   Button,
   Grid,
@@ -20,65 +20,58 @@ import {
   ListItem,
   ListItemText,
   Link
-} from "@mui/material";
-import { createClient } from "@supabase/supabase-js";
+} from "@mui/material"
 import { useParams, useNavigate } from "react-router-dom";
-import { marked } from "marked";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { CheckCircle, BookOpen, Scale, Search } from 'lucide-react';
-import dynamic from 'next/dynamic';
-import OpenAI from 'openai';
-import "../App.css";
-import { checkForPlagiarism } from "../helpers/openaiApi";
+import { marked } from "marked"
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
+import { CheckCircle, BookOpen, Scale, Search } from 'lucide-react'
+import dynamic from 'next/dynamic'
+import OpenAI from 'openai'
+import { checkForPlagiarism } from "../helpers/openaiApi"
 
 const Editor = dynamic(() => import('../helpers/Editor'), {
   ssr: false,
   loading: () => <p>Loading editor...</p>
-});
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_LINK!,
-  process.env.NEXT_PUBLIC_SUPABASE_KEY!
-);
+})
 
 const openai = new OpenAI({
   apiKey: process.env.NEXT_PUBLIC_CHAT_GPT_API_KEY,
   dangerouslyAllowBrowser: true
-});
+})
 
 interface Article {
-  id: number;
-  created_by: string;
-  created_at: string;
-  article_title: string;
-  article_output: string;
-  outline: string;
-  article_details?: ArticleDetails;
-  fact_checker_result?: string;
-  style_guide_result?: string;
-  legal_rules_result?: string;
-  plagiarism_result?: PlagiarismData;
+  _id: string
+  created_by: string
+  created_at: string
+  article_title: string
+  article_output: string
+  outline: string
+  article_details?: ArticleDetails
+  fact_checker_result?: string
+  style_guide_result?: string
+  legal_rules_result?: string
+  plagiarism_result?: PlagiarismData
 }
 
 interface ArticleDetails {
-  client: string;
-  keyword: string;
-  meta: string;
-  slug: string;
+  client: string
+  keyword: string
+  meta: string
+  slug: string
 }
 
 interface PlagiarismResult {
-  index: number;
-  url: string;
-  title: string;
-  minwordsmatched: string;
-  viewurl: string;
-  htmlsnippet: string;
+  index: number
+  url: string
+  title: string
+  minwordsmatched: string
+  viewurl: string
+  htmlsnippet: string
 }
 
 interface PlagiarismData {
-  count: number;
-  result: PlagiarismResult[];
+  count: number
+  result: PlagiarismResult[]
 }
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
@@ -91,11 +84,11 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
   width: '100%',
   maxWidth: '100%',
   margin: '0 auto',
-}));
+}))
 
 const DetailsContainer = styled(Box)(({ theme }) => ({
   marginBottom: theme.spacing(3),
-}));
+}))
 
 const LinksContainer = styled(Box)(({ theme }) => ({
   maxHeight: '75vh',
@@ -125,13 +118,13 @@ const LinksContainer = styled(Box)(({ theme }) => ({
       textDecoration: 'underline',
     },
   },
-}));
+}))
 
 const EditorToolsContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexWrap: 'wrap',
   gap: theme.spacing(2),
-}));
+}))
 
 const ScrollableTabs = styled(Tabs)(({ theme }) => ({
   '& .MuiTabs-scroller': {
@@ -140,13 +133,13 @@ const ScrollableTabs = styled(Tabs)(({ theme }) => ({
   '& .MuiTabs-flexContainer': {
     gap: theme.spacing(2),
   },
-}));
+}))
 
 const EditorTool = ({ icon, label, onClick, loading }: {
-  icon: React.ReactNode;
-  label: string;
-  onClick: () => void;
-  loading?: boolean;
+  icon: React.ReactNode
+  label: string
+  onClick: () => void
+  loading?: boolean
 }) => (
   <Button
     variant="outlined"
@@ -166,7 +159,7 @@ const EditorTool = ({ icon, label, onClick, loading }: {
   >
     {loading ? 'Processing...' : label}
   </Button>
-);
+)
 
 const ArticleOutline = ({ outline }: { outline: any }) => (
   <Accordion className="mb-6" style={{ marginTop: "1rem"}}>
@@ -206,55 +199,55 @@ const ArticleOutline = ({ outline }: { outline: any }) => (
         ))}
     </AccordionDetails>
   </Accordion>
-);
+)
 
-const ArticleDetails = ({ articleDetails,handleArticleDetailsChange }: { articleDetails: ArticleDetails,handleArticleDetailsChange: any }) => (
+const ArticleDetails = ({ articleDetails, handleArticleDetailsChange }: { articleDetails: ArticleDetails, handleArticleDetailsChange: any }) => (
   <Accordion className="mb-6" style={{ marginTop: "1rem"}}>
-                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                  <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2 }}>
-                    Details
-                  </Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12}>
-                      <TextField
-                        fullWidth
-                        label="Client"
-                        value={articleDetails.client}
-                        onChange={(e) => handleArticleDetailsChange('client', e.target.value)}
-                      />
-                    </Grid>
-                    <Grid item xs={12}>
-                      <TextField
-                        fullWidth
-                        label="Keyword"
-                        value={articleDetails.keyword}
-                        onChange={(e) => handleArticleDetailsChange('keyword', e.target.value)}
-                      />
-                    </Grid>
-                    <Grid item xs={12}>
-                      <TextField
-                        multiline
-                        fullWidth
-                        rows={3}
-                        label="Meta"
-                        value={articleDetails.meta}
-                        onChange={(e) => handleArticleDetailsChange('meta', e.target.value)}
-                      />
-                    </Grid>
-                    <Grid item xs={12}>
-                      <TextField
-                        fullWidth
-                        label="Slug"
-                        value={articleDetails.slug}
-                        onChange={(e) => handleArticleDetailsChange('slug', e.target.value)}
-                      />
-                    </Grid>
-                  </Grid>
-                </AccordionDetails>
-              </Accordion>
-);
+    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+      <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2 }}>
+        Details
+      </Typography>
+    </AccordionSummary>
+    <AccordionDetails>
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
+            label="Client"
+            value={articleDetails.client}
+            onChange={(e) => handleArticleDetailsChange('client', e.target.value)}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
+            label="Keyword"
+            value={articleDetails.keyword}
+            onChange={(e) => handleArticleDetailsChange('keyword', e.target.value)}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            multiline
+            fullWidth
+            rows={3}
+            label="Meta"
+            value={articleDetails.meta}
+            onChange={(e) => handleArticleDetailsChange('meta', e.target.value)}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
+            label="Slug"
+            value={articleDetails.slug}
+            onChange={(e) => handleArticleDetailsChange('slug', e.target.value)}
+          />
+        </Grid>
+      </Grid>
+    </AccordionDetails>
+  </Accordion>
+)
 
 const PlagiarismResults = ({ data }: { data: PlagiarismData }) => (
   <Box>
@@ -267,7 +260,6 @@ const PlagiarismResults = ({ data }: { data: PlagiarismData }) => (
     <List>
       {data.result.map((item, index) => (
         <ListItem key={index} alignItems="flex-start">
-          
           <ListItemText
             primary={
               <>
@@ -300,99 +292,103 @@ const PlagiarismResults = ({ data }: { data: PlagiarismData }) => (
       ))}
     </List>
   </Box>
-);
-const updateArticleInSupabase = async (
-  articleId: any,
+)
+
+const updateArticleInMongoDB = async (
+  articleId: string,
   updates: Partial<Article>
 ) => {
   try {
-    const { error } = await supabase
-      .from("history")
-      .update(updates)
-      .eq("id", articleId);
+    const response = await fetch(`/api/articles/${articleId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(updates),
+    })
 
-    if (error) throw error;
-    console.log("Article updated successfully");
+    if (!response.ok) {
+      throw new Error('Failed to update article')
+    }
+
+    console.log("Article updated successfully")
   } catch (error) {
-    console.error("Error updating article:", error);
-    throw error;
+    console.error("Error updating article:", error)
+    throw error
   }
-};
+}
+
 export default function MergedArticleHistoryView() {
-  const [article, setArticle] = useState<Article | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [outline, setOutline] = useState<any>();
+  const [article, setArticle] = useState<Article | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [outline, setOutline] = useState<any>()
   const [articleDetails, setArticleDetails] = useState<ArticleDetails>({
     client: '',
     keyword: '',
     meta: '',
     slug: ''
-  });
-  const { articleId } = useParams();
-  const navigate = useNavigate();
-  const [editMode, setEditMode] = useState(false);
-  const [editedContent, setEditedContent] = useState("");
+  })
+  const params = useParams()
+  const articleId = params.articleId as string
+  const navigate = useNavigate()
+  const [editMode, setEditMode] = useState(false)
+  const [editedContent, setEditedContent] = useState("")
 
-  const [activeTab, setActiveTab] = useState(0);
-  const [showResults, setShowResults] = useState(true);
-  const [loading, setLoading] = useState(false);
-  const [factCheckResults, setFactCheckResults] = useState<string>('');
-  const [styleGuideResults, setStyleGuideResults] = useState<string>('');
-  const [legalRulesResults, setLegalRulesResults] = useState<string>('');
-  const [plagiarismData, setPlagiarismData] = useState<PlagiarismData | null>(null);
+  const [activeTab, setActiveTab] = useState(0)
+  const [showResults, setShowResults] = useState(true)
+  const [loading, setLoading] = useState(false)
+  const [factCheckResults, setFactCheckResults] = useState<string>('')
+  const [styleGuideResults, setStyleGuideResults] = useState<string>('')
+  const [legalRulesResults, setLegalRulesResults] = useState<string>('')
+  const [plagiarismData, setPlagiarismData] = useState<PlagiarismData | null>(null)
   
   useEffect(() => {
     const fetchArticleById = async () => {
       try {
-        const { data, error } = await supabase
-          .from("history")
-          .select("*")
-          .eq("id", articleId)
-          .single();
-
-        if (error) {
-          setError(`Error fetching article: ${error.message}`);
-        } else {
-          setArticle(data);
-          if (data.article_details) {
-            setArticleDetails(JSON.parse(data.article_details));
-          } else if (data.outline_input_data) {
-            const articleData = JSON.parse(data.outline_input_data);
-            const outlineData = JSON.parse(data.outline);
-            const newArticleDetails = {
-              client: articleData.inputFieldStaticOutline?.clientName || "",
-              keyword: articleData.linkFields?.keywords.map((item: { value: string }) => item.value).join(", ") || "",
-              meta: outlineData.meta_description,
-              slug: outlineData.slug,
-            };
-            setArticleDetails(newArticleDetails);
-            // Update Supabase with the new article details
-            await updateArticleInSupabase(articleId, { article_details: newArticleDetails });
-          }
-          setOutline(JSON.parse(data.outline));
-          const htmlContent = await marked(data.article_output, {
-            async: true
-          });
-          setEditedContent(htmlContent);
-          setFactCheckResults(data.fact_checker_result || '');
-          setStyleGuideResults(data.style_guide_result || '');
-          setLegalRulesResults(data.legal_rules_result || '');
-          setPlagiarismData(JSON.parse(data.plagiarism_result) || null);
+        const response = await fetch(`/api/articles/${articleId}`)
+        if (!response.ok) {
+          throw new Error('Failed to fetch article')
         }
+        const data = await response.json()
+        setArticle(data)
+        if (data.article_details) {
+          setArticleDetails(data.article_details)
+        } else if (data.outline_input_data) {
+          const articleData = data.outline_input_data
+          const outlineData = data.outline
+          const newArticleDetails = {
+            client: articleData.inputFieldStaticOutline?.clientName || "",
+            keyword: articleData.linkFields?.keywords.map((item: { value: string }) => item.value).join(", ") || "",
+            meta: outlineData.meta_description,
+            slug: outlineData.slug,
+          }
+          setArticleDetails(newArticleDetails)
+          // Update MongoDB with the new article details
+          await updateArticleInMongoDB(articleId, { article_details: newArticleDetails })
+        }
+        setOutline(data.outline)
+        const htmlContent = await marked(data.article_output, {
+          async: true
+        })
+        setEditedContent(htmlContent)
+        setFactCheckResults(data.fact_checker_result || '')
+        setStyleGuideResults(data.style_guide_result || '')
+        setLegalRulesResults(data.legal_rules_result || '')
+        setPlagiarismData(data.plagiarism_result || null)
       } catch (error) {
-        setError(`Error fetching article: ${error}`);
+        setError(`Error fetching article: ${error}`)
       }
-    };
+    }
 
-    fetchArticleById();
-  }, [articleId]);
+    fetchArticleById()
+  }, [articleId])
 
   const handleCopy = useCallback(async () => {
     if (article) {
       const htmlContent = await marked(article.article_output, {
         async: true
-      });
-      const plainTextContent = article.article_output;
+      })
+      const plainTextContent = article.article_output
 
       try {
         await navigator.clipboard.write([
@@ -400,53 +396,53 @@ export default function MergedArticleHistoryView() {
             "text/html": new Blob([htmlContent], { type: "text/html" }),
             "text/plain": new Blob([plainTextContent], { type: "text/plain" }),
           }),
-        ]);
-        alert("Result copied.");
+        ])
+        alert("Result copied.")
       } catch (err) {
-        console.error("Error copying text: ", err);
+        console.error("Error copying text: ", err)
       }
     }
-  }, [article]);
+  }, [article])
 
   const handleEdit = useCallback(() => {
-    setEditMode(true);
-  }, []);
+    setEditMode(true)
+  }, [])
 
   const handleSave = useCallback(async () => {
     try {
-      await updateArticleInSupabase(articleId, { 
+      await updateArticleInMongoDB(articleId, { 
         article_output: editedContent,
         article_details: articleDetails
-      });
+      })
 
-      setEditMode(false);
+      setEditMode(false)
       setArticle((prev) =>
         prev ? { ...prev, article_output: editedContent, article_details: articleDetails } : null
-      );
+      )
     } catch (error) {
-      console.error("Error saving changes:", error);
-      alert("Failed to save changes. Please try again.");
+      console.error("Error saving changes:", error)
+      alert("Failed to save changes. Please try again.")
     }
-  }, [articleId, editedContent, articleDetails]);
+  }, [articleId, editedContent, articleDetails])
 
   const renderLinksWithTargetBlank = useCallback((html: string) => {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
-    const links = doc.getElementsByTagName('a');
+    const parser = new DOMParser()
+    const doc = parser.parseFromString(html, 'text/html')
+    const links = doc.getElementsByTagName('a')
     for (let i = 0; i < links.length; i++) {
-      links[i].setAttribute('target', '_blank');
-      links[i].setAttribute('rel', 'noopener noreferrer');
+      links[i].setAttribute('target', '_blank')
+      links[i].setAttribute('rel', 'noopener noreferrer')
     }
-    return doc.body.innerHTML;
-  }, []);
+    return doc.body.innerHTML
+  }, [])
 
   const handleTabChange = useCallback((event: React.SyntheticEvent, newValue: number) => {
-    setActiveTab(newValue);
-  }, []);
+    setActiveTab(newValue)
+  }, [])
 
   const createAssistantMessage = useCallback(async (content: string, instruction: string, assistantId: string) => {
-    setLoading(true);
-    setError(null);
+    setLoading(true)
+    setError(null)
     try {
       const run = await openai.beta.threads.createAndRun({
         assistant_id: assistantId,
@@ -455,95 +451,95 @@ export default function MergedArticleHistoryView() {
             { role: "user", content: content },
           ],
         },
-      });
+      })
 
       // Poll for completion
-      let completedRun;
+      let completedRun
       while (true) {
-        completedRun = await openai.beta.threads.runs.retrieve(run.thread_id, run.id);
+        completedRun = await openai.beta.threads.runs.retrieve(run.thread_id, run.id)
         if (completedRun.status === 'completed') {
-          break;
+          break
         }
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 1000))
       }
 
-      const messages = await openai.beta.threads.messages.list(run.thread_id);
-      const assistantMessage = messages.data[0].content[0];
+      const messages = await openai.beta.threads.messages.list(run.thread_id)
+      const assistantMessage = messages.data[0].content[0]
 
       if ('text' in assistantMessage) {
         const htmlContent = await marked(assistantMessage.text.value, {
           async: true
-        });
+        })
 
         switch (instruction) {
           case "factCheck":
-            setFactCheckResults(htmlContent);
-            await updateArticleInSupabase(articleId, { fact_checker_result: htmlContent });
-            break;
+            setFactCheckResults(htmlContent)
+            await updateArticleInMongoDB(articleId, { fact_checker_result: htmlContent })
+            break
           case "styleGuide":
-            setStyleGuideResults(htmlContent);
-            await updateArticleInSupabase(articleId, { style_guide_result: htmlContent });
-            break;
+            setStyleGuideResults(htmlContent)
+            await updateArticleInMongoDB(articleId, { style_guide_result: htmlContent })
+            break
           case "legalRules":
-            setLegalRulesResults(htmlContent);
-            await updateArticleInSupabase(articleId, { legal_rules_result: htmlContent });
-            break;
+            setLegalRulesResults(htmlContent)
+            await updateArticleInMongoDB(articleId, { legal_rules_result: htmlContent })
+            break
         }
-        setShowResults(true);
+        setShowResults(true)
       }
     } catch (err) {
-      console.error('Error:', err);
-      setError('Failed to process the content. Please try again.');
+      console.error('Error:', err)
+      setError('Failed to process the content. Please try again.')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  }, [articleId]);
+  }, [articleId])
   
   const handleFactCheck = useCallback(async () => {
-    const assistantId = "asst_vQQJIXDjR7IZ801n9zxanYER";
-    setActiveTab(0);
-    await createAssistantMessage(editedContent, "factCheck", assistantId);
-  }, [editedContent, createAssistantMessage]);
+    const assistantId = "asst_vQQJIXDjR7IZ801n9zxanYER"
+    setActiveTab(0)
+    await createAssistantMessage(editedContent, "factCheck", assistantId)
+  }, [editedContent, createAssistantMessage])
 
   const handleStyleGuide = useCallback(async () => {
-    const assistantId = "asst_iufG2r0lLTIq5HJl4CQIu0YG";
-    setActiveTab(1);
-    await createAssistantMessage(editedContent, "styleGuide", assistantId);
-  }, [editedContent, createAssistantMessage]);
+    const assistantId = "asst_iufG2r0lLTIq5HJl4CQIu0YG"
+    setActiveTab(1)
+    await createAssistantMessage(editedContent, "styleGuide", assistantId)
+  }, [editedContent, createAssistantMessage])
 
   const handleLegalRules = useCallback(async () => {
-    const assistantId = "asst_d2vnrAH6MNssLkkRgnGNfohK";
-    setActiveTab(2);
-    await createAssistantMessage(editedContent, "legalRules", assistantId);
-  }, [editedContent, createAssistantMessage]);
+    const assistantId = "asst_d2vnrAH6MNssLkkRgnGNfohK"
+    setActiveTab(2)
+    await createAssistantMessage(editedContent, "legalRules", assistantId)
+  }, [editedContent, createAssistantMessage])
 
   const handlePlagiarism = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    setActiveTab(3);
+    setLoading(true)
+    setError(null)
+    setActiveTab(3)
     try {
-      const response = await checkForPlagiarism(editedContent);
+      const response = await checkForPlagiarism(editedContent)
       if (response.success && response.data) {
         const plagiarismResult = {
           count: response.data.count,
           result: response.data.result
-        };
-        setPlagiarismData(plagiarismResult);
-        await updateArticleInSupabase(articleId, { plagiarism_result: plagiarismResult });
+        }
+        setPlagiarismData(plagiarismResult)
+        await updateArticleInMongoDB(articleId, { plagiarism_result: plagiarismResult })
       } else {
-        throw new Error("Failed to fetch plagiarism data");
+        throw new Error("Failed to fetch plagiarism data")
       }
     } catch (err) {
-      console.error('Error:', err);
-      setError('Failed to check for plagiarism. Please try again.');
+      console.error('Error:', err)
+      setError('Failed to check for plagiarism. Please try again.')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  }, [editedContent, articleId]);
+  }, [editedContent, articleId])
 
   const handleArticleDetailsChange = useCallback((field: keyof ArticleDetails, value: string) => {
-    setArticleDetails(prev => ({ ...prev, [field]: value }));
-  }, []);
+    setArticleDetails(prev => ({ ...prev, [field]: value }))
+  }, [])
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -584,8 +580,8 @@ export default function MergedArticleHistoryView() {
               <Editor
                 data={editedContent}
                 onChange={(event, editor) => {
-                  const data = editor.getData();
-                  setEditedContent(data);
+                  const data = editor.getData()
+                  setEditedContent(data)
                 }}
               />
             </div>
@@ -681,5 +677,5 @@ export default function MergedArticleHistoryView() {
         </Grid>
       </Grid>
     </div>
-  );
+  )
 }

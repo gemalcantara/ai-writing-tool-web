@@ -1,47 +1,48 @@
 "use client"
 
-import * as React from 'react';
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
-import Grid from '@mui/material/Grid';
-import TextField from '@mui/material/TextField';
-import MenuItem from '@mui/material/MenuItem';
-import Box from '@mui/material/Box';
-import { createClient } from '@supabase/supabase-js';
+import * as React from 'react'
+import { useState, useEffect } from 'react'
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import Typography from '@mui/material/Typography'
+import Button from '@mui/material/Button'
+import Grid from '@mui/material/Grid'
+import TextField from '@mui/material/TextField'
+import Box from '@mui/material/Box'
 
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_LINK, process.env.NEXT_PUBLIC_SUPABASE_KEY);
 interface SiteOption {
-  id?: string;
-  name: string;
-  summary: string;
-  value: string;
-  type: 'authority' | 'outline';
+  _id?: string
+  name: string
+  summary: string
+  value: string
+  type: 'authority' | 'outline'
 }
 
-async function createOrUpdateSiteOption(siteOption: SiteOption, isEditing: boolean) {
-  if (isEditing) {
-    const { error } = await supabase
-      .from('site_options')
-      .update(siteOption)
-      .eq('id', siteOption.id);
-    if (error) {
-      alert(error.message);
-      return false;
+async function createOrUpdateSiteOption(siteOption: SiteOption) {
+  const url =  `/api/site-options/${siteOption._id}`
+  const method =  'PUT'
+
+  try {
+    const response = await fetch(url, {
+      method: method,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(siteOption),
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(errorData.message || 'Failed to save site option')
     }
-    alert(`${siteOption.name} has been updated.`);
-  } else {
-    const { error } = await supabase
-      .from('site_options')
-      .insert(siteOption);
-    if (error) {
-      alert(error.message);
-      return false;
-    }
-    alert(`${siteOption.name} has been created.`);
+
+    const data = await response.json()
+    alert(`${siteOption.name} has been updated.`)
+    return true
+  } catch (error) {
+    console.error('Error saving site option:', error)
+    alert(error)
+    return false
   }
-  return true;
 }
 
 export default function SiteOptionForm() {
@@ -50,49 +51,45 @@ export default function SiteOptionForm() {
     summary: '',
     value: '',
     type: 'authority',
-  });
-  const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const isEditing = !!id;
+  })
+  const { id } =  useParams<{ id: string }>();
+  const navigate = useNavigate()
 
   useEffect(() => {
-    if (isEditing) {
-      const fetchSiteOption = async () => {
-        const { data, error } = await supabase
-          .from('site_options')
-          .select('*')
-          .eq('id', id)
-          .single();
-
-        if (error) {
-          console.error('Error fetching site option:', error);
-          navigate('/site-options');
-        } else if (data) {
-          setSiteOption(data);
+    const fetchSiteOption = async () => {
+      try {
+        const response = await fetch(`/api/site-options/${id}`)
+        if (!response.ok) {
+          throw new Error('Failed to fetch site option')
         }
-      };
-
-      fetchSiteOption();
+        const data = await response.json()
+        setSiteOption(data)
+      } catch (error) {
+        console.error('Error fetching site option:', error)
+        navigate('/site-options')
+      }
     }
-  }, [id, isEditing, navigate]);
+
+    fetchSiteOption()
+  }, [id])
 
   const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    const success = await createOrUpdateSiteOption(siteOption, isEditing);
+    event.preventDefault()
+    const success = await createOrUpdateSiteOption(siteOption, )
     if (success) {
-      navigate('/dashboard/site-options');
+      navigate('/site-options')
     }
-  };
+  }
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-    setSiteOption(prevState => ({ ...prevState, [name]: value }));
-  };
-console.log('hello');
+    const { name, value } = event.target
+    setSiteOption(prevState => ({ ...prevState, [name]: value }))
+  }
+
   return (
     <>
       <Typography variant="h4" fontWeight="bold" gutterBottom>
-        {isEditing ? 'Edit' : 'Create'} Site Option
+        Edit Site Option
       </Typography>
 
       <Typography variant="h6" gutterBottom>
@@ -165,21 +162,6 @@ console.log('hello');
               required
             />
           </Grid>
-          {/* <Grid item xs={12}>
-            <TextField
-              select
-              fullWidth
-              id="type"
-              name="type"
-              label="Type"
-              value={siteOption.type}
-              onChange={handleInputChange}
-              required
-            >
-              <MenuItem value="authority">Authority</MenuItem>
-              <MenuItem value="outline">Outline</MenuItem>
-            </TextField>
-          </Grid> */}
           <Grid item xs={12}>
             <Button
               type="submit"
@@ -188,11 +170,11 @@ console.log('hello');
               size="large"
               sx={{ float: 'right' }}
             >
-              {isEditing ? 'Update' : 'Create'}
+              Update
             </Button>
           </Grid>
         </Grid>
       </Box>
     </>
-  );
+  )
 }

@@ -12,13 +12,7 @@ import { useState, useEffect } from 'react';
 const supaBaseLink = process.env.NEXT_PUBLIC_SUPABASE_LINK;
 const supaBaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY
 
-const supabase = createClient(
-  supaBaseLink,
-  supaBaseKey
-);
-
 const columns: GridColDef[] = [
-  { field: 'id', headerName: 'ID', width: 70 },
   { field: 'name', headerName: 'Name', width: 150 },
   { field: 'email', headerName: 'Email', width: 200 },
   { field: 'user_type', headerName: 'User Type', width: 100 },
@@ -30,37 +24,31 @@ interface User {
   user_type: string;
 }
 export default function Users() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [users, setUsers] = useState<User[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        // Fetch data from Supabase
-        const { data, error } = await supabase
-          .from('users') // Replace 'users' with your table name
-          .select('*');
-
-        if (error) throw error;
-
-        // Update state with fetched data
-        setUsers(data || []);
+        const response = await fetch('/api/users')
+        if (!response.ok) {
+          throw new Error('Failed to fetch users')
+        }
+        const data = await response.json()
+        setUsers(data)
       } catch (error) {
-        // Handle error
-        setError('Failed to fetch users');
+        setError('Failed to fetch users')
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    fetchUsers();
-  }, []);
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>{error}</p>;
-  let rows: any[] | undefined = [];
-  users.map((user) => (
-    rows.push({ id: user.id, name: user.name, email: user.email, user_type: user.user_type })
-  ));
+    fetchUsers()
+  }, [])
+
+  if (loading) return <p>Loading...</p>
+  if (error) return <p>{error}</p>
 
   return (
     <>
@@ -85,9 +73,9 @@ export default function Users() {
         </Grid>
       </Grid>
 
-      <div>
+      <div style={{ height: 400, width: '100%' }}>
         <DataGrid
-          rows={rows}
+          rows={users}
           columns={columns}
           initialState={{
             pagination: {
@@ -95,6 +83,7 @@ export default function Users() {
             },
           }}
           pageSizeOptions={[5, 10]}
+          getRowId={(row) => row._id}
         />
       </div>
     </>
