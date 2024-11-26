@@ -112,6 +112,37 @@ pre {
   color: blue !important;
   text-decoration: underline !important;
 }
+.ck.ck.ck-content * {
+  margin-bottom: 1rem; /* Add margin-bottom to all HTML tags */
+}
+
+
+.result-content ul,
+.result-content ul li {
+  list-style-type: inherit;
+}
+.result-content ul {
+  padding-left: 40px;
+}
+
+.result-content ol,
+.result-content ol li {
+  list-style-type: decimal;
+}
+.result-content ol {
+  padding-left: 40px;
+}
+.result-editor__editable_inline {
+  padding: 0 30px !important;
+}
+.result-content a {
+  color: blue !important;
+  text-decoration: underline !important;
+}
+.ck.ck.ck-content * {
+  margin-bottom: 1rem; /* Add margin-bottom to all HTML tags */
+}
+
 /* textarea:hover {
   border-color: #3399FF;
 }

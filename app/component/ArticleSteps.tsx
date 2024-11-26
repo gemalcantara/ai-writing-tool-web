@@ -2,7 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { Box, Stepper, Step, StepButton, Button, Typography } from '@mui/material';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+import { useParams } from 'react-router-dom';
 import ArticleOutlineForm from './ArticleOutlineForm';
 import ArticlesForm from './ArticleForm';
 import ArticlesResult from './ArticlesResult';
@@ -52,7 +53,7 @@ interface Article {
   created_at: string;
   article_title: string;
   article_output: string;
-  outline: string;
+  outline: any;
   outline_input_data: string;
 }
 
@@ -63,7 +64,7 @@ export default function ArticleSteps() {
 
   const [activeStep, setActiveStep] = useState(0);
   const [completed, setCompleted] = useState<{ [k: number]: boolean }>({});
-  const [outline, setOutline] = useState<string>('');
+  const [outline, setOutline] = useState<any>('');
   const [toCopy, setToCopy] = useState('');
   const [clients, setClients] = useState([]);
   const [pages, setPages] = useState([]);
@@ -82,6 +83,7 @@ export default function ArticleSteps() {
   const [internalLinks, setInternalLinks] = useState("");
   const [loadingAuthority, setLoadingAuthority] = useState(false);
   const [loadingInternal, setLoadingInternal] = useState(false);
+  const [history, setHistory] = useState<any[]>([]);
 
   const [linkFields, setLinkFields] = useState({
     keywords: [{ id: 1, value: '' }],
@@ -100,7 +102,6 @@ export default function ArticleSteps() {
       fetchArticleById(articleId);
     }
   }, [articleId]);
-
   useEffect(() => {
     if (outlineResultField && outlineResult) {
       let inputFieldStaticOutline = outlineResultField.inputFieldStaticOutline;
@@ -114,6 +115,7 @@ export default function ArticleSteps() {
         setInputFieldStaticArticle(prev => ({ ...prev, keywords: internalKeywords }));
       }
     }
+    
   }, [article]);
 
   const fetchData = async (endpoint: string, setter: React.Dispatch<React.SetStateAction<any>>) => {
@@ -133,10 +135,11 @@ export default function ArticleSteps() {
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const data = await response.json();
       setArticle(data);
-      setOutlineResultField(JSON.parse(data.outline_input_data));
+      setOutlineResultField(data.outline_input_data);
       setOutlineResult(data.outline);
       setOutline(data.outline);
     } catch (error) {
+      console.log(`Failed to fetch article by ID: ${id}`, error);
       setError(`Error fetching article: ${error}`);
     }
   };
@@ -189,17 +192,16 @@ export default function ArticleSteps() {
     setInputFields(parsedOutline.sections || []);
   };
 
-  const parseOutlineResultFillArticleFieldPreload = (outline: string, inputFields: any) => {
-    const parsedOutline = handleParseJson(outline);
+  const parseOutlineResultFillArticleFieldPreload = (outline: any, inputFields: any) => {
     setInputFieldStaticArticle(prev => ({
       ...prev,
-      instruction: parsedOutline.metaDescription ?? inputFieldStaticOutline.articleDescription,
-      pageTitle: parsedOutline.title,
+      instruction: outline.metaDescription ?? inputFieldStaticOutline.articleDescription,
+      pageTitle: outline.title,
       keywords: inputFieldStaticOutline.keywords,
       selectedClient: inputFieldStaticOutline.selectedClient,
       selectedPage: inputFieldStaticOutline.selectedPage
     }));
-    setPageTitle(parsedOutline.title);
+    setPageTitle(outline.title);
     setInputFields(inputFields);
   };
 
@@ -224,15 +226,18 @@ export default function ArticleSteps() {
       setLoadingResult(true);
       const data: any = await generateArticle(prompt, JSON.stringify(articleSections));
       let outlineFields ={ inputFieldStaticOutline, inputFieldStaticArticle, linkFields, inputFields };
-      let outlineParse = handleParseJson(outline);
+
       let outlineToSave = {
-        title: outlineParse.title,
-        meta_description: outlineParse.meta_description,
-        slug: outlineParse.slug,
+        title: outline.title,
+        meta_description: outline.metaDescription,
+        slug: outline.slug,
         sections: inputFields
       };
 
-      await createHistory(data, pageTitle, 'user@example.com', outlineToSave, outlineFields);
+      const historyData = await createHistory(data, pageTitle, 'user@example.com', outlineToSave, outlineFields);
+
+      console.log('History data:', historyData);
+      setHistory(historyData);
       setToCopy(data);
       setResponse(data);
       setLoadingResult(false);
@@ -264,9 +269,9 @@ export default function ArticleSteps() {
       if (!response.ok) {
         throw new Error('Failed to save article history');
       }
-
-      await response.json();
       alert(`${article_title} has been saved.`);
+      
+      return await response.json();
     } catch (error: any) {
       alert(error.message);
     }
@@ -400,10 +405,7 @@ export default function ArticleSteps() {
           )}
           {activeStep === 2 && (
             <ArticlesResult
-              pageTitle={pageTitle}
-              toCopy={toCopy}
-              response={response}
-              loadingResult={loadingResult}
+              history={history}
             />
           )}
         </>
