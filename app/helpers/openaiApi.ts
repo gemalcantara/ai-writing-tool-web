@@ -30,8 +30,8 @@ interface RequestPayload {
   model: string;
 }
 
-async function getPrompt(type: 'authority' | 'outline') {
-    const response = await fetch(`/api/site-options?type=${type}`)
+async function getPrompt(type: 'authority' | 'outline' | 'article', mode?: string) {
+    const response = await fetch(`/api/site-options?type=${type}${mode ? `&mode=${mode}` : ''}`)
     if (!response.ok) {
       throw new Error('Failed to fetch site options')
     }
@@ -50,9 +50,10 @@ async function generateOutline(
   articleDescription: string,
   clientName: string,
   pageName: string,
-  competitorLinksArray: string
+  competitorLinksArray: string,
+  constellationMode: string
 ) {
-  const outlinePrompt = await getPrompt('outline');
+  const outlinePrompt = await getPrompt('outline',constellationMode);
   if (typeof outlinePrompt === 'string' || !outlinePrompt.data) {
     throw new Error('Outline prompt data is unavailable or invalid.');
   }
@@ -109,11 +110,24 @@ async function generateOutline(
 }
 
 
-async function generateArticle(formData: string, sectionData: string) {
+async function generateArticle(formData: string, sectionData: string,constellationMode: string) {
   let articlePrompt: any = {}
+  let content;
   let response: any = {};
-  articlePrompt = [{ role: "user", content: [{type: "text", text: formData + JSON.parse(sectionData).map((section: string) => section).join("\n")} ,{ type: "text", text: "REMINDER: All links must be incorporated; under no circumstances should you create an ‘Additional Resources’ or ‘Further Reading’ section at the end. merge all results into one article with markdown" }]} ];
-  // console.log(articlePrompt);
+  if (constellationMode) {
+    const articlePromptRaw = await getPrompt('article',constellationMode);
+    if (typeof articlePromptRaw === 'string' || !articlePromptRaw.data) {
+      throw new Error('Outline prompt data is unavailable or invalid.');
+    }
+  
+    content = articlePromptRaw.data + articlePromptRaw.summary;
+  }else{ 
+    content = formData + JSON.parse(sectionData).map((section: string) => section).join("\n");
+  }
+  
+  articlePrompt = [{ role: "user", content: [{type: "text", text: content} ,{ type: "text", text: "REMINDER: All links must be incorporated; under no circumstances should you create an ‘Additional Resources’ or ‘Further Reading’ section at the end. merge all results into one article with markdown" }]} ];
+  // console.log(articlePrompt,constellationMode);
+
   // return
     response = await anthropic.messages.create({
       // model: "claude-3-opus-20240229",
@@ -126,8 +140,8 @@ async function generateArticle(formData: string, sectionData: string) {
     return response.content[0].text || '';
 }
 
-async function generateAuthorityLink(formData: any, articleSections: any) {
-  const authorityPrompt = await getPrompt('authority')
+async function generateAuthorityLink(formData: any, articleSections: any,constellationMode: string) {
+  const authorityPrompt = await getPrompt('authority',constellationMode)
   if (typeof authorityPrompt === 'string' || !authorityPrompt.data) {
     throw new Error('Outline prompt data is unavailable or invalid.');
   }

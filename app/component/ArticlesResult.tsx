@@ -47,7 +47,12 @@ const openai = new OpenAI({
   dangerouslyAllowBrowser: true
 })
 
-export default function ArticlesResult({ history }: any) {
+interface ArticlesResultProps {
+  history?: any;
+  constellationMode?: boolean;
+}
+
+export default function ArticlesResult({ history, constellationMode = false }: ArticlesResultProps) {
   const [editedContent, setEditedContent] = useState('');
   const [article, setArticle] = useState<Article | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -71,7 +76,11 @@ export default function ArticlesResult({ history }: any) {
   useEffect(() => {
     const fetchArticleById = async () => {
       try {
-        const response = await fetch(`/api/articles/${articleId}`)
+        const endpoint = constellationMode 
+          ? `/api/constellation/articles/${articleId}`
+          : `/api/articles/${articleId}`;
+          
+        const response = await fetch(endpoint)
         if (!response.ok) {
           throw new Error('Failed to fetch article')
         }
@@ -116,8 +125,10 @@ export default function ArticlesResult({ history }: any) {
       }
     }
 
-    fetchArticleById()
-  }, [articleId])
+    if (history?.id) {
+      fetchArticleById()
+    }
+  }, [articleId, constellationMode])
 
   const handleCopy = async () => {
 
@@ -136,6 +147,10 @@ export default function ArticlesResult({ history }: any) {
 
   const handleSave = useCallback(async () => {
     try {
+      const endpoint = constellationMode
+        ? `/api/constellation/articles/${articleId}`
+        : `/api/articles/${articleId}`;
+
       await updateArticleInMongoDB(articleId, { 
         article_output: editedContent,
         article_details: articleDetails
@@ -149,7 +164,7 @@ export default function ArticlesResult({ history }: any) {
       console.error("Error saving changes:", error)
       alert("Failed to save changes. Please try again.")
     }
-  }, [articleId, editedContent, articleDetails])
+  }, [articleId, editedContent, articleDetails, constellationMode])
 
   const handleTabChange = useCallback((event: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue)

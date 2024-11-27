@@ -132,6 +132,7 @@ export default function SiteOptionForm() {
               id="name"
               name="name"
               label="Name"
+              disabled
               value={siteOption.name}
               onChange={handleInputChange}
               required

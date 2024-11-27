@@ -5,24 +5,13 @@ import {
   Button,
   Grid,
   Typography,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-  TextField,
-  Paper,
   Box,
-  Tabs,
   Tab,
   CircularProgress,
   Alert,
-  List,
-  ListItem,
-  ListItemText,
-  Link
 } from "@mui/material"
 import { useParams, useNavigate } from "react-router-dom";
 import { marked } from "marked"
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
 import { CheckCircle, BookOpen, Scale, Search } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import OpenAI from 'openai'
@@ -232,7 +221,7 @@ export default function ArticleView() {
         <Grid item xs={3} className="flex justify-end">
           <Button style={{ marginRight: "3px"}}
             variant="outlined"
-            onClick={() => navigate(`/dashboard/articles/create/${articleId}`)}
+            onClick={() => article?.mode === "constellation"? navigate(`/constellation/articles/create/${articleId}`): navigate(`/dashboard/articles/create/${articleId}`)}
           >
             Create Article
           </Button>
