@@ -14,7 +14,7 @@ interface SiteOption {
   name: string
   summary: string
   value: string
-  type: 'authority' | 'outline'
+  type: 'authority' | 'outline' | 'article'
 }
 
 async function createOrUpdateSiteOption(siteOption: SiteOption) {
@@ -95,32 +95,38 @@ export default function SiteOptionForm() {
       <Typography variant="h6" gutterBottom>
         Variables to use:
       </Typography>
-      {siteOption.type === 'authority' ? (
+      {siteOption.type === 'authority' && (
         <>
           <Typography variant="caption" display="block" gutterBottom>
-            {'{articleInstruction}'}
+        {'{articleInstruction}'}
           </Typography>
           <Typography variant="caption" display="block" gutterBottom>
-            {'{articleOutline}'}
+        {'{articleOutline}'}
           </Typography>
         </>
-      ) : (
+      )}
+      {siteOption.type === 'outline' && (
         <>
           <Typography variant="caption" display="block" gutterBottom>
-            {'{competitorLinks}'}
+        {'{competitorLinks}'}
           </Typography>
           <Typography variant="caption" display="block" gutterBottom>
-            {'{keywords}'}
+        {'{keywords}'}
           </Typography>
           <Typography variant="caption" display="block" gutterBottom>
-            {'{clientName}'}
+        {'{clientName}'}
           </Typography>
           <Typography variant="caption" display="block" gutterBottom>
-            {'{pageName}'}
+        {'{pageName}'}
           </Typography>
           <Typography variant="caption" display="block" gutterBottom>
-            {'{articleDescription}'}
+        {'{articleDescription}'}
           </Typography>
+        </>
+      )}
+      {siteOption.type === 'article' && (
+        <>
+          {/* No variables to display for 'article' type wip*/}
         </>
       )}
 
