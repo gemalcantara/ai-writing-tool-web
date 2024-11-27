@@ -28,14 +28,16 @@ import { useNavigate } from 'react-router-dom'
 interface SiteOption {
   _id: string
   name: string
+  mode: string
   summary?: string
   value: string
-  type: 'authority' | 'outline'
+  type: 'authority' | 'outline' | 'article'
 }
 
 export default function SiteOptions() {
   const [authorityPrompts, setAuthorityPrompts] = useState<SiteOption[]>([])
   const [outlinePrompts, setOutlinePrompts] = useState<SiteOption[]>([])
+  const [articlePrompts, setArticlePrompts] = useState<SiteOption[]>([])
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -51,16 +53,18 @@ export default function SiteOptions() {
       const data = await response.json()
       setAuthorityPrompts(data.filter((option: SiteOption) => option.type === 'authority'))
       setOutlinePrompts(data.filter((option: SiteOption) => option.type === 'outline'))
+      setArticlePrompts(data.filter((option: SiteOption) => option.type === 'article'))
     } catch (error) {
       console.error('Error fetching site options:', error)
     }
   }
 
-  const PromptTable = ({ prompts, type }: { prompts: SiteOption[], type: 'authority' | 'outline' }) => (
+  const PromptTable = ({ prompts, type }: { prompts: SiteOption[], type: 'authority' | 'outline' | 'article' }) => (
     <TableContainer component={Paper}>
       <Table>
         <TableHead>
           <TableRow>
+            <TableCell>Mode</TableCell>
             <TableCell>Name</TableCell>
             <TableCell>Summary</TableCell>
             <TableCell>Value</TableCell>
@@ -70,6 +74,7 @@ export default function SiteOptions() {
         <TableBody>
           {prompts.map(option => (
             <TableRow key={option._id}>
+              <TableCell>{option.mode}</TableCell>
               <TableCell>{option.name}</TableCell>
               <TableCell>{option.summary}</TableCell>
               <TableCell>{option.value.substring(0, 50)}...</TableCell>
@@ -94,6 +99,9 @@ export default function SiteOptions() {
 
       <Typography variant="h5" gutterBottom sx={{ mt: 4 }}>Outline Prompts</Typography>
       <PromptTable prompts={outlinePrompts} type="outline" />
+
+      <Typography variant="h5" gutterBottom sx={{ mt: 4 }}>Article Prompts</Typography>
+      <PromptTable prompts={articlePrompts} type="article" />
     </Box>
   )
 }

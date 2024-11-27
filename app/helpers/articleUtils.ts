@@ -2,29 +2,22 @@ import { OpenAI } from 'openai'
 import { marked } from 'marked'
 import { Article } from '../types/article'
 
-export const updateArticleInMongoDB = async (
-  articleId: string,
-  updates: Partial<Article>
-) => {
-  try {
-    const response = await fetch(`/api/articles/${articleId}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(updates),
-    })
+export const updateArticleInMongoDB = async (articleId: string, data: any, endpoint?: string) => {
+  const apiEndpoint = endpoint || `/api/articles/${articleId}`;
+  const response = await fetch(apiEndpoint, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
 
-    if (!response.ok) {
-      throw new Error('Failed to update article')
-    }
-
-    console.log("Article updated successfully")
-  } catch (error) {
-    console.error("Error updating article:", error)
-    throw error
+  if (!response.ok) {
+    throw new Error('Failed to update article');
   }
-}
+
+  return await response.json();
+};
 
 export const renderLinksWithTargetBlank = (html: string) => {
   const parser = new DOMParser()

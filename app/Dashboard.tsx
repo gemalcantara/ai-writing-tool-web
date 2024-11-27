@@ -85,8 +85,19 @@ const SidebarList = ({ open }: { open: boolean }) => {
         onClick={handleListItemClick}
         icon={<Article />}
         text="Create Article"
-        to="articles/create"
+        to="/dashboard/articles/create"
         open={open}
+      />
+      <Divider />
+      <SidebarItem
+        index={9}
+        selectedIndex={selectedIndex}
+        onClick={handleListItemClick}
+        icon={<Article color="secondary" />}
+        text="Constellation Create Article"
+        to="/constellation/articles/create"
+        open={open}
+        isConstellation={true}
       />
       <Divider />
       <SidebarItem
@@ -95,7 +106,7 @@ const SidebarList = ({ open }: { open: boolean }) => {
         onClick={handleListItemClick}
         icon={<TableChart />}
         text="Article Output Lists"
-        to="articles/view"
+        to="/dashboard/articles/view"
         open={open}
       />
       <Tooltip title={open ? "" : "Page Templates"} placement="right">
@@ -117,9 +128,9 @@ const SidebarList = ({ open }: { open: boolean }) => {
       <Collapse in={client && open} timeout="auto" unmountOnExit><ClientList /></Collapse>
       <Divider />
 
-      <SidebarItem index={6} selectedIndex={selectedIndex} onClick={handleListItemClick} icon={<Person />} text="Users" to="users" open={open} />
-      <SidebarItem index={11} selectedIndex={selectedIndex} onClick={handleListItemClick} icon={<Person />} text="Profile" to="users/profile" open={open} />
-      <SidebarItem index={12} selectedIndex={selectedIndex} onClick={handleListItemClick} icon={<Cog />} text="Site Options" to="site-options" open={open} />
+      <SidebarItem index={6} selectedIndex={selectedIndex} onClick={handleListItemClick} icon={<Person />} text="Users" to="/dashboard/users" open={open} />
+      <SidebarItem index={11} selectedIndex={selectedIndex} onClick={handleListItemClick} icon={<Person />} text="Profile" to="/dashboard/users/profile" open={open} />
+      <SidebarItem index={12} selectedIndex={selectedIndex} onClick={handleListItemClick} icon={<Cog />} text="Site Options" to="/dashboard/site-options" open={open} />
       <Tooltip title={open ? "" : "Logout"} placement="right">
         <ListItemButton selected={selectedIndex === 5} onClick={logout}>
           <ListItemIcon><Logout /></ListItemIcon>
@@ -131,13 +142,13 @@ const SidebarList = ({ open }: { open: boolean }) => {
   );
 };
 
-const SidebarItem = ({ index, selectedIndex, onClick, icon, text, to, open }: any) => (
+const SidebarItem = ({ index, selectedIndex, onClick, icon, text, to, open, isConstellation }: any) => (
   <Tooltip title={open ? "" : text} placement="right">
     <ListItemButton selected={selectedIndex === index} onClick={() => onClick(index)} component={Link} to={to}>
       <ListItemIcon>{icon}</ListItemIcon>
       {open && (
-        index === 4 ? 
-          <ListItemText primary={text} classes={{primary: "awt-font-large"}} />
+        index === 4 ||  index === 9? 
+          <ListItemText primary={text} classes={{primary: isConstellation ? "awt-font-large awt-constellation" : "awt-font-large"}} />
           : <ListItemText primary={text} />
       )}
     </ListItemButton>
@@ -176,13 +187,13 @@ const ClientList = () => {
     <List component="div" disablePadding>
       {clients.map((client) => (
         <ListItem key={client._id} disablePadding>
-          <ListItemButton sx={{ pl: 4 }} onClick={() => navigate(`clients/view/${client._id}`)}>
+          <ListItemButton sx={{ pl: 4 }} onClick={() => navigate(`/dashboard/clients/view/${client._id}`)}>
             <ListItemText primary={client.name} />
           </ListItemButton>
         </ListItem>
       ))}
       <Divider />
-      <ListItemButton sx={{ pl: 4 }} component={Link} to="clients/create">
+      <ListItemButton sx={{ pl: 4 }} component={Link} to="/dashboard/clients/create">
         <ListItemIcon><AddCircleOutline /></ListItemIcon>
         <ListItemText primary="Create Client" />
       </ListItemButton>

@@ -10,7 +10,8 @@ export interface Article {
   fact_checker_result?: string
   style_guide_result?: string
   legal_rules_result?: string
-  plagiarism_result?: PlagiarismData
+  plagiarism_result?: PlagiarismData,
+  mode: string;
 }
 
 export interface ArticleDetails {

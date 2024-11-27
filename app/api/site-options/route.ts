@@ -11,12 +11,13 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const name = searchParams.get('name'); // Example: ?name=value
     const type = searchParams.get('type'); // Example: ?type=value
+    const mode = searchParams.get('mode'); // Example: ?type=value
 
     // Build a query object based on the parameters
     const query: Record<string, any> = {};
     if (name) query.name = name;
     if (type) query.type = type;
-
+    if (mode) query.mode = mode;
     // Fetch and sort the results
     const result = await db.collection('siteOptions').find(query).sort({ name: 1 }).toArray();
 

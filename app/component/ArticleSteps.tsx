@@ -57,7 +57,7 @@ interface Article {
   outline_input_data: string;
 }
 
-export default function ArticleSteps() {
+export default function ArticleSteps( { constellationMode }: any ) {
   const router = useRouter();
   const params = useParams();
   const articleId = params.articleId as string;
@@ -151,7 +151,14 @@ export default function ArticleSteps() {
 
     try {
       setLoadingOutline(true);
-      const generatedOutline = await generateOutline(internalKeywords, inputFieldStaticOutline.articleDescription, inputFieldStaticOutline.clientName, inputFieldStaticOutline.pageName, competitorLinksArray);
+      const generatedOutline = await generateOutline(
+        internalKeywords, 
+        inputFieldStaticOutline.articleDescription, 
+        inputFieldStaticOutline.clientName, 
+        inputFieldStaticOutline.pageName, 
+        competitorLinksArray,
+        constellationMode ? 'constellation' : 'client'
+      );
       setOutline(generatedOutline);
       parseOutlineResultFillArticleField(generatedOutline);
       setLoadingOutline(false);
@@ -224,14 +231,17 @@ export default function ArticleSteps() {
 
     try {
       setLoadingResult(true);
-      const data: any = await generateArticle(prompt, JSON.stringify(articleSections));
+      const data: any = await generateArticle(prompt, JSON.stringify(articleSections),
+      constellationMode ? 'constellation' : 'client'
+    );
       let outlineFields ={ inputFieldStaticOutline, inputFieldStaticArticle, linkFields, inputFields };
 
       let outlineToSave = {
         title: outline.title,
         meta_description: outline.metaDescription,
         slug: outline.slug,
-        sections: inputFields
+        sections: inputFields,
+        mode: constellationMode
       };
 
       const historyData = await createHistory(data, pageTitle, 'user@example.com', outlineToSave, outlineFields);
@@ -284,7 +294,11 @@ export default function ArticleSteps() {
       const articleSections = formData.sections.map((section, index) => {
         return ` ${index + 1}. **${apStyleTitleCase(section.sectionTitle)}**`;
       });
-      const data = await generateAuthorityLink(formData, articleSections);
+      const data = await generateAuthorityLink(
+        formData, 
+        articleSections,
+        constellationMode ? 'constellation' : 'client'
+      );
       if (data.choices && data.choices[0] && data.choices[0].message) {
         const content = data.choices[0].message.content;
         const htmlContent = await marked(content);
@@ -373,6 +387,21 @@ export default function ArticleSteps() {
         </Box>
       ) : (
         <>
+        {constellationMode && (
+          <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+            <Typography 
+              variant="body2" 
+              sx={{ 
+          backgroundColor: '#1976d2', 
+          color: 'white', 
+          borderRadius: '12px', 
+          padding: '4px 12px' 
+              }}
+            >
+              Constellation Mode
+            </Typography>
+          </Box>
+        )}
           {activeStep === 0 && (
             <ArticleOutlineForm
               handleSubmit={handleSubmit}

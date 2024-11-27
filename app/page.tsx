@@ -30,11 +30,12 @@ import SiteOptions from './component/SiteOptions';
 import SiteOptionForm from './component/SiteOptionsForm';
 
 export default function App() {
-  // console.log(createUser());
   return (
     <Router>
       <Routes>
         <Route path="/" element={ <Login /> } />
+        
+        {/* Main Dashboard Routes */}
         <Route path="/dashboard" element={<Dashboard />}>
           <Route path="users" element={ <Users /> } />
           <Route path="site-options" element={ <SiteOptions /> } />
@@ -52,10 +53,15 @@ export default function App() {
           <Route path="articles/create" element={< ArticleSteps /> } />
           <Route index element={< ArticleSteps /> } />
           <Route path="articles/create/:articleId" element={< ArticleSteps /> } />
-          {/* <Route path="articles/create" element={< ArticlesForm /> } /> */}
           <Route path="articles/view" element={< ArticleHistory /> } />
           <Route path="articles/view/:articleId" element={< ArticleView /> } />
           <Route path="articles/view/:articleId/output" element={< ArticlesHistoryOutline /> } />
+        </Route>
+
+        {/* Constellation Routes */}
+        <Route path="/constellation" element={<Dashboard />}>
+          <Route path="articles/create" element={< ArticleSteps constellationMode={true} /> } />
+          <Route path="articles/create/:articleId" element={< ArticleSteps constellationMode={true} /> } />
         </Route>
       </Routes>
     </Router>
