@@ -7,7 +7,13 @@ import { getAuthToken } from '@/lib/jwt'
 import { marked } from "marked"
 import "../../App.css"
 
-export const renderLinksWithTargetBlank = (html: string) => {
+export default function SharedArticlePage() {
+  const [article, setArticle] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const params = useParams()
+
+  const renderLinksWithTargetBlank = (html: string) => {
     const parser = new DOMParser()
     const doc = parser.parseFromString(html, 'text/html')
     const links = doc.getElementsByTagName('a')
@@ -17,11 +23,6 @@ export const renderLinksWithTargetBlank = (html: string) => {
     }
     return doc.body.innerHTML
   }
-export default function SharedArticlePage() {
-  const [article, setArticle] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const params = useParams()
 
   useEffect(() => {
     const fetchArticle = async () => {
