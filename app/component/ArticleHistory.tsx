@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect } from "react"
 import { DataGrid, GridColDef, GridRenderEditCellParams } from "@mui/x-data-grid"
-import { Typography, Grid, IconButton, TextField } from "@mui/material"
-import { Visibility } from "@mui/icons-material"
+import { Typography, Grid, IconButton, TextField, Tooltip } from "@mui/material"
+import { Visibility, ContentCopy } from "@mui/icons-material"
+import LinkIcon from '@mui/icons-material/Link';
 import { useNavigate } from "react-router-dom";
 interface History {
   _id: string
@@ -110,6 +111,11 @@ export default function ArticleHistory() {
     }
   }
 
+  const handleCopyLink = async (id: string) => {
+    const privateUrl = `${window.location.origin}/share/${id}`
+    await navigator.clipboard.writeText(privateUrl)
+  }
+
   const columns: GridColDef[] = [
     { field: "client_name", headerName: "Client Name", width: 300 },
     {
@@ -159,6 +165,7 @@ export default function ArticleHistory() {
       },
     },    
     { field: "keywords", headerName: "Keywords", width: 350 },
+  
     {
       field: "view",
       headerName: "View",
@@ -167,6 +174,23 @@ export default function ArticleHistory() {
         <IconButton aria-label="view" color="primary" onClick={() => navigate(`${params.row._id}`)}>
           <Visibility />
         </IconButton>
+      ),
+    },
+    {
+      field: "copy_link",
+      headerName: "Link",
+      width: 120,
+      renderCell: (params) => (
+        <Tooltip title="Copy private URL">
+          <IconButton
+            aria-label="copy link"
+            color="primary"
+            onClick={() => handleCopyLink(params.row._id)}
+            size="small"
+          >
+            <LinkIcon />
+          </IconButton>
+        </Tooltip>
       ),
     },
   ]
