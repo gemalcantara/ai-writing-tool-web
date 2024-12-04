@@ -114,7 +114,7 @@ async function generateArticle(formData: string, sectionData: string,constellati
   let articlePrompt: any = {}
   let content;
   let response: any = {};
-  if (constellationMode) {
+  if (constellationMode === 'constellation') {  
     const articlePromptRaw = await getPrompt('article',constellationMode);
     if (typeof articlePromptRaw === 'string' || !articlePromptRaw.data) {
       throw new Error('Outline prompt data is unavailable or invalid.');
