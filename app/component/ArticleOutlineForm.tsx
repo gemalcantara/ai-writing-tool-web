@@ -28,7 +28,7 @@ const ArticleOutlineForm = ({ handleSubmit, inputFieldStaticOutline, setInputFie
   const [showProgress, setShowProgress] = useState(false);
 
   const getNameById = (list: any, id: any) => {
-    const entry = list.find((item: { id: any; }) => item.id === id);
+    const entry = list.find((item: { _id: any; }) => item._id === id);
     return entry.name;
   };
 
@@ -58,7 +58,7 @@ const ArticleOutlineForm = ({ handleSubmit, inputFieldStaticOutline, setInputFie
               >
                 {
                   clients.map((client: any) => (
-                    <MenuItem key={client.id} value={client.id}>{client.name}</MenuItem>
+                    <MenuItem key={client._id} value={client._id}>{client.name}</MenuItem>
                   ))
                 }
               </Select>
@@ -81,7 +81,7 @@ const ArticleOutlineForm = ({ handleSubmit, inputFieldStaticOutline, setInputFie
               >
                 {
                   pages.map((page: any) => (
-                    <MenuItem key={page.id} value={page.id}>{page.name}</MenuItem>
+                    <MenuItem key={page._id} value={page._id}>{page.name}</MenuItem>
                   ))
                 }
               </Select>

@@ -144,7 +144,7 @@ export default function ArticlesForm({
 
 
   const getNameById = (list: any, id: any) => {
-    const entry = list.find((item: { id: any }) => item.id === id);
+    const entry = list.find((item: { _id: any }) => item._id === id);
     return entry?.name;
   };
   const renderLinksWithTargetBlank = (html: string) => {
@@ -158,7 +158,7 @@ export default function ArticlesForm({
     return doc.body.innerHTML;
   };
   const getGuidelineById = (list: any, id: any) => {
-    const entry = list.find((item: { id: any }) => item.id === id);
+    const entry = list.find((item: { _id: any }) => item._id === id);
     return entry?.guideline;
   };
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -240,7 +240,7 @@ export default function ArticlesForm({
                           clientGuideline: getGuidelineById(clients, event.target.value)
                         })}
                       >
-                        {clients.map((client: any) => (<MenuItem key={client.id} value={client.id}>{client.name}</MenuItem>))}
+                        {clients.map((client: any) => (<MenuItem key={client._id} value={client._id}>{client.name}</MenuItem>))}
                       </Select>
                     </FormControl>
                   </Grid>
@@ -260,7 +260,7 @@ export default function ArticlesForm({
                           articlePrompt: getGuidelineById(pages, event.target.value)
                         })}
                       >
-                        {pages.map((page: any) => (<MenuItem key={page.id} value={page.id}>{page.name}</MenuItem>))}
+                        {pages.map((page: any) => (<MenuItem key={page._id} value={page._id}>{page.name}</MenuItem>))}
                       </Select>
                     </FormControl>
                   </Grid>

@@ -37,8 +37,8 @@ export default function Profile() {
 
   const router = useRouter()
   useEffect(() => {
-    if (cookies.user?.user.id && verifyToken(cookies.user.session)) {
-      fetchProfile(cookies.user.user.id)
+    if (cookies.user?.user._id && verifyToken(cookies.user.session)) {
+      fetchProfile(cookies.user.user._id)
 
     }
   }, []);
