@@ -2,15 +2,30 @@
 
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
-import { CircularProgress, Container, Typography, Button, Box } from '@mui/material'
+import { CircularProgress, Container, Typography, Button, Box, Divider } from '@mui/material'
 import { getAuthToken } from '@/lib/jwt'
 import { marked } from "marked"
+import { ArticleDetails, ArticleOutline } from '@/app/components/shared/ArticleComponents'
+import { ArticleDetails as ArticleDetailsType } from '@/app/types/article'
 import "../../App.css"
 
+interface ArticlePageProps {
+  client: string,
+  keyword: string,
+  meta_description: string,
+  slug: string
+}
 export default function SharedArticlePage() {
   const [article, setArticle] = useState<any>(null)
+  const [outline, setOutline] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [articleDetails, setArticleDetails] = useState<ArticlePageProps>({
+    client: '',
+    keyword: '',
+    meta_description: '',
+    slug: ''
+  })
   const params = useParams()
 
   const renderLinksWithTargetBlank = (html: string) => {
@@ -44,6 +59,13 @@ export default function SharedArticlePage() {
             async: true
         })
         setArticle(htmlContent)
+        setOutline(data.outline)  // Store the outline data
+        setArticleDetails({
+          client: data.article_details.client || '',
+          keyword: data.article_details.keyword || '',
+          meta_description: data.outline.meta_description || '',
+          slug:  data.outline.slug || ''
+        })
       } catch (err) {
         console.error(err);
         setError('Failed to load article')
@@ -98,8 +120,20 @@ export default function SharedArticlePage() {
   }
 
   return (
-    //make the margen top 2rem left and right  5rem and bottm 1rem
-    <div className="prose max-w-none"style={{ margin: '2rem 5rem 1rem' }}>
+    <div className="prose max-w-none" style={{ margin: '2rem 5rem 1rem' }}>
+      <Typography variant="body1" gutterBottom>
+        <strong>Client:</strong> {articleDetails.client}
+      </Typography>
+      <Typography variant="body1" gutterBottom>
+        <strong>Keyword:</strong> {articleDetails.keyword}
+      </Typography>
+      <Typography variant="body1" gutterBottom>
+        <strong>Meta Description:</strong> {articleDetails.meta_description}
+      </Typography>
+      <Typography variant="body1" gutterBottom>
+        <strong>Slug:</strong> {articleDetails.slug}
+      </Typography>
+      <Divider sx={{ my: 3, borderWidth: '1px' }} />
       <div className="result result-content" dangerouslySetInnerHTML={{ __html: renderLinksWithTargetBlank(article)}}></div>
     </div>
   )

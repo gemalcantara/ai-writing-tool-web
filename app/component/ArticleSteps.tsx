@@ -57,6 +57,12 @@ interface Article {
   outline_input_data: string;
 }
 
+interface OutlineMetaData {
+  title: string;
+  meta_description: string;
+  slug: string;
+}
+
 export default function ArticleSteps( { constellationMode }: any ) {
   const router = useRouter();
   const params = useParams();
@@ -65,6 +71,7 @@ export default function ArticleSteps( { constellationMode }: any ) {
   const [activeStep, setActiveStep] = useState(0);
   const [completed, setCompleted] = useState<{ [k: number]: boolean }>({});
   const [outline, setOutline] = useState<any>('');
+  const [outlineMetaData, setOutlineMetaData] = useState<OutlineMetaData>({title: '', meta_description: '', slug: ''});
   const [toCopy, setToCopy] = useState('');
   const [clients, setClients] = useState([]);
   const [pages, setPages] = useState([]);
@@ -195,6 +202,7 @@ export default function ArticleSteps( { constellationMode }: any ) {
       selectedClient: inputFieldStaticOutline.selectedClient,
       selectedPage: inputFieldStaticOutline.selectedPage
     }));
+    setOutlineMetaData(prev => ({...prev, title: parsedOutline.title, meta_description: parsedOutline.meta_description, slug: parsedOutline.slug}));
     setPageTitle(parsedOutline.title);
     setInputFields(parsedOutline.sections || []);
   };
@@ -237,16 +245,14 @@ export default function ArticleSteps( { constellationMode }: any ) {
       let outlineFields ={ inputFieldStaticOutline, inputFieldStaticArticle, linkFields, inputFields };
 
       let outlineToSave = {
-        title: outline.title,
-        meta_description: outline.metaDescription,
-        slug: outline.slug,
+        title: outlineMetaData.title,
+        meta_description: outlineMetaData.meta_description,
+        slug: outlineMetaData.slug,
         sections: inputFields,
         mode: constellationMode
       };
-
+      
       const historyData = await createHistory(data, pageTitle, 'user@example.com', outlineToSave, outlineFields);
-
-      console.log('History data:', historyData);
       setHistory(historyData);
       setToCopy(data);
       setResponse(data);
@@ -275,7 +281,7 @@ export default function ArticleSteps( { constellationMode }: any ) {
           outline_input_data: outlineFields
         }),
       });
-
+      
       if (!response.ok) {
         throw new Error('Failed to save article history');
       }
