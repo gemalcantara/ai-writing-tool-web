@@ -134,6 +134,7 @@ export default function ArticleSteps( { constellationMode }: any ) {
       const response = await fetch(`/api/articles/${id}`);
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const data = await response.json();
+      console.log(data);
       setArticle(data);
       setOutlineResultField(data.outline_input_data);
       setOutlineResult(data.outline);
@@ -228,7 +229,18 @@ export default function ArticleSteps( { constellationMode }: any ) {
       Section Links: ${joinedLinks}
       `;
     });
+    let outlineFields ={ inputFieldStaticOutline, inputFieldStaticArticle, linkFields, inputFields };
+    let outlineToSave = {
+      title: outline.title,
+      meta_description: outline.metaDescription,
+      slug: outline.slug,
+      sections: inputFields,
+      mode: constellationMode
+    };
 
+    const historyData = await createHistory("test", pageTitle, 'user@example.com', outlineToSave, outlineFields);
+    console.log('Outline fields:', outlineFields,historyData);
+    return
     try {
       setLoadingResult(true);
       const data: any = await generateArticle(prompt, JSON.stringify(articleSections),

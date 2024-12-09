@@ -1,6 +1,6 @@
 "use client"
 import {
-  MemoryRouter as Router,
+  HashRouter as Router,
   Routes,
   Route,
 } from 'react-router-dom';
