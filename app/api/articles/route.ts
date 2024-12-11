@@ -20,7 +20,7 @@ export async function GET() {
         }
       },
       {
-        $sort: { sortField: -1 } // Sort by sortField in descending order
+        $sort: { sortField: -1, _id: -1 } // Sort by sortField in ascending order, then by _id in descending order
       }
     ]).toArray();
     return NextResponse.json(articles);

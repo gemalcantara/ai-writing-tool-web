@@ -35,6 +35,14 @@ const openai = new OpenAI({
   dangerouslyAllowBrowser: true
 })
 
+const countWords = (text: string): number => {
+  // Normalize the text to remove non-printable characters
+  const normalizedText = text.normalize('NFKC');
+
+  // Trim the text and split by whitespace, then return the length of the resulting array
+  return normalizedText.trim().split(/\s+/).length;
+};
+
 export default function ArticleView() {
   const [article, setArticle] = useState<Article | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -50,6 +58,11 @@ export default function ArticleView() {
   const navigate = useNavigate()
   const [editMode, setEditMode] = useState(false)
   const [editedContent, setEditedContent] = useState("")
+  const [wordCount, setWordCount] = useState(0)
+
+  useEffect(() => {
+    setWordCount(countWords(editedContent))
+  }, [editedContent])
 
   const [activeTab, setActiveTab] = useState(0)
   const [showResults, setShowResults] = useState(true)
@@ -246,6 +259,7 @@ export default function ArticleView() {
 
       <Grid container spacing={3} >
         <Grid item xs={12} md={8}>
+          <Typography variant="h6">Word Count: {wordCount}</Typography>
           {editMode ? (
             <div className="mb-4" style={{ marginTop: "1rem"}}>
               <Editor

@@ -51,6 +51,13 @@ interface ArticlesResultProps {
   history?: any;
   constellationMode?: boolean;
 }
+const countWords = (text: string): number => {
+  // Normalize the text to remove non-printable characters
+  const normalizedText = text.normalize('NFKC');
+
+  // Trim the text and split by whitespace, then return the length of the resulting array
+  return normalizedText.trim().split(/\s+/).length;
+};
 
 export default function ArticlesResult({ history, constellationMode = false }: ArticlesResultProps) {
   const [editedContent, setEditedContent] = useState('');
@@ -73,6 +80,12 @@ export default function ArticlesResult({ history, constellationMode = false }: A
   const [styleGuideResults, setStyleGuideResults] = useState<string>('')
   const [legalRulesResults, setLegalRulesResults] = useState<string>('')
   const [plagiarismData, setPlagiarismData] = useState<PlagiarismData | null>(null)
+  const [wordCount, setWordCount] = useState(0)
+
+  useEffect(() => {
+    setWordCount(countWords(editedContent))
+  }, [editedContent])
+
   useEffect(() => {
     const fetchArticleById = async () => {
       try {
@@ -246,9 +259,9 @@ export default function ArticlesResult({ history, constellationMode = false }: A
   return (
     <div className="container mx-auto px-4 py-8">
       <Grid container spacing={3} className="mb-6">
-        {/* <Grid item xs={10}>
+        <Grid item xs={10}>
           <h3 className="text-2xl font-bold">{article?.article_title}</h3>
-        </Grid> */}
+        </Grid>
         <Grid item xs={2} className="flex justify-end">
           <Button style={{ marginRight: "3px"}} variant="outlined" onClick={handleCopy}>
             Copy Result
@@ -271,6 +284,7 @@ export default function ArticlesResult({ history, constellationMode = false }: A
 
       <Grid container spacing={3} >
         <Grid item xs={12} md={8}>
+          <Typography variant="h6">Word Count: {wordCount}</Typography>
           {editMode ? (
             <div className="mb-4" style={{ marginTop: "1rem"}}>
               <Editor
