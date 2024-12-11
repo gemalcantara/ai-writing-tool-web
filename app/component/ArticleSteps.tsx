@@ -146,7 +146,7 @@ export default function ArticleSteps( { constellationMode }: any ) {
       setOutlineResult(data.outline);
       setOutline(data.outline);
     } catch (error) {
-      console.log(`Failed to fetch article by ID: ${id}`, error);
+      console.error(`Failed to fetch article by ID: ${id}`, error);
       setError(`Error fetching article: ${error}`);
     }
   };
@@ -227,11 +227,13 @@ export default function ArticleSteps( { constellationMode }: any ) {
       .replace("{{client_guidelines}}", formData.main.clientGuideline)
       .replace("{{article_instructions}}", formData.main.instruction)
       .replace("{{keywords}}", formData.main.keywords);
-    const articleSections = formData.sections.map((section, index) => {
+
+      const articleSections = formData.sections.map((section, index) => {
       const joinedLinks = section.links.map(item => item.link).join(', ');
       return `
-      Section ${index + 1}
-      Section Title: ${section.headingLevel} ${apStyleTitleCase(section.sectionTitle)}
+      Section: ${index + 1}
+      Section Heading: ${section.headingLevel}
+      Section Title: ${apStyleTitleCase(section.sectionTitle)}
       Section Details: ${section.description}
       Section Links: ${joinedLinks}
       `;

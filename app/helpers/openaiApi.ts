@@ -122,11 +122,12 @@ async function generateArticle(formData: string, sectionData: string,constellati
   
     content = articlePromptRaw.data + articlePromptRaw.summary;
   }else{ 
-    content = formData + JSON.parse(sectionData).map((section: string) => section).join("\n");
+    content = formData + '\n Sections \n' + JSON.parse(sectionData).map((section: string) => section).join("\n");
   }
-  
-  articlePrompt = [{ role: "user", content: [{type: "text", text: content} ,{ type: "text", text: "REMINDER: All links must be incorporated; under no circumstances should you create an ‘Additional Resources’ or ‘Further Reading’ section at the end. merge all results into one article with markdown" }]} ];
-  // console.log(articlePrompt,constellationMode);
+  articlePrompt = [{
+    role: "user",
+    content: content + "\n\nREMINDER: Ensure that all the section links provided in the sections are used appropriately within the article and incorporate the section headings in section title as provided. Do not create an 'Additional Resources' or 'Further Reading' section at the end. Merge all results into one cohesive article with markdown formatting."
+  }];
 
   // return
     response = await anthropic.messages.create({
@@ -149,7 +150,7 @@ async function generateAuthorityLink(formData: any, articleSections: any,constel
     .replace('{articleInstruction}', formData.main.instruction)
     .replace('{articleOutline}', ` ${articleSections.join('\n ')}`)}`;
 
-    console.log(prompt);
+    // console.log(prompt);
 
   const perplexityKey = process.env.NEXT_PUBLIC_PERPLEXITY_AI_API_KEY;
   const options = {
@@ -225,11 +226,11 @@ async function checkForPlagiarism(text: string) {
     })
 
     const data = await response.json()
-    console.log(data);
+    // console.log(data);
     if (data.success) {
       return await data;
     } else {
-      console.log(data.error || 'An unknown error occurred')
+      console.error(data.error || 'An unknown error occurred')
     }
   } catch (err) {
     throw new Error(`Error: ${err}`)

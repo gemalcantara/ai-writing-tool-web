@@ -111,15 +111,15 @@ export default function ArticlesResult({ history, constellationMode = false }: A
         setLegalRulesResults(data.legal_rules_result || '')
         setPlagiarismData(data.plagiarism_result || null)
         // console log all set states above
-        console.log("Article:", data)
-        console.log("Article Details:", data.article_details )
-        console.log("Outline:", data.outline)
-        console.log("Edited Content:", htmlContent)
-        console.log("Fact Check Results:", data.fact_checker_result || '')
-        console.log("Style Guide Results:", data.style_guide_result || '')
-        console.log("Legal Rules Results:", data.legal_rules_result || '')
-        console.log("Plagiarism Data:", data.plagiarism_result || null)
-        console.log("Article fetched successfully")
+        // console.log("Article:", data)
+        // console.log("Article Details:", data.article_details )
+        // console.log("Outline:", data.outline)
+        // console.log("Edited Content:", htmlContent)
+        // console.log("Fact Check Results:", data.fact_checker_result || '')
+        // console.log("Style Guide Results:", data.style_guide_result || '')
+        // console.log("Legal Rules Results:", data.legal_rules_result || '')
+        // console.log("Plagiarism Data:", data.plagiarism_result || null)
+        // console.log("Article fetched successfully")
       } catch (error) {
         setError(`Error fetching article: ${error}`)
       }
@@ -246,9 +246,9 @@ export default function ArticlesResult({ history, constellationMode = false }: A
   return (
     <div className="container mx-auto px-4 py-8">
       <Grid container spacing={3} className="mb-6">
-        <Grid item xs={10}>
+        {/* <Grid item xs={10}>
           <h3 className="text-2xl font-bold">{article?.article_title}</h3>
-        </Grid>
+        </Grid> */}
         <Grid item xs={2} className="flex justify-end">
           <Button style={{ marginRight: "3px"}} variant="outlined" onClick={handleCopy}>
             Copy Result
