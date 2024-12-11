@@ -9,6 +9,8 @@ import {
   Tab,
   CircularProgress,
   Alert,
+  ButtonGroup,
+  Snackbar
 } from "@mui/material"
 import { useParams, useNavigate } from "react-router-dom";
 import { marked } from "marked"
@@ -59,7 +61,12 @@ export default function ArticleView() {
   const [editMode, setEditMode] = useState(false)
   const [editedContent, setEditedContent] = useState("")
   const [wordCount, setWordCount] = useState(0)
-
+  const [snackbarOpen, setSnackbarOpen] = useState(false)
+  const handleCopyLink = async (id: string) => {
+    const privateUrl = `${window.location.origin}/share/${id}`
+    await navigator.clipboard.writeText(privateUrl)
+    setSnackbarOpen(true)
+  }
   useEffect(() => {
     setWordCount(countWords(editedContent))
   }, [editedContent])
@@ -232,25 +239,27 @@ export default function ArticleView() {
           <h3 className="text-2xl font-bold">{article?.article_title}</h3>
         </Grid>
         <Grid item xs={3} className="flex justify-end">
-          <Button style={{ marginRight: "3px"}}
-            variant="outlined"
-            onClick={() => article?.mode === "constellation"? navigate(`/constellation/articles/create/${articleId}`): navigate(`/dashboard/articles/create/${articleId}`)}
-          >
-            Create Article
-          </Button>
-          <Button style={{ marginRight: "3px"}} variant="outlined" onClick={handleCopy}>
-            Copy Result
-          </Button>
-          {!editMode && (
-            <Button style={{ marginRight: "3px"}} variant="outlined" onClick={handleEdit}>
-              Edit
+          <ButtonGroup variant="outlined" aria-label="outlined button group">
+            <Button onClick={() => article?.mode === "constellation"? navigate(`/constellation/articles/create/${articleId}`): navigate(`/dashboard/articles/create/${articleId}`)}>
+              Create Article
             </Button>
-          )}
-          {editMode && (
-            <Button style={{ marginRight: "3px"}} variant="outlined" onClick={handleSave}>
-              Save
+            <Button onClick={handleCopy}>
+              Copy Result
             </Button>
-          )}
+            <Button onClick={() => handleCopyLink(articleId)}>
+              Copy Link
+            </Button>
+            {!editMode && (
+              <Button onClick={handleEdit}>
+                Edit
+              </Button>
+            )}
+            {editMode && (
+              <Button onClick={handleSave}>
+                Save
+              </Button>
+            )}
+          </ButtonGroup>
         </Grid>
       </Grid>
       {error && <p className="text-red-500 mb-4">{error}</p>}
@@ -361,6 +370,12 @@ export default function ArticleView() {
           </StyledPaper>
         </Grid>
       </Grid>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={() => setSnackbarOpen(false)}
+        message="Link copied to clipboard"
+      />
     </div>
   )
 }
