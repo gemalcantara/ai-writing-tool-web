@@ -321,14 +321,13 @@ export default function ArticlesForm({
             <Divider />
             <br />
             <Sections
-              inputFields={inputFields}
-              //@ts-ignore
+              inputFields={Array.isArray(inputFields) ? inputFields : []}
+              setInputFields={setInputFields}
               handleInputChange={handleInputChange}
               handleAddFields={handleAddFields}
               handleRemoveFields={handleRemoveFields}
               handleAddFieldLink={handleAddFieldLink}
               handleRemoveFieldLink={handleRemoveFieldLink}
-              setInputFields={setInputFields}
             />
             <Button
               variant="contained"

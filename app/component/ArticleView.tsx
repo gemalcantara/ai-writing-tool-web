@@ -132,7 +132,7 @@ export default function ArticleView() {
         console.error("Error copying text: ", err)
       }
     }
-  }, [article])  
+  }, [article, editedContent])  
 
   const handleEdit = useCallback(() => {
     setEditMode(true)

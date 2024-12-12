@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useEffect, useState } from 'react';
-import { TextField, Button, Grid, IconButton } from '@mui/material';
+import { TextField, Button, Grid, IconButton, Typography } from '@mui/material';
 import { Add, Close, DragIndicator } from '@mui/icons-material';
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
@@ -36,82 +36,132 @@ interface InputField {
   headingLevel: 'h2' | 'h3';
 }
 
-const Sections = ({ inputFields, setInputFields }: { inputFields: InputField[], setInputFields: React.Dispatch<React.SetStateAction<InputField[]>> }) => {
+interface SectionsProps {
+  inputFields: InputField[];
+  setInputFields: React.Dispatch<React.SetStateAction<InputField[]>>;
+  handleInputChange?: (parentIndex: number, childIndex: number | null, event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  handleAddFields?: () => void;
+  handleRemoveFields?: (index: number) => void;
+  handleAddFieldLink?: (index: number) => void;
+  handleRemoveFieldLink?: (parentIndex: number, linkIndex: number) => void;
+}
+
+const Sections = ({ 
+  inputFields = [], 
+  setInputFields,
+  handleInputChange: propHandleInputChange,
+  handleAddFields: propHandleAddFields,
+  handleRemoveFields: propHandleRemoveFields,
+  handleAddFieldLink: propHandleAddFieldLink,
+  handleRemoveFieldLink: propHandleRemoveFieldLink
+}: SectionsProps) => {
   const [expandedPanel, setExpandedPanel] = useState<number | false>(false);
-
-  useEffect(() => {
-    // Ensure all input fields have a headingLevel
-    setInputFields(prevFields => 
-      prevFields.map(field => ({
-        ...field,
-        headingLevel: field.headingLevel || 'h2'
-      }))
-    );
-  }, []);
-
-  const handleAddFields = () => {
-    setInputFields([...inputFields, { sectionTitle: '', description: '', links: [{link: ''}], headingLevel: 'h2' }]);
-  };
   
-  const handleRemoveFields = (index: number) => {
-    const values = [...inputFields];
-    values.splice(index, 1);
-    setInputFields(values);
+  // Ensure inputFields is always an array
+  const safeInputFields = Array.isArray(inputFields) ? inputFields : [];
+  
+  const handleAddFieldsInternal = () => {
+    if (propHandleAddFields) {
+      propHandleAddFields();
+      return;
+    }
+    
+    const newField: InputField = {
+      sectionTitle: '',
+      description: '',
+      links: [{link: ''}],
+      headingLevel: 'h2'
+    };
+    
+    const currentFields = Array.isArray(inputFields) ? inputFields : [];
+    setInputFields([...currentFields, newField]);
   };
 
-  const handleInputChange = (
+  const handleInputChangeInternal = (
     parentIndex: number,
     childIndex: number | null,
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
+    if (propHandleInputChange) {
+      propHandleInputChange(parentIndex, childIndex, event);
+      return;
+    }
+    
     const { name, value } = event.target;
-  
-    setInputFields((prevFields) =>
-      prevFields.map((field, i) => {
-        if (i === parentIndex) {
-          if (childIndex === null) {
-            return { ...field, [name]: value };
-          } else {
-            const updatedLinks = field.links.map((link, j) =>
-              j === childIndex ? { ...link, [name]: value } : link
-            );
-            return { ...field, links: updatedLinks };
-          }
+    const currentFields = Array.isArray(inputFields) ? inputFields : [];
+    
+    const newFields = currentFields.map((field, i) => {
+      if (i === parentIndex) {
+        if (childIndex === null) {
+          return { ...field, [name]: value };
+        } else {
+          const updatedLinks = field.links.map((link, j) =>
+            j === childIndex ? { ...link, [name]: value } : link
+          );
+          return { ...field, links: updatedLinks };
         }
-        return field;
-      })
-    );
+      }
+      return field;
+    });
+    
+    setInputFields(newFields);
   };
 
-  const handleAddFieldLink = (index: number) => {
-    setInputFields((prevFields) =>
-      prevFields.map((field, i) =>
+  const handleRemoveFieldsInternal = (index: number) => {
+    if (propHandleRemoveFields) {
+      propHandleRemoveFields(index);
+    } else {
+      const currentFields = Array.isArray(inputFields) ? inputFields : [];
+      const values = [...currentFields];
+      values.splice(index, 1);
+      setInputFields(values);
+    }
+  };
+
+  const handleAddFieldLinkInternal = (index: number) => {
+    if (propHandleAddFieldLink) {
+      propHandleAddFieldLink(index);
+    } else {
+      const currentFields = Array.isArray(inputFields) ? inputFields : [];
+      const newFields = currentFields.map((field, i) =>
         i === index
           ? { ...field, links: [...field.links, { link: '' }] }
           : field
-      )
-    );
+      );
+      setInputFields(newFields);
+    }
   };
 
-  const handleRemoveFieldLink = (parentIndex: number, linkIndex: number) => {
-    setInputFields((prevFields) =>
-      prevFields.map((field, i) =>
+  const handleRemoveFieldLinkInternal = (parentIndex: number, linkIndex: number) => {
+    if (propHandleRemoveFieldLink) {
+      propHandleRemoveFieldLink(parentIndex, linkIndex);
+    } else {
+      const currentFields = Array.isArray(inputFields) ? inputFields : [];
+      const newFields = currentFields.map((field, i) =>
         i === parentIndex
           ? { ...field, links: field.links.filter((_, j) => j !== linkIndex) }
           : field
-      )
-    );
+      );
+      setInputFields(newFields);
+    }
   };
 
   const toggleHeadingLevel = (e: React.MouseEvent, index: number) => {
+    e.preventDefault();
     e.stopPropagation();
-    setInputFields(prevFields => 
-      prevFields.map((field, i) => 
-        i === index
-          ? { ...field, headingLevel: field.headingLevel === 'h2' ? 'h3' : 'h2' }
-          : field
-      )
-    );
+    
+    try {
+      const currentFields = Array.isArray(inputFields) ? [...inputFields] : [];
+      if (currentFields[index]) {
+        currentFields[index] = {
+          ...currentFields[index],
+          headingLevel: currentFields[index].headingLevel === 'h2' ? 'h3' : 'h2'
+        };
+        setInputFields(currentFields);
+      }
+    } catch (error) {
+      console.error('Error toggling heading level:', error);
+    }
   };
 
   const handleAccordionChange = (panel: number) => (event: React.SyntheticEvent, isExpanded: boolean) => {
@@ -131,7 +181,8 @@ const Sections = ({ inputFields, setInputFields }: { inputFields: InputField[], 
       return;
     }
 
-    const items = Array.from(inputFields);
+    const currentFields = Array.isArray(inputFields) ? inputFields : [];
+    const items = Array.from(currentFields);
     const [reorderedItem] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reorderedItem);
 
@@ -143,7 +194,7 @@ const Sections = ({ inputFields, setInputFields }: { inputFields: InputField[], 
       <StrictModeDroppable droppableId="sections">  
         {(provided) => (
           <div {...provided.droppableProps} ref={provided.innerRef}>
-            {inputFields.map((inputField, index) => (
+            {safeInputFields.map((inputField, index) => (
               <Draggable key={index} draggableId={`section-${index}`} index={index}>
                 {(provided, snapshot) => (
                   <div
@@ -173,7 +224,12 @@ const Sections = ({ inputFields, setInputFields }: { inputFields: InputField[], 
                         <div {...provided.dragHandleProps} style={{ cursor: 'move', marginRight: '8px' }}>
                           <DragIndicator />
                         </div>
-                        <Button variant="text" size='large' onClick={(e) => toggleHeadingLevel(e, index)}>
+                        <Button 
+                          variant="text" 
+                          size='large' 
+                          onClick={(e) => toggleHeadingLevel(e, index)}
+                          sx={{ minWidth: 'auto', mr: 1 }}
+                        >
                           {inputField.headingLevel}
                         </Button>
                         {inputField.headingLevel === 'h2' ? (
@@ -191,7 +247,7 @@ const Sections = ({ inputFields, setInputFields }: { inputFields: InputField[], 
                               variant="outlined"
                               fullWidth
                               value={apStyleTitleCase(inputField.sectionTitle)}
-                              onChange={(event) => handleInputChange(index, null, event)}
+                              onChange={(event) => handleInputChangeInternal(index, null, event)}
                             />
                           </Grid>
                           <Grid item xs={12}>
@@ -203,7 +259,7 @@ const Sections = ({ inputFields, setInputFields }: { inputFields: InputField[], 
                               fullWidth
                               rows={5}
                               value={inputField.description}
-                              onChange={(event) => handleInputChange(index, null, event)}
+                              onChange={(event) => handleInputChangeInternal(index, null, event)}
                             />
                           </Grid>
                           {inputField.links.map((link, linkIndex) => (
@@ -216,11 +272,11 @@ const Sections = ({ inputFields, setInputFields }: { inputFields: InputField[], 
                                     variant="outlined"
                                     fullWidth
                                     value={link.link}
-                                    onChange={(event) => handleInputChange(index, linkIndex, event)}
+                                    onChange={(event) => handleInputChangeInternal(index, linkIndex, event)}
                                   />
                                 </Grid>
                                 <Grid item xs={1} alignItems="stretch" style={{ display: "flex" }}>
-                                  <IconButton aria-label="delete" onClick={() => handleRemoveFieldLink(index, linkIndex)} size="large" color="error">
+                                  <IconButton aria-label="delete" onClick={() => handleRemoveFieldLinkInternal(index, linkIndex)} size="large" color="error">
                                     <Close fontSize="inherit" />
                                   </IconButton>
                                 </Grid>
@@ -231,7 +287,7 @@ const Sections = ({ inputFields, setInputFields }: { inputFields: InputField[], 
                             <Button
                               variant="outlined"
                               color="primary"
-                              onClick={() => handleAddFieldLink(index)}
+                              onClick={() => handleAddFieldLinkInternal(index)}
                               endIcon={<Add />}
                             >
                               Add Link
@@ -242,7 +298,7 @@ const Sections = ({ inputFields, setInputFields }: { inputFields: InputField[], 
                               variant="outlined"
                               color="secondary"
                               style={{ float: 'right', marginBottom: '16px' }}
-                              onClick={() => handleRemoveFields(index)}
+                              onClick={() => handleRemoveFieldsInternal(index)}
                             >
                               Remove
                             </Button>
@@ -261,7 +317,7 @@ const Sections = ({ inputFields, setInputFields }: { inputFields: InputField[], 
       <Button
         variant="outlined"
         color="warning"
-        onClick={handleAddFields}
+        onClick={handleAddFieldsInternal}
         style={{ marginTop: '16px' }}
         fullWidth
       >

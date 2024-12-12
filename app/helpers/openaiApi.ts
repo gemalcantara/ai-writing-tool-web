@@ -45,6 +45,12 @@ async function getPrompt(type: 'authority' | 'outline' | 'article', mode?: strin
     return siteOption; // This will always return a valid object if no error
   }
 
+const isOverloadedError = (error: any) => {
+  return error?.type === 'error' && 
+         error?.error?.type === 'overloaded_error' && 
+         error?.error?.message === 'Overloaded';
+};
+
 async function generateOutline(
   keywords: string,
   articleDescription: string,
@@ -71,10 +77,11 @@ async function generateOutline(
  
         {
           \"title\": \"\",
-          \"meta_description\": \"\",
+          \"metaDescription\": \"required to have a value\",
           \"slug\": \"\",
           \"sections\": [
             {
+             \"headingLevel\": \"h2 - fixed value\"
               \"sectionTitle\": \"main section title\",
               \"description\": \"concatenate all subsections\",
               \"links\": [
@@ -102,8 +109,15 @@ async function generateOutline(
       messages: messages,
     });
 
+    if (isOverloadedError(response)) {
+      throw new Error('The AI service is currently overloaded. Please try again in a few minutes.');
+    }
+
     return response.content[0]?.text || '';
   } catch (error) {
+    if (isOverloadedError(error)) {
+      throw new Error('The AI service is currently overloaded. Please try again in a few minutes.');
+    }
     console.error('Error generating article outline:', error);
     throw error;
   }
@@ -130,6 +144,7 @@ async function generateArticle(formData: string, sectionData: string,constellati
   }];
 
   // return
+  try {
     response = await anthropic.messages.create({
       // model: "claude-3-opus-20240229",
       model: "claude-3-5-sonnet-20241022",
@@ -138,19 +153,30 @@ async function generateArticle(formData: string, sectionData: string,constellati
     // @ts-ignore
       messages: articlePrompt,
     });
+
+    if (isOverloadedError(response)) {
+      throw new Error('The AI service is currently overloaded. Please try again in a few minutes.');
+    }
+
     return response.content[0].text || '';
+  } catch (error) {
+    if (isOverloadedError(error)) {
+      throw new Error('The AI service is currently overloaded. Please try again in a few minutes.');
+    }
+    throw error;
+  }
 }
 
 async function generateAuthorityLink(formData: any, articleSections: any,constellationMode: string) {
+
   const authorityPrompt = await getPrompt('authority',constellationMode)
   if (typeof authorityPrompt === 'string' || !authorityPrompt.data) {
     throw new Error('Outline prompt data is unavailable or invalid.');
   }
   const prompt = `${authorityPrompt.summary} ${authorityPrompt.data
     .replace('{articleInstruction}', formData.main.instruction)
-    .replace('{articleOutline}', ` ${articleSections.join('\n ')}`)}`;
+    .replace('{articleOutline}', ` ${articleSections}`)}`;
 
-    // console.log(prompt);
 
   const perplexityKey = process.env.NEXT_PUBLIC_PERPLEXITY_AI_API_KEY;
   const options = {
@@ -185,7 +211,7 @@ async function generateAuthorityLink(formData: any, articleSections: any,constel
 async function generateInternalLink(formData: any, articleSections: any) {
   const prompt = `
   #### Article Outline:
-  ${articleSections.join('\n ')}`;
+  ${articleSections}`;
   const payload: RequestPayload = {
     messages: [
       {
