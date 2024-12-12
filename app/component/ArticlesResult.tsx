@@ -5,39 +5,36 @@ import {
   Button,
   Grid,
   Typography,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-  TextField,
-  Paper,
-  Box,
-  styled,
-  Tabs,
-  Tab,
-  CircularProgress,
-  Alert,
-  List,
-  ListItem,
-  ListItemText,
-  Link,
   ButtonGroup,
-  Snackbar
+  Snackbar,
+  Alert,
+  CircularProgress,
+  Box,
+  Tab,
 } from "@mui/material"
-import { useParams, useNavigate } from "react-router-dom";
-import { marked } from "marked"
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
 import { CheckCircle, BookOpen, Scale, Search } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import OpenAI from 'openai'
 import { Article, ArticleDetails, PlagiarismData } from '../types/article'
-import { updateArticleInMongoDB, renderLinksWithTargetBlank, createAssistantMessage } from '../helpers/articleUtils'
-import { checkForPlagiarism } from "../helpers/openaiApi";
-import {  StyledPaper, 
-  ArticleOutline, 
+import { 
+  updateArticleInMongoDB, 
+  renderLinksWithTargetBlank, 
+  createAssistantMessage 
+} from '../helpers/articleUtils'
+import { checkForPlagiarism } from "../helpers/openaiApi"
+import {
+  StyledPaper,
+  ArticleOutline,
   ArticleDetails as ArticleDetailsComponent,
   PlagiarismResults,
-  EditorTool  } from "../components/shared/ArticleComponents";
-import { DetailsContainer, EditorToolsContainer, LinksContainer, ScrollableTabs } from "../components/shared/ArticleComponents";
+  EditorTool,
+  DetailsContainer,
+  EditorToolsContainer,
+  LinksContainer,
+  ScrollableTabs
+} from "../components/shared/ArticleComponents"
+import { marked } from "marked"
+import { useParams } from 'react-router-dom';
 
 const Editor = dynamic(() => import('../helpers/Editor'), {
   ssr: false,
@@ -49,117 +46,107 @@ const openai = new OpenAI({
   dangerouslyAllowBrowser: true
 })
 
-interface ArticlesResultProps {
-  history?: any;
-  constellationMode?: boolean;
-}
 const countWords = (text: string): number => {
-  // Normalize the text to remove non-printable characters
-  const normalizedText = text.normalize('NFKC');
+  return text.normalize('NFKC').trim().split(/\s+/).length;
+}
 
-  // Trim the text and split by whitespace, then return the length of the resulting array
-  return normalizedText.trim().split(/\s+/).length;
-};
-
-export default function ArticlesResult({ history, constellationMode = false }: ArticlesResultProps) {
-  const [editedContent, setEditedContent] = useState('');
-  const [article, setArticle] = useState<Article | null>(null)
+ interface ArticlesResultProps {  
+  article: any;
+  setArticle:  React.Dispatch<React.SetStateAction<Article | null>>;
+}
+export default function ArticlesResult({ article,setArticle }: ArticlesResultProps) {
+  const [articleState, setArticleState] = useState<Article | null>(null)
+  const [editedContent, setEditedContent] = useState('')
   const [error, setError] = useState<string | null>(null)
-  const [outline, setOutline] = useState<any>()
+  const [outline, setOutline] = useState<any>(null)
   const [articleDetails, setArticleDetails] = useState<ArticleDetails>({
     client: '',
     keyword: '',
     meta: '',
     slug: ''
   })
-  const articleId = history.id as string
-  const navigate = useNavigate()
   const [editMode, setEditMode] = useState(false)
   const [activeTab, setActiveTab] = useState(0)
-  const [showResults, setShowResults] = useState(true)
   const [loading, setLoading] = useState(false)
-  const [factCheckResults, setFactCheckResults] = useState<string>('')
-  const [styleGuideResults, setStyleGuideResults] = useState<string>('')
-  const [legalRulesResults, setLegalRulesResults] = useState<string>('')
+  const [factCheckResults, setFactCheckResults] = useState('')
+  const [styleGuideResults, setStyleGuideResults] = useState('')
+  const [legalRulesResults, setLegalRulesResults] = useState('')
   const [plagiarismData, setPlagiarismData] = useState<PlagiarismData | null>(null)
   const [wordCount, setWordCount] = useState(0)
   const [snackbarOpen, setSnackbarOpen] = useState(false)
-  const handleCopyLink = async (id: string) => {
-    const privateUrl = `${window.location.origin}/share/${id}`
-    await navigator.clipboard.writeText(privateUrl)
-    setSnackbarOpen(true)
-  }
+  const [showResults, setShowResults] = useState(true)
+
+  const params = useParams();
+  const articleId = params?.articleId || article?._id;
+
+  // Effect for word count
   useEffect(() => {
     setWordCount(countWords(editedContent))
   }, [editedContent])
 
+  // Effect for fetching article
   useEffect(() => {
     const fetchArticleById = async () => {
+      if (!articleId) return
+
       try {
-        const endpoint = constellationMode 
-          ? `/api/constellation/articles/${articleId}`
-          : `/api/articles/${articleId}`;
+        const endpoint =  `/api/articles/${articleId}`;
           
         const response = await fetch(endpoint)
-        if (!response.ok) {
-          throw new Error('Failed to fetch article')
-        }
+        if (!response.ok) throw new Error('Failed to fetch article')
+        
         const data = await response.json()
-        setArticle(data)
+        setArticleState(data)
+        setArticle(data) // Update parent state
+        // Handle article details
         if (data.article_details) {
           setArticleDetails(data.article_details)
         } else if (data.outline_input_data) {
-          const articleData = data.outline_input_data
-          const outlineData = data.outline
           const newArticleDetails = {
-            client: articleData.inputFieldStaticOutline?.clientName || "",
-            keyword: articleData.linkFields?.keywords.map((item: { value: string }) => item.value).join(", ") || "",
-            meta: outlineData.meta_description,
-            slug: outlineData.slug,
+            client: data.outline_input_data.inputFieldStaticOutline?.clientName || "",
+            keyword: data.outline_input_data.linkFields?.keywords
+              .map((item: { value: string }) => item.value).join(", ") || "",
+            meta: data.outline.meta_description,
+            slug: data.outline.slug,
           }
           setArticleDetails(newArticleDetails)
-          // Update MongoDB with the new article details
           await updateArticleInMongoDB(articleId, { article_details: newArticleDetails })
         }
         setOutline(data.outline)
-        const htmlContent = await marked(data.article_output, {
-          async: true
-        })
+        const htmlContent = await marked(data.article_output)
         setEditedContent(htmlContent)
-        setFactCheckResults(data.fact_checker_result || '')
-        setStyleGuideResults(data.style_guide_result || '')
-        setLegalRulesResults(data.legal_rules_result || '')
+        // Set other results
+        setFactCheckResults(data.factcheck_result || '')
+        setStyleGuideResults(data.styleguide_result || '')
+        setLegalRulesResults(data.legalrules_result || '')
         setPlagiarismData(data.plagiarism_result || null)
-        // console log all set states above
-        // console.log("Article:", data)
-        // console.log("Article Details:", data.article_details )
-        // console.log("Outline:", data.outline)
-        // console.log("Edited Content:", htmlContent)
-        // console.log("Fact Check Results:", data.fact_checker_result || '')
-        // console.log("Style Guide Results:", data.style_guide_result || '')
-        // console.log("Legal Rules Results:", data.legal_rules_result || '')
-        // console.log("Plagiarism Data:", data.plagiarism_result || null)
-        // console.log("Article fetched successfully")
       } catch (error) {
-        setError(`Error fetching article: ${error}`)
+        setError(`Error fetching article: ${error instanceof Error ? error.message : String(error)}`)
       }
     }
 
-    if (history?.id) {
-      fetchArticleById()
-    }
-  }, [articleId, constellationMode])
+    fetchArticleById()
+  }, [articleId])
 
   const handleCopy = async () => {
-
     try {
-      // Copy styled content (HTML) to the clipboard
       await navigator.clipboard.writeText(editedContent)
-      alert('Result copied.');
+      alert('Result copied.')
     } catch (err) {
-      console.error('Error copying text: ', err);
+      console.error('Error copying text: ', err)
     }
-  };
+  }
+
+  const handleCopyLink = useCallback(async (id: string) => {
+    try {
+      const privateUrl = `${window.location.origin}/share/${id}`
+      await navigator.clipboard.writeText(privateUrl)
+      setSnackbarOpen(true)
+    } catch (error) {
+      console.error('Error copying link:', error)
+      setError('Failed to copy link to clipboard')
+    }
+  }, [])
 
   const handleEdit = useCallback(() => {
     setEditMode(true)
@@ -167,29 +154,30 @@ export default function ArticlesResult({ history, constellationMode = false }: A
 
   const handleSave = useCallback(async () => {
     try {
-      const endpoint = constellationMode
-        ? `/api/constellation/articles/${articleId}`
-        : `/api/articles/${articleId}`;
-
       await updateArticleInMongoDB(articleId, { 
         article_output: editedContent,
         article_details: articleDetails
       })
 
       setEditMode(false)
-      setArticle((prev) =>
-        prev ? { ...prev, article_output: editedContent, article_details: articleDetails } : null
-      )
+      const updatedArticle = articleState ? {
+        ...articleState,
+        article_output: editedContent,
+        article_details: articleDetails
+      } : null
+      
+      setArticleState(updatedArticle)
+      setArticle(updatedArticle)
     } catch (error) {
       console.error("Error saving changes:", error)
       alert("Failed to save changes. Please try again.")
     }
-  }, [articleId, editedContent, articleDetails, constellationMode])
+  }, [articleId, editedContent, articleDetails, articleState])
 
   const handleTabChange = useCallback((event: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue)
+    setShowResults(true) // Ensure results are visible when changing tabs
   }, [])
-
 
   const handleFactCheck = useCallback(async () => {
     const assistantId = "asst_vQQJIXDjR7IZ801n9zxanYER"
@@ -263,11 +251,12 @@ export default function ArticlesResult({ history, constellationMode = false }: A
   const handleArticleDetailsChange = useCallback((field: keyof ArticleDetails, value: string) => {
     setArticleDetails(prev => ({ ...prev, [field]: value }))
   }, [])
+
   return (
     <div className="container mx-auto px-4 py-8">
       <Grid container spacing={3} className="mb-6">
         <Grid item xs={10}>
-          <h3 className="text-2xl font-bold">{article?.article_title}</h3>
+          <h3 className="text-2xl font-bold">{articleState?.article_title}</h3>
         </Grid>
         <Grid item xs={2} className="flex justify-end">
           <ButtonGroup variant="outlined" aria-label="outlined button group">

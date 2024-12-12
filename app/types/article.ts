@@ -26,12 +26,9 @@ export interface OutlineInputData {
 }
 
 export interface InputFieldStaticOutline {
-  keywords: string;
   articleDescription: string;
   selectedClient: string;
-  internalLinks: string;
   authorityLinks: string;
-  competitorLinks: string;
   selectedPage: string;
   clientName: string;
   pageName: string;
@@ -93,23 +90,17 @@ export interface ArticleState {
   inputFields: SectionField[];
   outlineInputData?: OutlineInputData;
   inputFieldStaticOutline: {
-    keywords: string;
     articleDescription: string;
     selectedClient: string;
-    internalLinks: string;
-    authorityLinks: string;
-    competitorLinks: string;
     selectedPage: string;
     clientName: string;
     pageName: string;
-    articlePrompt: string;
     clientGuideline: string;
   };
   inputFieldStaticArticle: {
     instruction: string;
     articlePrompt: string;
     clientGuideline: string;
-    articleGuideline: string;
     selectedClient: string;
     clientName: string;
     pageName: string;
@@ -138,6 +129,7 @@ export interface SetArticleState {
   setInputFieldStaticArticle: (value: any) => void;
   setLinkFields: (value: any) => void;
   setInputFields: (value: any) => void;
+  setArticle: (value: any) => void;
   setOutline: (value: string) => void;
   setOutlineMetaData: (value: any) => void;
   setPageTitle: (value: string) => void;

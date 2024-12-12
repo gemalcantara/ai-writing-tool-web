@@ -108,9 +108,9 @@ export default function ArticleView() {
           async: true
         })
         setEditedContent(htmlContent)
-        setFactCheckResults(data.fact_checker_result || '')
-        setStyleGuideResults(data.style_guide_result || '')
-        setLegalRulesResults(data.legal_rules_result || '')
+        setFactCheckResults(data.factcheck_result || '')
+        setStyleGuideResults(data.styleguide_result || '')
+        setLegalRulesResults(data.legalrules_result || '')
         setPlagiarismData(data.plagiarism_result || null)
       } catch (error) {
         setError(`Error fetching article: ${error}`)

@@ -37,31 +37,20 @@ const DynamicFieldsComponent = ({linkFields, setLinkFields}:any) => {
     <Grid container spacing={2}>
       {/* Keywords Field */}
       <Grid item xs={12}>
-        <h3>Keywords</h3>
+        <h3>Keyword</h3>
         {linkFields.keywords.map((field: any, index: any) => (
           <Grid key={`${field.id}-${index}`} container spacing={2} sx={{marginBottom: '1rem'}} alignItems="center">
             <Grid item xs={11}>
               <TextField
                 fullWidth
-                label={`Keyword ${index + 1}`}
+                label={`Keyword`}
                 value={field.value}
                 variant="outlined"
                 onChange={(e) => handleInputChange('keywords', index, e)}
               />
             </Grid>
-            <Grid item xs={1}>
-            <IconButton aria-label="delete" onClick={() => handleRemoveField('keywords', index)} size="large" color="error">
-                  <Close fontSize="inherit" />
-                </IconButton>
-            </Grid>
           </Grid>
         ))}
-        <Button 
-              variant="outlined"
-              endIcon={<Add />}
-              color="primary" onClick={() => handleAddField('keywords')}>
-          Add Keyword
-        </Button>
       </Grid>
 
       {/* Competitor Links Field */}

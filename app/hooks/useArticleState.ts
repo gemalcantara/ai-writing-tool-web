@@ -16,23 +16,17 @@ const initialState: ArticleState = {
     headingLevel: 'h2' | 'h3';
   }>,
   inputFieldStaticOutline: {
-    keywords: '',
     articleDescription: '',
     selectedClient: '',
-    internalLinks: '',
-    authorityLinks: '',
-    competitorLinks: '',
     selectedPage: '',
     clientName: '',
     pageName: '',
-    articlePrompt: '',
     clientGuideline: ''
   },
   inputFieldStaticArticle: {
     instruction: '',
     articlePrompt: '',
     clientGuideline: '',
-    articleGuideline: '',
     selectedClient: '',
     clientName: '',
     pageName: '',
@@ -98,6 +92,8 @@ export const useArticleState = (articleId?: string | null) => {
   }, [articleId]);
 
   const setters: SetArticleState = {
+    setArticle: (value) =>
+      setState(prev => ({ ...prev, article: value })),
     setInputFieldStaticOutline: (value) => 
       setState(prev => ({ ...prev, inputFieldStaticOutline: value })),
     setInputFieldStaticArticle: (value) =>

@@ -3,6 +3,7 @@ import { ArticleState, SetArticleState } from '../types/article';
 import { handleParseJson } from '../services/article';
 import { marked } from 'marked';
 import { generateAndSaveArticle } from '../services/article';
+import { fetchArticleById } from '../types';
 
 export const useArticleActions = (
   state: ArticleState,
@@ -11,7 +12,7 @@ export const useArticleActions = (
 ) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const internalKeywords = state.linkFields.keywords.map(link => link.value.trim()).join(', ');
+    const internalKeywords = state.linkFields.keywords.map(keyword => keyword.value).join(", ");
     const competitorLinksArray = state.linkFields.competitorLinks.map(link => link.value.trim()).join(", ");
 
     try {
@@ -33,6 +34,13 @@ export const useArticleActions = (
         title: parsedOutline.title,
         meta_description: parsedOutline.metaDescription,
         slug: parsedOutline.slug
+      });
+      setState.setInputFieldStaticArticle({
+        selectedClient: state.inputFieldStaticOutline.selectedClient,
+        selectedPage: state.inputFieldStaticOutline.selectedPage,
+        pageTitle: parsedOutline.title,
+        instruction: state.inputFieldStaticOutline.articleDescription,
+        keywords: internalKeywords
       });
       setState.setInputFields(parsedOutline.sections || []);
       setState.setPageTitle(parsedOutline.title);
@@ -57,7 +65,8 @@ export const useArticleActions = (
         state,
         constellationMode
       );
-      
+      const fetchedArticle = await fetchArticleById(historyData.id);
+      setState.setArticle(fetchedArticle);
       setState.setHistory(historyData);
       return true;
     } catch (error: any) {

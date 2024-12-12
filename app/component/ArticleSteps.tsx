@@ -61,7 +61,7 @@ export default function ArticleSteps({ constellationMode }: ArticleStepsProps) {
       handleStepComplete(1);
     }
   };
-
+  console.log(state);
   return (
     <div>
       {isLoading ? (
@@ -139,7 +139,8 @@ export default function ArticleSteps({ constellationMode }: ArticleStepsProps) {
 
             {activeStep === 2 && (
               <ArticlesResult
-                history={state.history}
+              article={state.article}
+              setArticle={setState.setArticle}
               />
             )}
           </>
