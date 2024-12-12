@@ -1,6 +1,7 @@
 "use client"
 import {
   MemoryRouter as Router,
+  // HashRouter as Router,
   Routes,
   Route,
 } from 'react-router-dom';
@@ -49,7 +50,7 @@ export default function App() {
           <Route path="clients" element={ <Client /> } />
           <Route path="clients/create" element={ <ClientsForm /> } />
           <Route path="clients/view/:clientId" element={ <Client /> } />
-          <Route path="articles" element={< ArticlesResult /> } />
+          {/* <Route path="articles" element={< ArticlesResult /> } /> */}
           <Route path="articles/create" element={< ArticleSteps /> } />
           <Route index element={< ArticleSteps /> } />
           <Route path="articles/create/:articleId" element={< ArticleSteps /> } />
