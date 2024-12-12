@@ -53,7 +53,8 @@ export default function ArticleView() {
     client: '',
     keyword: '',
     meta: '',
-    slug: ''
+    slug: '',
+    articleTitle: ''
   })
   const params = useParams()
   const articleId = params.articleId as string
@@ -88,16 +89,20 @@ export default function ArticleView() {
         }
         const data = await response.json()
         setArticle(data)
+        const articleData = data.outline_input_data
+        const outlineData = data.outline
         if (data.article_details) {
-          setArticleDetails(data.article_details)
+            setArticleDetails({
+            ...data.article_details,
+            articleTitle: data.article_details.articleTitle || outlineData.title
+            })
         } else if (data.outline_input_data) {
-          const articleData = data.outline_input_data
-          const outlineData = data.outline
           const newArticleDetails = {
             client: articleData.inputFieldStaticOutline?.clientName || "",
             keyword: articleData.linkFields?.keywords.map((item: { value: string }) => item.value).join(", ") || "",
             meta: outlineData.meta_description,
             slug: outlineData.slug,
+            articleTitle: outlineData.title
           }
           setArticleDetails(newArticleDetails)
           // Update MongoDB with the new article details
@@ -231,12 +236,12 @@ export default function ArticleView() {
   const handleArticleDetailsChange = useCallback((field: keyof ArticleDetails, value: string) => {
     setArticleDetails(prev => ({ ...prev, [field]: value }))
   }, [])
-
+  console.log(articleDetails)
   return (
     <div className="container mx-auto px-4 py-8">
       <Grid container spacing={3} className="mb-6">
         <Grid item xs={9}>
-          <h3 className="text-2xl font-bold">{article?.article_title}</h3>
+          <h3 className="text-2xl font-bold">{articleDetails?.articleTitle}</h3>
         </Grid>
         <Grid item xs={3} className="flex justify-end">
           <ButtonGroup variant="outlined" aria-label="outlined button group">
@@ -288,7 +293,7 @@ export default function ArticleView() {
         <Grid item xs={12} md={4} >
           <StyledPaper elevation={3} style={{ marginTop: "1rem"}}>
             <Box>
-              <ArticleDetailsComponent articleDetails={articleDetails} handleArticleDetailsChange={handleArticleDetailsChange} />
+              <ArticleDetailsComponent editMode={editMode} articleDetails={articleDetails} handleArticleDetailsChange={handleArticleDetailsChange} />
             </Box>
 
             <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2, textAlign: 'center' }}>

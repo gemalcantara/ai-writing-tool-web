@@ -63,7 +63,8 @@ export default function ArticlesResult({ article,setArticle }: ArticlesResultPro
     client: '',
     keyword: '',
     meta: '',
-    slug: ''
+    slug: '',
+    articleTitle: ''
   })
   const [editMode, setEditMode] = useState(false)
   const [activeTab, setActiveTab] = useState(0)
@@ -100,7 +101,12 @@ export default function ArticlesResult({ article,setArticle }: ArticlesResultPro
         setArticle(data) // Update parent state
         // Handle article details
         if (data.article_details) {
-          setArticleDetails(data.article_details)
+            
+          setArticleDetails({
+            ...data.article_details,
+            articleTitle: data.article_details.articleTitle ||data.outline.title
+            })
+          
         } else if (data.outline_input_data) {
           const newArticleDetails = {
             client: data.outline_input_data.inputFieldStaticOutline?.clientName || "",
@@ -108,6 +114,7 @@ export default function ArticlesResult({ article,setArticle }: ArticlesResultPro
               .map((item: { value: string }) => item.value).join(", ") || "",
             meta: data.outline.meta_description,
             slug: data.outline.slug,
+            articleTitle: data.outline.title
           }
           setArticleDetails(newArticleDetails)
           await updateArticleInMongoDB(articleId, { article_details: newArticleDetails })
@@ -256,7 +263,7 @@ export default function ArticlesResult({ article,setArticle }: ArticlesResultPro
     <div className="container mx-auto px-4 py-8">
       <Grid container spacing={3} className="mb-6">
         <Grid item xs={10}>
-          <h3 className="text-2xl font-bold">{articleState?.article_title}</h3>
+          <h3 className="text-2xl font-bold">{articleDetails?.articleTitle}</h3>
         </Grid>
         <Grid item xs={2} className="flex justify-end">
           <ButtonGroup variant="outlined" aria-label="outlined button group">
@@ -305,7 +312,7 @@ export default function ArticlesResult({ article,setArticle }: ArticlesResultPro
         <Grid item xs={12} md={4} >
           <StyledPaper elevation={3} style={{ marginTop: "1rem"}}>
             <DetailsContainer>
-              <ArticleDetailsComponent articleDetails={articleDetails} handleArticleDetailsChange={handleArticleDetailsChange} />
+              <ArticleDetailsComponent editMode={editMode} articleDetails={articleDetails} handleArticleDetailsChange={handleArticleDetailsChange} />
             </DetailsContainer>
 
             <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2, textAlign: 'center' }}>

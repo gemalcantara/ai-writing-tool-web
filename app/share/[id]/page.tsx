@@ -13,7 +13,8 @@ interface ArticlePageProps {
   client: string,
   keyword: string,
   meta_description: string,
-  slug: string
+  slug: string,
+  articleTitle: string
 }
 export default function SharedArticlePage() {
   const [article, setArticle] = useState<any>(null)
@@ -24,7 +25,8 @@ export default function SharedArticlePage() {
     client: '',
     keyword: '',
     meta_description: '',
-    slug: ''
+    slug: '',
+    articleTitle: ''
   })
   const params = useParams()
 
@@ -64,7 +66,8 @@ export default function SharedArticlePage() {
           client: data.article_details.client || '',
           keyword: data.article_details.keyword || '',
           meta_description: data.outline.meta_description || '',
-          slug:  data.outline.slug || ''
+          slug:  data.outline.slug || '',
+          articleTitle: data.article_details.articleTitle || ''
         })
       } catch (err) {
         console.error(err);
@@ -134,6 +137,9 @@ export default function SharedArticlePage() {
         <strong>Slug:</strong> {articleDetails.slug}
       </Typography>
       <Divider sx={{ my: 3, borderWidth: '1px' }} />
+      <Typography variant="h3" gutterBottom>
+        {articleDetails.articleTitle}
+      </Typography>
       <div className="result result-content" dangerouslySetInnerHTML={{ __html: renderLinksWithTargetBlank(article)}}></div>
     </div>
   )

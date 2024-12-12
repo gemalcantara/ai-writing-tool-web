@@ -31,7 +31,7 @@ export const useArticleActions = (
 
       setState.setOutline(generatedOutline);
       setState.setOutlineMetaData({
-        title: parsedOutline.title,
+        articleTitle: parsedOutline.title,
         meta_description: parsedOutline.metaDescription,
         slug: parsedOutline.slug
       });

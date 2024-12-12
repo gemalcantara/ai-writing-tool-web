@@ -121,7 +121,7 @@ export const ArticleOutline = ({ outline }: { outline: any }) => (
   </Accordion>
 )
 
-export const ArticleDetails = ({ articleDetails, handleArticleDetailsChange }: { articleDetails: ArticleDetailsComponent, handleArticleDetailsChange: any }) => (
+export const ArticleDetails = ({editMode, articleDetails, handleArticleDetailsChange }: {editMode: boolean ,articleDetails: ArticleDetailsComponent, handleArticleDetailsChange: any }) => (
   <Accordion className="mb-6" style={{ marginTop: "1rem"}}>
     <AccordionSummary expandIcon={<ExpandMoreIcon />}>
       <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2 }}>
@@ -130,12 +130,22 @@ export const ArticleDetails = ({ articleDetails, handleArticleDetailsChange }: {
     </AccordionSummary>
     <AccordionDetails>
       <Grid container spacing={2}>
+      <Grid item xs={12}>
+          <TextField
+            fullWidth
+            label="Article Title"
+            value={articleDetails.articleTitle}
+            onChange={(e) => handleArticleDetailsChange('articleTitle', e.target.value)}
+            InputProps={{ readOnly: !editMode }}
+          />
+        </Grid>
         <Grid item xs={12}>
           <TextField
             fullWidth
             label="Client"
             value={articleDetails.client}
             onChange={(e) => handleArticleDetailsChange('client', e.target.value)}
+            InputProps={{ readOnly: !editMode }}
           />
         </Grid>
         <Grid item xs={12}>
@@ -144,6 +154,7 @@ export const ArticleDetails = ({ articleDetails, handleArticleDetailsChange }: {
             label="Keyword"
             value={articleDetails.keyword}
             onChange={(e) => handleArticleDetailsChange('keyword', e.target.value)}
+            InputProps={{ readOnly: !editMode }}
           />
         </Grid>
         <Grid item xs={12}>
@@ -154,6 +165,7 @@ export const ArticleDetails = ({ articleDetails, handleArticleDetailsChange }: {
             label="Meta"
             value={articleDetails.meta}
             onChange={(e) => handleArticleDetailsChange('meta', e.target.value)}
+            InputProps={{ readOnly: !editMode }}
           />
         </Grid>
         <Grid item xs={12}>
@@ -162,6 +174,7 @@ export const ArticleDetails = ({ articleDetails, handleArticleDetailsChange }: {
             label="Slug"
             value={articleDetails.slug}
             onChange={(e) => handleArticleDetailsChange('slug', e.target.value)}
+            InputProps={{ readOnly: !editMode }}
           />
         </Grid>
       </Grid>

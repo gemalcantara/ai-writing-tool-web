@@ -61,6 +61,7 @@ export interface ArticleDetails {
   keyword: string;
   meta: string;
   slug: string;
+  articleTitle: string;
 }
 
 export interface PlagiarismResult {
