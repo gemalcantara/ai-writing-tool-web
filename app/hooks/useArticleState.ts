@@ -38,6 +38,7 @@ const initialState: ArticleState = {
   response: '',
   loadingResult: false,
   loadingOutline: false,
+  loadingComparison: false,
   authorityLinks: '',
   internalLinks: '',
   loadingAuthority: false,
@@ -123,7 +124,9 @@ export const useArticleState = (articleId?: string | null) => {
     setHistory: (value) =>
       setState(prev => ({ ...prev, history: value })),
     setError: (value) =>
-      setState(prev => ({ ...prev, error: value }))
+      setState(prev => ({ ...prev, error: value })),
+    setLoadingComparison: (value) =>
+      setState(prev => ({ ...prev, loadingComparison: value })),
   };
 
   return { 

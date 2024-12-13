@@ -1,6 +1,7 @@
 import OpenAI from 'openai';
 import Anthropic from '@anthropic-ai/sdk';
 import { createClient } from '@supabase/supabase-js'
+import { generateComparisonWithAssistant } from './articleUtils';
 
 const anthropic = new Anthropic({
   apiKey:process.env.NEXT_PUBLIC_CLAUDE_AI_API_KEY,
@@ -76,17 +77,17 @@ async function generateOutline(
         Return the response strictly following this JSON template, ensuring valid JSON formatting and no markdown, extraneous content or code block syntax. I will use this with JSON.parse(), so it should be in valid JSON format.'
  
         {
-          \"title\": \"\",
-          \"metaDescription\": \"required to have a value\",
-          \"slug\": \"\",
-          \"sections\": [
+          "title": "",
+          "metaDescription": "required to have a value",
+          "slug": "",
+          "sections": [
             {
-             \"headingLevel\": \"h2 - fixed value\"
-              \"sectionTitle\": \"main section title\",
-              \"description\": \"concatenate all subsections\",
-              \"links\": [
+             "headingLevel": "h2 - fixed value"
+              "sectionTitle": "main section title",
+              "description": "concatenate all subsections",
+              "links": [
                 {
-                  \"link\": \"leave this empty\"
+                  "link": "leave this empty string but never null"
                 }
               ]
             }
@@ -263,4 +264,19 @@ async function checkForPlagiarism(text: string) {
   }
 }
 
-export {generateOutline, generateArticle, generateAuthorityLink, generateInternalLink, checkForPlagiarism}
+async function generateComparison(competitorLinks: string[]) {
+  const prompt = `${competitorLinks.join('\n')}`;
+
+  try {
+    const comparisonAssistantId = "asst_GdXjH8ye0xL5MphGWv62by5Z";
+    if (!comparisonAssistantId) throw new Error('Comparison assistant ID not configured');
+
+    const result = await generateComparisonWithAssistant(prompt, comparisonAssistantId, openai);
+    return result;
+  } catch (error) {
+    console.error('Error in generateComparison:', error);
+    throw error;
+  }
+}
+
+export {generateOutline, generateArticle, generateAuthorityLink, generateInternalLink, checkForPlagiarism, generateComparison}

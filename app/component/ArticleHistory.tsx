@@ -10,6 +10,7 @@ interface History {
   _id: string
   outline_input_data: any
   production_date: string
+  created_by: string
   client_name: string
   keywords: string
   created_at: string
@@ -165,6 +166,7 @@ export default function ArticleHistory() {
       },
     },    
     { field: "keywords", headerName: "Keywords", width: 350 },
+    { field: "created_by", headerName: "Writer/Editor", width: 300 },
   
     {
       field: "view",

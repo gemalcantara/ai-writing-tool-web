@@ -62,12 +62,13 @@ export default function SharedArticlePage() {
         })
         setArticle(htmlContent)
         setOutline(data.outline)  // Store the outline data
+        console.log(data);
         setArticleDetails({
-          client: data.article_details.client || '',
-          keyword: data.article_details.keyword || '',
-          meta_description: data.outline.meta_description || '',
-          slug:  data.outline.slug || '',
-          articleTitle: data.article_details.articleTitle || ''
+          client: data.article_details ? data.article_details.client : data.outline_input_data.inputFieldStaticOutline.clientName,
+          keyword: data.article_details ? data.article_details.client : data.outline_input_data.linkFields.keywords.map((item: { value: string }) => item.value).join(", "),
+          meta_description: data.article_details ?  data.article_details.meta : data.outline.meta_description,
+          slug:  data.article_details  ? data.article_details.slug : data.outline.slug,
+          articleTitle: data.article_details  ? data.article_details.articleTitle : data.article_title,
         })
       } catch (err) {
         console.error(err);

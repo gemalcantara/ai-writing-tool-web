@@ -78,3 +78,40 @@ export const createAssistantMessage = async (
     setLoading(false)
   }
 }
+
+export const generateComparisonWithAssistant = async (
+  content: string,
+  assistantId: string,
+  openai: OpenAI
+) => {
+  try {
+    const run = await openai.beta.threads.createAndRun({
+      assistant_id: assistantId,
+      thread: {
+        messages: [
+          { role: "user", content },
+        ],
+      },
+    });
+
+    let completedRun;
+    while (true) {
+      completedRun = await openai.beta.threads.runs.retrieve(run.thread_id, run.id);
+      if (completedRun.status === 'completed') {
+        break;
+      }
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+
+    const messages = await openai.beta.threads.messages.list(run.thread_id);
+    const assistantMessage = messages.data[0].content[0];
+
+    if ('text' in assistantMessage) {
+      return assistantMessage.text.value;
+    }
+    throw new Error('No text content in response');
+  } catch (error) {
+    console.error('Error generating comparison:', error);
+    throw error;
+  }
+};

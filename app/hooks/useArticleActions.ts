@@ -1,4 +1,4 @@
-import { generateArticle, generateOutline, generateAuthorityLink, generateInternalLink } from '../helpers/openaiApi';
+import { generateArticle, generateOutline, generateAuthorityLink, generateInternalLink, generateComparison } from '../helpers/openaiApi';
 import { ArticleState, SetArticleState } from '../types/article';
 import { handleParseJson } from '../services/article';
 import { marked } from 'marked';
@@ -8,6 +8,7 @@ import { fetchArticleById } from '../types';
 export const useArticleActions = (
   state: ArticleState,
   setState: SetArticleState,
+  email: string,
   constellationMode?: boolean
 ) => {
   const handleSubmit = async (e: React.FormEvent) => {
@@ -63,6 +64,7 @@ export const useArticleActions = (
       setState.setLoadingResult(true);
       const { articleData, historyData } = await generateAndSaveArticle(
         state,
+        email,
         constellationMode
       );
       const fetchedArticle = await fetchArticleById(historyData.id);
@@ -129,10 +131,34 @@ export const useArticleActions = (
     }
   };
 
+  const handleGenerateComparison = async () => {
+    try {
+      setState.setLoadingComparison(true);
+      const competitorLinks = state.linkFields.competitorLinks
+        .map(link => link.value.trim())
+        .filter(link => link);
+
+      if (competitorLinks.length === 0) {
+        throw new Error('Please add at least one competitor link');
+      }
+
+      const comparison = await generateComparison(competitorLinks);
+      setState.setInputFieldStaticOutline({
+        ...state.inputFieldStaticOutline,
+        articleDescription: comparison
+      });
+    } catch (error: any) {
+      setState.setError(`Failed to generate comparison: ${error.message}`);
+    } finally {
+      setState.setLoadingComparison(false);
+    }
+  };
+
   return {
     handleSubmit,
     handleSubmitArticle,
     handleAuthorityLinks,
-    handleInternalLinks
+    handleInternalLinks,
+    handleGenerateComparison
   };
 };

@@ -113,6 +113,7 @@ export interface ArticleState {
   response: string;
   loadingResult: boolean;
   loadingOutline: boolean;
+  loadingComparison: boolean;
   error?: string;
   article?: Article;
   outlineResult?: any;
@@ -136,6 +137,7 @@ export interface SetArticleState {
   setPageTitle: (value: string) => void;
   setLoadingResult: (value: boolean) => void;
   setLoadingOutline: (value: boolean) => void;
+  setLoadingComparison: (value: boolean) => void;
   setAuthorityLinks: (value: string) => void;
   setInternalLinks: (value: string) => void;
   setLoadingAuthority: (value: boolean) => void;

@@ -22,9 +22,30 @@ const ProgressIndicator = ({ open }: { open: boolean }) => (
     </DialogContent>
   </Dialog>
 );
+const ProgressIndicatorComparison = ({ open }: { open: boolean }) => (
+  <Dialog open={open} disableEscapeKeyDown>
+    <DialogTitle>Generating Comparison</DialogTitle>
+    <DialogContent>
+      <DialogContentText>
+        Please wait while we analyze the comparison.
+      </DialogContentText>
+      <CircularProgress style={{ display: 'block', margin: '20px auto' }} />
+    </DialogContent>
+  </Dialog>
+);
 
-
-const ArticleOutlineForm = ({ handleSubmit, inputFieldStaticOutline, setInputFieldStaticOutline, clients, pages, loadingOutline, linkFields, setLinkFields }: any) => {
+const ArticleOutlineForm = ({ 
+  handleSubmit, 
+  inputFieldStaticOutline, 
+  setInputFieldStaticOutline, 
+  clients, 
+  pages, 
+  loadingOutline,
+  loadingComparison, 
+  linkFields, 
+  setLinkFields, 
+  handleGenerateComparison 
+}: any) => {
   const [showProgress, setShowProgress] = useState(false);
 
   const getNameById = (list: any, id: any) => {
@@ -88,10 +109,13 @@ const ArticleOutlineForm = ({ handleSubmit, inputFieldStaticOutline, setInputFie
             </FormControl>
           </Grid>
           <Grid item xs={12}>
+            <DynamicFieldsComponent linkFields={linkFields} setLinkFields={setLinkFields} />
+          </Grid>
+          <Grid item xs={12}>
             <TextField
               fullWidth
               id="articleDescription"
-              label="Article Instruction"
+              label="Comparison"
               name="articleDescription"
               value={inputFieldStaticOutline.articleDescription}
               variant="outlined"
@@ -103,22 +127,31 @@ const ArticleOutlineForm = ({ handleSubmit, inputFieldStaticOutline, setInputFie
               rows={5}
             />
           </Grid>
-          <Grid item xs={12}>
-            <DynamicFieldsComponent linkFields={linkFields} setLinkFields={setLinkFields} />
-          </Grid>
         </Grid>
         <Button
           variant="outlined"
           color="primary"
           style={{ marginTop: '16px' }}
           fullWidth
-          disabled={loadingOutline}
+          disabled={loadingOutline || loadingComparison || !linkFields.competitorLinks.length}
+          onClick={handleGenerateComparison}
+          type='button'
+        >
+          {loadingComparison ? 'Analyzing...' : 'Get Comparison'}
+        </Button>
+        <Button
+          variant="outlined"
+          color="primary"
+          style={{ marginTop: '16px' }}
+          fullWidth
+          disabled={loadingOutline || loadingComparison}
           type='submit'
         >
           {loadingOutline ? 'Generating...' : 'Generate Outline'}
         </Button>
       </form>
-      <ProgressIndicator open={showProgress} />
+      <ProgressIndicator open={loadingOutline } />
+      <ProgressIndicatorComparison open={loadingComparison} />
     </div>
   );
 };

@@ -15,7 +15,7 @@ export const handleParseJson = (text: string) => {
   }
 };
 
-export const generateAndSaveArticle = async (state: ArticleState, constellationMode?: boolean) => {
+export const generateAndSaveArticle = async (state: ArticleState,email:string,constellationMode?: boolean) => {
   const formData = { sections: state.inputFields, main: state.inputFieldStaticArticle };
   const prompt = formData.main.articlePrompt
     .replace("{{client_guidelines}}", formData.main.clientGuideline)
@@ -59,7 +59,7 @@ export const generateAndSaveArticle = async (state: ArticleState, constellationM
   const historyData = await createHistory(
     articleData,
     state.pageTitle,
-    'user@example.com',
+    email,
     outlineToSave,
     outlineFields
   );

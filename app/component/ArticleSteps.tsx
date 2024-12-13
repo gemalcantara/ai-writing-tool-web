@@ -10,6 +10,7 @@ import ArticlesForm from './ArticleForm';
 import ArticlesResult from './ArticlesResult';
 import { useParams } from 'react-router-dom';
 const steps = ['Create Outline', 'Create Article', 'Article Result'];
+import { useCookies } from 'react-cookie';
 
 interface ArticleStepsProps {
   constellationMode?: boolean;
@@ -24,13 +25,15 @@ export default function ArticleSteps({ constellationMode }: ArticleStepsProps) {
     setState,
     isLoading
   } = useArticleState(articleId);
+  const [cookies] = useCookies(['user']);
 
   const {
     handleSubmit,
     handleSubmitArticle,
     handleAuthorityLinks,
-    handleInternalLinks
-  } = useArticleActions(state, setState, constellationMode);
+    handleInternalLinks,
+    handleGenerateComparison
+  } = useArticleActions(state, setState,cookies.user.user.email, constellationMode);
 
   const {
     activeStep,
@@ -61,7 +64,6 @@ export default function ArticleSteps({ constellationMode }: ArticleStepsProps) {
       handleStepComplete(1);
     }
   };
-  console.log(state);
   return (
     <div>
       {isLoading ? (
@@ -113,8 +115,10 @@ export default function ArticleSteps({ constellationMode }: ArticleStepsProps) {
                 clients={state.clients}
                 pages={state.pages}
                 loadingOutline={state.loadingOutline}
+                loadingComparison={state.loadingComparison}
                 linkFields={state.linkFields}
                 setLinkFields={setState.setLinkFields}
+                handleGenerateComparison={handleGenerateComparison}
               />
             )}
 
