@@ -24,20 +24,20 @@ export async function GET(request: Request, { params }: { params: { siteOptionId
 
 export async function PUT(request: Request, { params }: { params: { siteOptionId: string } }) {
   try {
-    const { name, password,user_type } = await request.json();
+    const { name, summary, value, type } = await request.json();
     const client = await clientPromise;
     const db = client.db(dbname);
-    const hashedPassword = await bcrypt.hash(password, 10)
+    
     const result = await db.collection('siteOptions').updateOne(
       { _id: new ObjectId(params.siteOptionId) },
-      { $set: { name, password:hashedPassword,user_type } }
+      { $set: { name, summary, value, type } }
     );
 
     if (result.matchedCount === 0) {
       return NextResponse.json({ error: 'Site option not found' }, { status: 404 });
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, message: 'Site option updated successfully' });
   } catch (e) {
     console.error(e);
     return NextResponse.json({ error: 'Failed to update site option' }, { status: 500 });

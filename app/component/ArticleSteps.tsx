@@ -165,19 +165,6 @@ export default function ArticleSteps({ constellationMode }: ArticleStepsProps) {
             >
               Next
             </Button>
-            {activeStep !== steps.length && (
-              completed[activeStep] ? (
-                <Typography variant="caption" sx={{ display: 'inline-block' }}>
-                  Step {activeStep + 1} already completed
-                </Typography>
-              ) : (
-                <Button onClick={handleComplete}>
-                  {Object.keys(completed).length === steps.length - 1 
-                    ? 'Finish' 
-                    : 'Complete Step'}
-                </Button>
-              )
-            )}
           </Box>
         </>
       )}

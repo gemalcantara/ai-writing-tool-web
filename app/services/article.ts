@@ -25,21 +25,18 @@ export const generateAndSaveArticle = async (state: ArticleState,email:string,co
   const articleSections = state.inputFields.map((section, index) => {
     const joinedLinks = section.links.map(item => item.link).join(', ');
     return `
-    Section: ${index + 1}
+    Start Writing: Section: ${index + 1}
     Section Heading: ${section.headingLevel}
     Section Title: ${section.sectionTitle}
-    Section Details: ${section.description}
     Section Links: ${joinedLinks}
+    Section Details: ${section.description}
     `;
-  });
-
-
+  }).join('\n');
   const articleData = await generateArticle(
-    prompt, 
-    JSON.stringify(articleSections),
+    formData.main, 
+    articleSections,
     constellationMode ? 'constellation' : 'client'
   );
-
   const outlineToSave = {
     title: state.outlineMetaData.title,
     meta_description: state.outlineMetaData.meta_description,

@@ -87,7 +87,7 @@ async function generateOutline(
               "description": "concatenate all subsections",
               "links": [
                 {
-                  "link": "leave this empty string but never null"
+                  "link": "leave this empty string"
                 }
               ]
             }
@@ -125,26 +125,39 @@ async function generateOutline(
 }
 
 
-async function generateArticle(formData: string, sectionData: string,constellationMode: string) {
+async function generateArticle(formData: any, sectionData: string, constellationMode: string) {
   let articlePrompt: any = {}
   let content;
   let response: any = {};
+  let finalResponse: any = {};
+  const parsedFormData = formData;
+  
   if (constellationMode === 'constellation') {  
-    const articlePromptRaw = await getPrompt('article',constellationMode);
+    const articlePromptRaw = await getPrompt('article', constellationMode);
     if (typeof articlePromptRaw === 'string' || !articlePromptRaw.data) {
       throw new Error('Outline prompt data is unavailable or invalid.');
     }
-  
-    content = articlePromptRaw.data + articlePromptRaw.summary;
-  }else{ 
-    content = formData + '\n Sections \n' + JSON.parse(sectionData).map((section: string) => section).join("\n");
-  }
-  articlePrompt = [{
-    role: "user",
-    content: content + "\n\nREMINDER: Ensure that all the section links provided in the sections are used appropriately within the article and incorporate the section headings in section title as provided. Do not create an 'Additional Resources' or 'Further Reading' section at the end. Merge all results into one cohesive article with markdown formatting."
-  }];
 
-  // return
+    content = articlePromptRaw.data
+      .replace('{page_type}', parsedFormData.pageName)
+      .replace('{article_briefs}', parsedFormData.instruction)
+      .replace('{client_guidelines}', parsedFormData.clientGuideline);
+  } else { 
+    const articlePromptRaw = await getPrompt('article', constellationMode);
+    if (typeof articlePromptRaw === 'string' || !articlePromptRaw.data) {
+      throw new Error('Outline prompt data is unavailable or invalid.');
+    }
+    
+    content = articlePromptRaw.data
+      .replace('{page_type}', parsedFormData.pageName)
+      .replace('{article_briefs}', parsedFormData.instruction)
+      .replace('{client_guidelines}', parsedFormData.clientGuideline)
+      .replace('{sections}', sectionData);
+    }
+    articlePrompt = [{
+      role: "user",
+      content: content
+    }];
   try {
     response = await anthropic.messages.create({
       // model: "claude-3-opus-20240229",
@@ -158,8 +171,23 @@ async function generateArticle(formData: string, sectionData: string,constellati
     if (isOverloadedError(response)) {
       throw new Error('The AI service is currently overloaded. Please try again in a few minutes.');
     }
-
-    return response.content[0].text || '';
+// second part
+    let finalContent = [{role: "user", 
+      content: content},
+      {role: "assistant", 
+      content: response.content[0].text},
+      {role: "user", 
+      content: sectionData}]
+  finalResponse = await anthropic.messages.create({
+    // model: "claude-3-opus-20240229",
+    // model: "claude-3-5-sonnet-20241022",
+    model: "claude-3-5-sonnet-20240620",
+    max_tokens: 8192,
+    // max_tokens: 3000,
+  // @ts-ignore
+    messages: finalContent,
+  });
+    return finalResponse.content[0].text || '';
   } catch (error) {
     if (isOverloadedError(error)) {
       throw new Error('The AI service is currently overloaded. Please try again in a few minutes.');

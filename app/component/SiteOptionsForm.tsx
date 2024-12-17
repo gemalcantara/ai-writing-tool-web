@@ -8,6 +8,7 @@ import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 import TextField from '@mui/material/TextField'
 import Box from '@mui/material/Box'
+import { ConstructionOutlined } from '@mui/icons-material';
 
 interface SiteOption {
   _id?: string
@@ -18,8 +19,9 @@ interface SiteOption {
 }
 
 async function createOrUpdateSiteOption(siteOption: SiteOption) {
-  const url =  `/api/site-options/${siteOption._id}`
-  const method =  'PUT'
+  const isUpdate = Boolean(siteOption._id);
+  const url = isUpdate ? `/api/site-options/${siteOption._id}` : '/api/site-options';
+  const method = isUpdate ? 'PUT' : 'POST';
 
   try {
     const response = await fetch(url, {
@@ -27,21 +29,24 @@ async function createOrUpdateSiteOption(siteOption: SiteOption) {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(siteOption),
-    })
+      body: JSON.stringify({
+        name: siteOption.name,
+        summary: siteOption.summary,
+        value: siteOption.value,
+        type: siteOption.type
+      }),
+    });
 
+    const data = await response.json();
+    
     if (!response.ok) {
-      const errorData = await response.json()
-      throw new Error(errorData.message || 'Failed to save site option')
+      throw new Error(data.error || 'Failed to save site option');
     }
 
-    const data = await response.json()
-    alert(`${siteOption.name} has been updated.`)
-    return true
+    return { success: true, message: isUpdate ? 'Updated successfully' : 'Created successfully' };
   } catch (error) {
-    console.error('Error saving site option:', error)
-    alert(error)
-    return false
+    console.error('Error saving site option:', error);
+    throw error;
   }
 }
 
@@ -74,12 +79,15 @@ export default function SiteOptionForm() {
   }, [id])
 
   const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault()
-    const success = await createOrUpdateSiteOption(siteOption, )
-    if (success) {
-      navigate('/site-options')
+    event.preventDefault();
+    try {
+      const result = await createOrUpdateSiteOption(siteOption);
+      alert(result.message);
+      navigate('/dashboard/site-options');
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'An error occurred');
     }
-  }
+  };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target
@@ -126,7 +134,18 @@ export default function SiteOptionForm() {
       )}
       {siteOption.type === 'article' && (
         <>
-          {/* No variables to display for 'article' type wip*/}
+          <Typography variant="caption" display="block" gutterBottom>
+            {'{page_type}'}
+          </Typography>
+          <Typography variant="caption" display="block" gutterBottom>
+            {'{article_briefs}'}
+          </Typography>
+          <Typography variant="caption" display="block" gutterBottom>
+            {'{client_guidelines}'}
+          </Typography>
+          <Typography variant="caption" display="block" gutterBottom>
+            {'{sections}'}
+          </Typography>
         </>
       )}
 
