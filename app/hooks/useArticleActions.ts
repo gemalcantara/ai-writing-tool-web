@@ -134,15 +134,21 @@ export const useArticleActions = (
   const handleGenerateComparison = async () => {
     try {
       setState.setLoadingComparison(true);
+      
+      
+      
       const competitorLinks = state.linkFields.competitorLinks
-        .map(link => link.value.trim())
-        .filter(link => link);
-
+        .map((link, index) => `### **Competitor URL ${index + 1}**: ${link.value.trim()} \n`)
+        .filter(link => link)
+        .join('\n');
+        let prompt = `### **Client**: ${state.inputFieldStaticOutline.clientName}\n### **Page Type**: ${state.inputFieldStaticOutline.pageGuideline}\n### **Keyword**: ${state.linkFields.keywords.map(keyword => keyword.value).join(", ")}\n${competitorLinks}  `;
+        // console.log(prompt);
+        // return prompt;
       if (competitorLinks.length === 0) {
         throw new Error('Please add at least one competitor link');
       }
 
-      const comparison = await generateComparison(competitorLinks);
+      const comparison = await generateComparison(prompt);
       setState.setInputFieldStaticOutline({
         ...state.inputFieldStaticOutline,
         articleDescription: comparison

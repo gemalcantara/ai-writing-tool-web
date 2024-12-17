@@ -130,15 +130,6 @@ export const ArticleDetails = ({editMode, articleDetails, handleArticleDetailsCh
     </AccordionSummary>
     <AccordionDetails>
       <Grid container spacing={2}>
-      <Grid item xs={12}>
-          <TextField
-            fullWidth
-            label="Article Title"
-            value={articleDetails.articleTitle}
-            onChange={(e) => handleArticleDetailsChange('articleTitle', e.target.value)}
-            InputProps={{ readOnly: !editMode }}
-          />
-        </Grid>
         <Grid item xs={12}>
           <TextField
             fullWidth

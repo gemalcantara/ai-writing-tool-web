@@ -32,6 +32,7 @@ export interface InputFieldStaticOutline {
   selectedPage: string;
   clientName: string;
   pageName: string;
+  pageGuideline: string;
   articlePrompt: string;
   clientGuideline: string;
 }
@@ -94,6 +95,7 @@ export interface ArticleState {
     articleDescription: string;
     selectedClient: string;
     selectedPage: string;
+    pageGuideline: string;
     clientName: string;
     pageName: string;
     clientGuideline: string;

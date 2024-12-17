@@ -20,6 +20,7 @@ const initialState: ArticleState = {
     selectedClient: '',
     selectedPage: '',
     clientName: '',
+    pageGuideline: '',
     pageName: '',
     clientGuideline: ''
   },

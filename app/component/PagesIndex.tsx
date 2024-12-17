@@ -60,7 +60,7 @@ export default function PagesIndex() {
   const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
-    console.log(pageId);
+
     const loadPage = async () => {
       if (!pageId) {
         return <p>Page ID is missing!</p>;

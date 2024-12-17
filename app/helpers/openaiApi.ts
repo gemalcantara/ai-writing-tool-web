@@ -264,8 +264,7 @@ async function checkForPlagiarism(text: string) {
   }
 }
 
-async function generateComparison(competitorLinks: string[]) {
-  const prompt = `${competitorLinks.join('\n')}`;
+async function generateComparison(prompt: string) {
 
   try {
     const comparisonAssistantId = "asst_GdXjH8ye0xL5MphGWv62by5Z";

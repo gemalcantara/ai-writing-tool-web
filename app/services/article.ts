@@ -47,7 +47,7 @@ export const generateAndSaveArticle = async (state: ArticleState,email:string,co
     sections: state.inputFields,
     mode: constellationMode
   };
-  console.log(outlineToSave);
+
 
   const outlineFields = { 
     inputFieldStaticOutline: state.inputFieldStaticOutline,

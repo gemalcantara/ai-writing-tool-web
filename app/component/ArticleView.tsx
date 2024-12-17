@@ -128,7 +128,7 @@ export default function ArticleView() {
   const handleCopy = useCallback(async () => {
     if (article) {
       const htmlContent = renderLinksWithTargetBlank(editedContent)
-      console.log(htmlContent)
+
 
       try {
         await navigator.clipboard.writeText(htmlContent)
@@ -236,7 +236,7 @@ export default function ArticleView() {
   const handleArticleDetailsChange = useCallback((field: keyof ArticleDetails, value: string) => {
     setArticleDetails(prev => ({ ...prev, [field]: value }))
   }, [])
-  console.log(articleDetails)
+
   return (
     <div className="container mx-auto px-4 py-8">
       <Grid container spacing={3} className="mb-6">

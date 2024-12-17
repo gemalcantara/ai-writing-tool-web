@@ -18,13 +18,13 @@ export async function GET(
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
     const clientData = await db.collection('history').findOne({ _id: new ObjectId(params.id) });
-    console.log(clientData);
+
 
     if (!clientData) {
         return NextResponse.json({ error: 'Article not found' }, { status: 404 });
       }
 
-    console.log(clientData)
+
     return NextResponse.json(clientData, {
       headers: {
         'X-Robots-Tag': 'noindex, nofollow',

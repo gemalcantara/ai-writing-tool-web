@@ -56,13 +56,13 @@ export default function SharedArticlePage() {
         }
 
         const data = await response.json()
-        console.log(data);
+
         const htmlContent = await marked(data.article_output, {
             async: true
         })
         setArticle(htmlContent)
         setOutline(data.outline)  // Store the outline data
-        console.log(data);
+
         setArticleDetails({
           client: data.article_details ? data.article_details.client : data.outline_input_data.inputFieldStaticOutline.clientName,
           keyword: data.article_details ? data.article_details.client : data.outline_input_data.linkFields.keywords.map((item: { value: string }) => item.value).join(", "),
@@ -138,9 +138,6 @@ export default function SharedArticlePage() {
         <strong>Slug:</strong> {articleDetails.slug}
       </Typography>
       <Divider sx={{ my: 3, borderWidth: '1px' }} />
-      <Typography variant="h3" gutterBottom>
-        {articleDetails.articleTitle}
-      </Typography>
       <div className="result result-content" dangerouslySetInnerHTML={{ __html: renderLinksWithTargetBlank(article)}}></div>
     </div>
   )

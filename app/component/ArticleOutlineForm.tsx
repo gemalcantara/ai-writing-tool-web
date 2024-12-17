@@ -97,7 +97,8 @@ const ArticleOutlineForm = ({
                 onChange={(e) => setInputFieldStaticOutline({
                   ...inputFieldStaticOutline,
                   [e.target.name]: e.target.value,
-                  pageName: getNameById(pages, e.target.value)
+                  pageName: getNameById(pages, e.target.value),
+                  pageGuideline: pages.find((page: { _id: any; }) => page._id === e.target.value).guideline
                 })}
               >
                 {
