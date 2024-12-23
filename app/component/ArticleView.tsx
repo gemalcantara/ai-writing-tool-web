@@ -79,7 +79,7 @@ export default function ArticleView() {
   const [styleGuideResults, setStyleGuideResults] = useState<string>('')
   const [legalRulesResults, setLegalRulesResults] = useState<string>('')
   const [plagiarismData, setPlagiarismData] = useState<PlagiarismData | null>(null)
-  
+
   useEffect(() => {
     const fetchArticleById = async () => {
       try {
@@ -180,10 +180,18 @@ export default function ArticleView() {
   }, [editedContent, articleId])
 
   const handleStyleGuide = useCallback(async () => {
+    let clientGuidelines = article?.outline_input_data.inputFieldStaticArticle.clientGuideline;
+    let prompt = `
+      ## Guidelines
+      ${clientGuidelines}
+
+      ## Content
+      ${editedContent}
+    `;
     const assistantId = "asst_iufG2r0lLTIq5HJl4CQIu0YG"
     setActiveTab(1)
     await createAssistantMessage(
-      editedContent,
+      prompt,
       "styleGuide",
       assistantId,
       openai,

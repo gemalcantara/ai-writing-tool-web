@@ -202,10 +202,18 @@ export default function ArticlesResult({ article,setArticle }: ArticlesResultPro
   }, [editedContent, articleId])
 
   const handleStyleGuide = useCallback(async () => {
+    let clientGuidelines = article?.outline_input_data.inputFieldStaticArticle.clientGuideline;
+    let prompt = `
+      ## Guidelines
+      ${clientGuidelines}
+
+      ## Content
+      ${editedContent}
+    `;
     const assistantId = "asst_iufG2r0lLTIq5HJl4CQIu0YG"
     setActiveTab(1)
     await createAssistantMessage(
-      editedContent,
+      prompt,
       "styleGuide",
       assistantId,
       openai,
