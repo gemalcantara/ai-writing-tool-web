@@ -142,6 +142,15 @@ export const ArticleDetails = ({editMode, articleDetails, handleArticleDetailsCh
         <Grid item xs={12}>
           <TextField
             fullWidth
+            label="Article Title"
+            value={articleDetails.articleTitle}
+            onChange={(e) => handleArticleDetailsChange('articleTitle', e.target.value)}
+            InputProps={{ readOnly: !editMode }}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
             label="Keyword"
             value={articleDetails.keyword}
             onChange={(e) => handleArticleDetailsChange('keyword', e.target.value)}

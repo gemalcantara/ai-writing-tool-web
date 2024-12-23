@@ -33,7 +33,7 @@ interface InputField {
   sectionTitle: string;
   description: string;
   links: { link: string }[];
-  headingLevel: 'h2' | 'h3';
+  headingLevel: 'h3' | 'h4';
 }
 
 interface SectionsProps {
@@ -70,7 +70,7 @@ const Sections = ({
       sectionTitle: '',
       description: '',
       links: [{link: ''}],
-      headingLevel: 'h2'
+      headingLevel: 'h3'
     };
     
     const currentFields = Array.isArray(inputFields) ? inputFields : [];
@@ -155,7 +155,7 @@ const Sections = ({
       if (currentFields[index]) {
         currentFields[index] = {
           ...currentFields[index],
-          headingLevel: currentFields[index].headingLevel === 'h2' ? 'h3' : 'h2'
+          headingLevel: currentFields[index].headingLevel === 'h3' ? 'h4' : 'h3'
         };
         setInputFields(currentFields);
       }
@@ -213,7 +213,7 @@ const Sections = ({
                       sx={{
                         border: "solid", 
                         borderWidth: "1px",
-                        marginLeft: inputField.headingLevel === 'h3' ? '2rem' : '0'
+                        marginLeft: inputField.headingLevel === 'h4' ? '2rem' : '0'
                       }}
                     >
                       <AccordionSummary
@@ -230,9 +230,10 @@ const Sections = ({
                           onClick={(e) => toggleHeadingLevel(e, index)}
                           sx={{ minWidth: 'auto', mr: 1 }}
                         >
-                          {inputField.headingLevel}
+                          {inputField.headingLevel === 'h3' ? 'h2' : 'h3'}
+
                         </Button>
-                        {inputField.headingLevel === 'h2' ? (
+                        {inputField.headingLevel === 'h3' ? (
                           <h2> { apStyleTitleCase(inputField.sectionTitle) || `Section ${index + 1}`}</h2>
                         ) : (
                           <h3> { apStyleTitleCase(inputField.sectionTitle) || `Section ${index + 1}`}</h3>

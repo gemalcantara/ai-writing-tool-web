@@ -263,7 +263,7 @@ export default function ArticlesResult({ article,setArticle }: ArticlesResultPro
     <div className="container mx-auto px-4 py-8">
       <Grid container spacing={3} className="mb-6">
         <Grid item xs={10}>
-          <h3 className="text-2xl font-bold">{articleDetails?.articleTitle}</h3>
+          {/* <h3 className="text-2xl font-bold">{articleDetails?.articleTitle}</h3> */}
         </Grid>
         <Grid item xs={2} className="flex justify-end">
           <ButtonGroup variant="outlined" aria-label="outlined button group">
