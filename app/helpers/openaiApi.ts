@@ -82,7 +82,7 @@ async function generateOutline(
           "slug": "",
           "sections": [
             {
-             "headingLevel": "h2 - fixed value"
+             "headingLevel": "h3 - fixed value"
               "sectionTitle": "main section title",
               "description": "concatenate all subsections",
               "links": [
