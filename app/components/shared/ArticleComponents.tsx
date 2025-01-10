@@ -133,19 +133,21 @@ export const ArticleDetails = ({editMode, articleDetails, handleArticleDetailsCh
         <Grid item xs={12}>
           <TextField
             fullWidth
-            label="Client"
+            label="Client Name"
             value={articleDetails.client}
             onChange={(e) => handleArticleDetailsChange('client', e.target.value)}
             InputProps={{ readOnly: !editMode }}
+            InputLabelProps={{ sx: { color: 'red' } }}
           />
         </Grid>
         <Grid item xs={12}>
           <TextField
             fullWidth
-            label="Article Title"
+            label="Title Tag"
             value={articleDetails.articleTitle}
             onChange={(e) => handleArticleDetailsChange('articleTitle', e.target.value)}
             InputProps={{ readOnly: !editMode }}
+            InputLabelProps={{ sx: { color: 'red' } }}
           />
         </Grid>
         <Grid item xs={12}>
@@ -155,6 +157,7 @@ export const ArticleDetails = ({editMode, articleDetails, handleArticleDetailsCh
             value={articleDetails.keyword}
             onChange={(e) => handleArticleDetailsChange('keyword', e.target.value)}
             InputProps={{ readOnly: !editMode }}
+            InputLabelProps={{ sx: { color: 'red' } }}
           />
         </Grid>
         <Grid item xs={12}>
@@ -162,19 +165,11 @@ export const ArticleDetails = ({editMode, articleDetails, handleArticleDetailsCh
             multiline
             fullWidth
             rows={3}
-            label="Meta"
+            label="Meta Description"
             value={articleDetails.meta}
             onChange={(e) => handleArticleDetailsChange('meta', e.target.value)}
             InputProps={{ readOnly: !editMode }}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            fullWidth
-            label="Slug"
-            value={articleDetails.slug}
-            onChange={(e) => handleArticleDetailsChange('slug', e.target.value)}
-            InputProps={{ readOnly: !editMode }}
+            InputLabelProps={{ sx: { color: 'red' } }}
           />
         </Grid>
       </Grid>
