@@ -71,6 +71,7 @@ const ArticleOutlineForm = ({
                 name="selectedClient"
                 value={inputFieldStaticOutline.selectedClient}
                 label="client"
+                required
                 onChange={(e) => setInputFieldStaticOutline({
                   ...inputFieldStaticOutline,
                   [e.target.name]: e.target.value,
@@ -92,6 +93,7 @@ const ArticleOutlineForm = ({
                 name="selectedPage"
                 labelId="pageLabel"
                 id="page"
+                required
                 value={inputFieldStaticOutline.selectedPage}
                 label="page"
                 onChange={(e) => setInputFieldStaticOutline({

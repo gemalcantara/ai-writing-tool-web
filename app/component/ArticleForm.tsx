@@ -233,6 +233,7 @@ export default function ArticlesForm({
                         name="selectedClient"
                         value={inputFieldStaticArticle.selectedClient}
                         label="client"
+                        required
                         onChange={(event) => setInputFieldStaticArticle({
                           ...inputFieldStaticArticle,
                           [event.target.name]: event.target.value,
@@ -251,6 +252,7 @@ export default function ArticlesForm({
                         name="selectedPage"
                         labelId="pageLabel"
                         id="page"
+                        required
                         value={inputFieldStaticArticle.selectedPage}
                         label="page"
                         onChange={(event) => setInputFieldStaticArticle({
