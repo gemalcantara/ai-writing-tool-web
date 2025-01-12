@@ -322,7 +322,7 @@ const Sections = ({
         style={{ marginTop: '16px' }}
         fullWidth
       >
-        Add More Section
+        Add Section
       </Button>
     </DragDropContext>
   );

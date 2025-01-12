@@ -109,13 +109,13 @@ const SidebarList = ({ open }: { open: boolean }) => {
         to="/dashboard/articles/view"
         open={open}
       />
-      <Tooltip title={open ? "" : "Page Templates"} placement="right">
+      {/* <Tooltip title={open ? "" : "Page Templates"} placement="right">
         <ListItemButton selected={selectedIndex === 1} onClick={() => { handleClickPage(); handleListItemClick(1); }}>
           <ListItemIcon><Pages /></ListItemIcon>
           {open && <ListItemText primary="Page Templates" />}
           {open && (page ? <ExpandLess /> : <ExpandMore />)}
         </ListItemButton>
-      </Tooltip>
+      </Tooltip> */}
       <Collapse in={page && open} timeout="auto" unmountOnExit><PageList /></Collapse>
 
       <Tooltip title={open ? "" : "Client"} placement="right">
@@ -129,7 +129,7 @@ const SidebarList = ({ open }: { open: boolean }) => {
       <Divider />
 
       <SidebarItem index={6} selectedIndex={selectedIndex} onClick={handleListItemClick} icon={<Person />} text="Users" to="/dashboard/users" open={open} />
-      <SidebarItem index={11} selectedIndex={selectedIndex} onClick={handleListItemClick} icon={<Person />} text="Profile" to="/dashboard/users/profile" open={open} />
+      {/* <SidebarItem index={11} selectedIndex={selectedIndex} onClick={handleListItemClick} icon={<Person />} text="Profile" to="/dashboard/users/profile" open={open} /> */}
       <SidebarItem index={12} selectedIndex={selectedIndex} onClick={handleListItemClick} icon={<Cog />} text="Site Options" to="/dashboard/site-options" open={open} />
       <Tooltip title={open ? "" : "Logout"} placement="right">
         <ListItemButton selected={selectedIndex === 5} onClick={logout}>

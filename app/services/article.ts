@@ -17,10 +17,10 @@ export const handleParseJson = (text: string) => {
 
 export const generateAndSaveArticle = async (state: ArticleState,email:string,constellationMode?: boolean) => {
   const formData = { sections: state.inputFields, main: state.inputFieldStaticArticle };
-  const prompt = formData.main.articlePrompt
-    .replace("{{client_guidelines}}", formData.main.clientGuideline)
-    .replace("{{article_instructions}}", formData.main.instruction)
-    .replace("{{keywords}}", formData.main.keywords);
+  // const prompt = formData.main.articlePrompt
+  //   .replace("{{client_guidelines}}", formData.main.clientGuideline)
+  //   .replace("{{article_instructions}}", formData.main.instruction)
+  //   .replace("{{keywords}}", formData.main.keywords);
 
   const articleSections = state.inputFields.map((section, index) => {
     const joinedLinks = section.links.map(item => item.link).join(', ');

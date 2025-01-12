@@ -75,6 +75,7 @@ export const useArticleActions = (
       const message = error.message.includes('overloaded') 
         ? error.message 
         : `Failed to generate article: ${error}`;
+        console.log(error);
       setState.setError(message);
       return false;
     } finally {

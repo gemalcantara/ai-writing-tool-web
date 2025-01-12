@@ -86,7 +86,7 @@ const ArticleOutlineForm = ({
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={12}>
+          {/* <Grid item xs={12}>
             <FormControl fullWidth>
               <InputLabel id="pageLabel">Page Template</InputLabel>
               <Select
@@ -110,7 +110,7 @@ const ArticleOutlineForm = ({
                 }
               </Select>
             </FormControl>
-          </Grid>
+          </Grid> */}
           <Grid item xs={12}>
             <DynamicFieldsComponent linkFields={linkFields} setLinkFields={setLinkFields} />
           </Grid>
@@ -118,7 +118,7 @@ const ArticleOutlineForm = ({
             <TextField
               fullWidth
               id="articleDescription"
-              label="Comparison"
+              label="Brief"
               name="articleDescription"
               value={inputFieldStaticOutline.articleDescription}
               variant="outlined"
@@ -127,8 +127,8 @@ const ArticleOutlineForm = ({
                 [e.target.name]: e.target.value,
               })}
               multiline
-              rows={5}
-            />
+              rows={30}
+            /> 
           </Grid>
         </Grid>
         <Button
@@ -140,7 +140,7 @@ const ArticleOutlineForm = ({
           onClick={handleGenerateComparison}
           type='button'
         >
-          {loadingComparison ? 'Analyzing...' : 'Get Comparison'}
+          {loadingComparison ? 'Analyzing...' : 'Generate Brief'}
         </Button>
         <Button
           variant="outlined"

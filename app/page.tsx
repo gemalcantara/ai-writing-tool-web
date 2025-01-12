@@ -43,10 +43,10 @@ export default function App() {
           <Route path="site-options/new" element={<SiteOptionForm />} />
           <Route path="site-options/edit/:id" element={<SiteOptionForm />} />  
           <Route path="users/create" element={ <UsersForm /> } />
-          <Route path="users/profile" element={ <Profile /> } />
-          <Route path="pages" element={ <Pages /> } />
-          <Route path="pages/create"  element={ <PagesForm /> } />
-          <Route path="pages/view/:pageId" element={ <Pages /> } />
+          {/* <Route path="users/profile" element={ <Profile /> } /> */}
+          {/* <Route path="pages" element={ <Pages /> } /> */}
+          {/* <Route path="pages/create"  element={ <PagesForm /> } /> */}
+          {/* <Route path="pages/view/:pageId" element={ <Pages /> } /> */}
           <Route path="clients" element={ <Client /> } />
           <Route path="clients/create" element={ <ClientsForm /> } />
           <Route path="clients/view/:clientId" element={ <Client /> } />

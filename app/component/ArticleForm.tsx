@@ -245,7 +245,7 @@ export default function ArticlesForm({
                       </Select>
                     </FormControl>
                   </Grid>
-                  <Grid item xs={12}>
+                  {/* <Grid item xs={12}>
                     <FormControl fullWidth>
                       <InputLabel id="pageLabel">Page Template</InputLabel>
                       <Select
@@ -265,7 +265,7 @@ export default function ArticlesForm({
                         {pages.map((page: any) => (<MenuItem key={page._id} value={page._id}>{page.name}</MenuItem>))}
                       </Select>
                     </FormControl>
-                  </Grid>
+                  </Grid> */}
                   <Grid item xs={12} hidden>
                     <TextField
                       name="clientGuideline"

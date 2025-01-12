@@ -71,7 +71,7 @@ async function generateOutline(
         .replace('{competitorLinks}', competitorLinksArray)
         .replace('{keywords}', keywords)
         .replace('{clientName}', clientName)
-        .replace('{pageName}', pageName)
+        // .replace('{pageName}', pageName)
         .replace('{articleDescription}', articleDescription)}
 
         Return the response strictly following this JSON template, ensuring valid JSON formatting and no markdown, extraneous content or code block syntax. I will use this with JSON.parse(), so it should be in valid JSON format.'
@@ -131,7 +131,6 @@ async function generateArticle(formData: any, sectionData: string, constellation
   let response: any = {};
   let finalResponse: any = {};
   const parsedFormData = formData;
-  
   if (constellationMode === 'constellation') {  
     const articlePromptRaw = await getPrompt('article', constellationMode);
     if (typeof articlePromptRaw === 'string' || !articlePromptRaw.data) {
@@ -139,7 +138,7 @@ async function generateArticle(formData: any, sectionData: string, constellation
     }
 
     content = articlePromptRaw.data
-      .replace('{page_type}', parsedFormData.pageName)
+      // .replace('{page_type}', parsedFormData.pageName)
       .replace('{article_briefs}', parsedFormData.instruction)
       .replace('{client_guidelines}', parsedFormData.clientGuideline);
   } else { 
@@ -149,7 +148,7 @@ async function generateArticle(formData: any, sectionData: string, constellation
     }
     
     content = articlePromptRaw.data
-      .replace('{page_type}', parsedFormData.pageName)
+      // .replace('{page_type}', parsedFormData.pageName)
       .replace('{article_briefs}', parsedFormData.instruction)
       .replace('{client_guidelines}', parsedFormData.clientGuideline)
       .replace('{sections}', sectionData);
