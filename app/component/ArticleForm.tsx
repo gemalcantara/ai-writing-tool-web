@@ -117,6 +117,7 @@ const LinksContainer = styled(Box)(({ theme }) => ({
 }));
 
 export default function ArticlesForm({
+  constellationMode,
   handleSubmitArticle,
   inputFieldStaticArticle,
   setInputFields,
@@ -141,7 +142,6 @@ export default function ArticlesForm({
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState(0);
   const [showLinks, setShowLinks] = useState(true);
-
 
   const getNameById = (list: any, id: any) => {
     const entry = list.find((item: { _id: any }) => item._id === id);
@@ -176,6 +176,22 @@ export default function ArticlesForm({
     setActiveTab(1);
     setShowLinks(true);
   };
+
+  // Find Constellation Marketing client
+  const constellationClient = clients.find((client: any) => client.name === "Constellation Marketing");
+
+  // Set constellation client on mount if in constellation mode
+  useEffect(() => {
+    if (constellationMode && constellationClient) {
+      setInputFieldStaticArticle({
+        ...inputFieldStaticArticle,
+        selectedClient: constellationClient._id,
+        clientName: constellationClient.name,
+        clientGuideline: getGuidelineById(clients, constellationClient._id)
+      });
+    }
+  }, [constellationMode, clients]);
+
   useEffect(() => {
     if (inputFieldStaticArticle.selectedClient && inputFieldStaticArticle.selectedPage) {
       setInputFieldStaticArticle({
@@ -234,6 +250,7 @@ export default function ArticlesForm({
                         value={inputFieldStaticArticle.selectedClient}
                         label="client"
                         required
+                        disabled={constellationMode}
                         onChange={(event) => setInputFieldStaticArticle({
                           ...inputFieldStaticArticle,
                           [event.target.name]: event.target.value,
@@ -292,21 +309,6 @@ export default function ArticlesForm({
                   </Grid>
                   <Grid item xs={12}>
                     <TextField
-                      name="instruction"
-                      label="Article Instructions"
-                      variant="outlined"
-                      multiline
-                      fullWidth
-                      rows={5}
-                      value={inputFieldStaticArticle.instruction}
-                      onChange={(event) => setInputFieldStaticArticle({
-                        ...inputFieldStaticArticle,
-                        [event.target.name]: event.target.value,
-                      })}
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <TextField
                       fullWidth
                       id="keywords"
                       label="Keywords"
@@ -316,6 +318,22 @@ export default function ArticlesForm({
                       onChange={(event) => setInputFieldStaticArticle({ ...inputFieldStaticArticle, [event.target.name]: event.target.value })}
                     />
                   </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      name="instruction"
+                      label="Brief"
+                      variant="outlined"
+                      multiline
+                      fullWidth
+                      rows={30}
+                      value={inputFieldStaticArticle.instruction}
+                      onChange={(event) => setInputFieldStaticArticle({
+                        ...inputFieldStaticArticle,
+                        [event.target.name]: event.target.value,
+                      })}
+                    />
+                  </Grid>
+
                 </Grid>
               </AccordionDetails>
             </Accordion>

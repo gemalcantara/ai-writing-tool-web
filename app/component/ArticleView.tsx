@@ -59,7 +59,7 @@ export default function ArticleView() {
   const params = useParams()
   const articleId = params.articleId as string
   const navigate = useNavigate()
-  const [editMode, setEditMode] = useState(false)
+  const [editMode, setEditMode] = useState(true)
   const [editedContent, setEditedContent] = useState("")
   const [wordCount, setWordCount] = useState(0)
   const [snackbarOpen, setSnackbarOpen] = useState(false)

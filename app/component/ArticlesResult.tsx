@@ -66,7 +66,7 @@ export default function ArticlesResult({ article,setArticle }: ArticlesResultPro
     slug: '',
     articleTitle: ''
   })
-  const [editMode, setEditMode] = useState(false)
+  const [editMode, setEditMode] = useState(true)
   const [activeTab, setActiveTab] = useState(0)
   const [loading, setLoading] = useState(false)
   const [factCheckResults, setFactCheckResults] = useState('')

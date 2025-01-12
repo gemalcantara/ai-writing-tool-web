@@ -109,11 +109,11 @@ export default function ArticleSteps({ constellationMode }: ArticleStepsProps) {
 
             {activeStep === 0 && (
               <ArticleOutlineForm
+                constellationMode={constellationMode}
                 handleSubmit={onOutlineComplete}
                 inputFieldStaticOutline={state.inputFieldStaticOutline}
                 setInputFieldStaticOutline={setState.setInputFieldStaticOutline}
                 clients={state.clients}
-                pages={state.pages}
                 loadingOutline={state.loadingOutline}
                 loadingComparison={state.loadingComparison}
                 linkFields={state.linkFields}
@@ -124,6 +124,7 @@ export default function ArticleSteps({ constellationMode }: ArticleStepsProps) {
 
             {activeStep === 1 && (
               <ArticlesForm
+                constellationMode={constellationMode}
                 handleSubmitArticle={onArticleComplete}
                 inputFieldStaticArticle={state.inputFieldStaticArticle}
                 setInputFieldStaticArticle={setState.setInputFieldStaticArticle}

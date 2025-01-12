@@ -39,7 +39,7 @@ const ArticleOutlineForm = ({
   inputFieldStaticOutline, 
   setInputFieldStaticOutline, 
   clients, 
-  pages, 
+  constellationMode, 
   loadingOutline,
   loadingComparison, 
   linkFields, 
@@ -47,6 +47,20 @@ const ArticleOutlineForm = ({
   handleGenerateComparison 
 }: any) => {
   const [showProgress, setShowProgress] = useState(false);
+
+  // Find Constellation Marketing client
+  const constellationClient = clients.find((client: any) => client.name === "Constellation Marketing");
+
+  // Set constellation client on mount if in constellation mode
+  useEffect(() => {
+    if (constellationMode && constellationClient) {
+      setInputFieldStaticOutline({
+        ...inputFieldStaticOutline,
+        selectedClient: constellationClient._id,
+        clientName: constellationClient.name
+      });
+    }
+  }, [constellationMode, clients]);
 
   const getNameById = (list: any, id: any) => {
     const entry = list.find((item: { _id: any; }) => item._id === id);
@@ -72,17 +86,16 @@ const ArticleOutlineForm = ({
                 value={inputFieldStaticOutline.selectedClient}
                 label="client"
                 required
+                disabled={constellationMode}
                 onChange={(e) => setInputFieldStaticOutline({
                   ...inputFieldStaticOutline,
                   [e.target.name]: e.target.value,
                   clientName: getNameById(clients, e.target.value)
                 })}
               >
-                {
-                  clients.map((client: any) => (
-                    <MenuItem key={client._id} value={client._id}>{client.name}</MenuItem>
-                  ))
-                }
+                {clients.map((client: any) => (
+                  <MenuItem key={client._id} value={client._id}>{client.name}</MenuItem>
+                ))}
               </Select>
             </FormControl>
           </Grid>
