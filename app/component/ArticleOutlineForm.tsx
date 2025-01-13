@@ -128,6 +128,19 @@ const ArticleOutlineForm = ({
             <DynamicFieldsComponent linkFields={linkFields} setLinkFields={setLinkFields} />
           </Grid>
           <Grid item xs={12}>
+          <Button
+          variant="outlined"
+          color="primary"
+          style={{ marginTop: '16px' }}
+          fullWidth
+          disabled={loadingOutline || loadingComparison || !linkFields.competitorLinks.length}
+          onClick={handleGenerateComparison}
+          type='button'
+        >
+          {loadingComparison ? 'Analyzing...' : 'Generate Brief'}
+        </Button>
+          </Grid>
+          <Grid item xs={12}>
             <TextField
               fullWidth
               id="articleDescription"
@@ -144,17 +157,6 @@ const ArticleOutlineForm = ({
             /> 
           </Grid>
         </Grid>
-        <Button
-          variant="outlined"
-          color="primary"
-          style={{ marginTop: '16px' }}
-          fullWidth
-          disabled={loadingOutline || loadingComparison || !linkFields.competitorLinks.length}
-          onClick={handleGenerateComparison}
-          type='button'
-        >
-          {loadingComparison ? 'Analyzing...' : 'Generate Brief'}
-        </Button>
         <Button
           variant="outlined"
           color="primary"

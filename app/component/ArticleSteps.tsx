@@ -9,7 +9,7 @@ import ArticleOutlineForm from './ArticleOutlineForm';
 import ArticlesForm from './ArticleForm';
 import ArticlesResult from './ArticlesResult';
 import { useParams } from 'react-router-dom';
-const steps = ['Create Outline', 'Create Article', 'Article Result'];
+const steps = ['Generate Brief', 'Create Article', 'Article Result'];
 import { useCookies } from 'react-cookie';
 
 interface ArticleStepsProps {
