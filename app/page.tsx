@@ -53,7 +53,7 @@ export default function App() {
           <Route path="clients/view/:clientId" element={ <Client /> } />
           <Route path="articles" element={< ChooseCreateMode /> } />
           <Route path="articles/create" element={< ArticleSteps /> } />
-          <Route index element={< ArticleSteps /> } />
+          <Route index element={< ChooseCreateMode /> } />
           <Route path="articles/create/:articleId" element={< ArticleSteps /> } />
           <Route path="articles/view" element={< ArticleHistory /> } />
           <Route path="articles/view/:articleId" element={< ArticleView /> } />
