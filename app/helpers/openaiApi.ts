@@ -186,7 +186,7 @@ async function generateArticle(formData: any, sectionData: string, constellation
   // @ts-ignore
     messages: finalContent,
   });
-    return finalResponse.content[0].text || '';
+    return `## ${parsedFormData.pageTitle} \n ${finalResponse.content[0].text}` || '';
   } catch (error) {
     if (isOverloadedError(error)) {
       throw new Error('The AI service is currently overloaded. Please try again in a few minutes.');

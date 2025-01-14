@@ -24,10 +24,10 @@ const ProgressIndicator = ({ open }: { open: boolean }) => (
 );
 const ProgressIndicatorComparison = ({ open }: { open: boolean }) => (
   <Dialog open={open} disableEscapeKeyDown>
-    <DialogTitle>Generating Comparison</DialogTitle>
+    <DialogTitle>Generating Brief</DialogTitle>
     <DialogContent>
       <DialogContentText>
-        Please wait while we analyze the comparison.
+        Please wait while we analyze the brief.
       </DialogContentText>
       <CircularProgress style={{ display: 'block', margin: '20px auto' }} />
     </DialogContent>

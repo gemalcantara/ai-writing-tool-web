@@ -141,7 +141,6 @@ export default function SharedArticlePage() {
         <strong>Slug:</strong> {articleDetails.slug}
       </Typography>
       <Divider sx={{ my: 3, borderWidth: '1px' }} />
-      <h2>{articleDetails.articleTitle}</h2>
       <div className="result result-content" dangerouslySetInnerHTML={{ __html: renderLinksWithTargetBlank(article)}}></div>
     </div>
   )
