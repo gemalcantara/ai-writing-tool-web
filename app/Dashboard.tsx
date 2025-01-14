@@ -85,11 +85,11 @@ const SidebarList = ({ open }: { open: boolean }) => {
         onClick={handleListItemClick}
         icon={<Article />}
         text="Create Article"
-        to="/dashboard/articles/create"
+        to="/dashboard/articles"
         open={open}
       />
       <Divider />
-      <SidebarItem
+      {/* <SidebarItem
         index={9}
         selectedIndex={selectedIndex}
         onClick={handleListItemClick}
@@ -98,7 +98,7 @@ const SidebarList = ({ open }: { open: boolean }) => {
         to="/constellation/articles/create"
         open={open}
         isConstellation={true}
-      />
+      /> */}
       <Divider />
       <SidebarItem
         index={7}

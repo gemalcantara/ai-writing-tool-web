@@ -29,6 +29,7 @@ import Profile from './component/Profile';
 import ArticleView from './component/ArticleView';
 import SiteOptions from './component/SiteOptions';
 import SiteOptionForm from './component/SiteOptionsForm';
+import ChooseCreateMode from './component/ChooseCreateMode';
 
 export default function App() {
   return (
@@ -50,7 +51,7 @@ export default function App() {
           <Route path="clients" element={ <Client /> } />
           <Route path="clients/create" element={ <ClientsForm /> } />
           <Route path="clients/view/:clientId" element={ <Client /> } />
-          {/* <Route path="articles" element={< ArticlesResult /> } /> */}
+          <Route path="articles" element={< ChooseCreateMode /> } />
           <Route path="articles/create" element={< ArticleSteps /> } />
           <Route index element={< ArticleSteps /> } />
           <Route path="articles/create/:articleId" element={< ArticleSteps /> } />
