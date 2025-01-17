@@ -65,7 +65,7 @@ export default function SharedArticlePage() {
 
         setArticleDetails({
           client: data.article_details ? data.article_details.client : data.outline_input_data.inputFieldStaticOutline.clientName,
-          keyword: data.article_details ? data.article_details.client : data.outline_input_data.linkFields.keywords.map((item: { value: string }) => item.value).join(", "),
+          keyword: data.article_details ? data.article_details.keyword : data.outline_input_data.linkFields.keywords.map((item: { value: string }) => item.value).join(", "),
           meta_description: data.article_details ?  data.article_details.meta : data.outline.meta_description,
           slug:  data.article_details  ? data.article_details.slug : data.outline.slug,
           articleTitle: data.article_details  ? data.article_details.articleTitle : data.article_title,
