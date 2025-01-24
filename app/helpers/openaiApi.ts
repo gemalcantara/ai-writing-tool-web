@@ -64,35 +64,46 @@ async function generateOutline(
   if (typeof outlinePrompt === 'string' || !outlinePrompt.data) {
     throw new Error('Outline prompt data is unavailable or invalid.');
   }
+  let prompt = `Format the outline section in ${articleDescription} into a JSON object following these requirements:
 
-  
-  let prompt = `${outlinePrompt.summary} 
-  ${outlinePrompt.data
-        .replace('{competitorLinks}', competitorLinksArray)
-        .replace('{keywords}', keywords)
-        .replace('{clientName}', clientName)
-        // .replace('{pageName}', pageName)
-        .replace('{articleDescription}', articleDescription)}
-
-        Return the response strictly following this JSON template, ensuring valid JSON formatting and no markdown, extraneous content or code block syntax. I will use this with JSON.parse(), so it should be in valid JSON format.'
- 
+1. The JSON must follow this exact structure with no additional fields:
+{
+  "title": "title from the outline section",
+  "metaDescription": "brief summary of the article's content and purpose",
+  "slug": "url-friendly version of title",
+  "sections": [
+    {
+      "headingLevel": "h3",
+      "sectionTitle": "name of the main section",
+      "description": [
+        "- bullet point with dash prefix", \n
+        "- another bullet point with dash prefix" \n
+      ],
+      "links": [
         {
-          "title": "",
-          "metaDescription": "required to have a value",
-          "slug": "",
-          "sections": [
-            {
-             "headingLevel": "h3 - fixed value"
-              "sectionTitle": "main section title",
-              "description": "concatenate all subsections",
-              "links": [
-                {
-                  "link": "leave this empty string"
-                }
-              ]
-            }
-          ]
+          "link": ""
         }
+      ]
+    }
+  ]
+}
+
+2. Only process content under the "### **4. Outline**" heading
+- Convert the main section "Explore the World of Arts and Crafts" into the title
+- Each bullet point under the title becomes a section
+- Convert subsection content into an array of strings, each prefixed with "- "
+- Create a slug from the title
+- Create a metaDescription that summarizes the content
+- Ensure valid JSON syntax that can be parsed with JSON.parse()
+- headingLevel must always be "h3"
+- links array should contain one empty link object
+- Each description array item must start with "- " to create bullet points
+
+3. Do not include:
+- Content from other sections of the article brief
+- Markdown formatting
+- Code block syntax
+- Any content outside the JSON structure
   `
   const messages = [
     {

@@ -130,6 +130,9 @@ export default function SiteOptionForm() {
           <Typography variant="caption" display="block" gutterBottom>
         {'{articleDescription}'}
           </Typography>
+          <Typography variant="caption" display="block" gutterBottom>
+        {'{articleBrief}'}
+          </Typography>
         </>
       )}
       {siteOption.type === 'article' && (
