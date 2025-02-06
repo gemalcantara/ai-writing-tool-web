@@ -17,5 +17,5 @@ export function verifyToken(token: string): any {
 }
 export async function getAuthToken(): Promise<string | null> {
   // Get token from localStorage or cookie
-  return localStorage.getItem('auth-token')
+  return localStorage.getItem('token')
 }

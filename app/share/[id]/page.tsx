@@ -37,6 +37,7 @@ export default function SharedArticlePage() {
   const [editedContent, setEditedContent] = useState('')
   const [saving, setSaving] = useState(false)
   const [snackbarOpen, setSnackbarOpen] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
   const params = useParams()
   const articleId = params?.id || article?._id;
 
@@ -52,15 +53,27 @@ export default function SharedArticlePage() {
   }
 
   useEffect(() => {
-    const fetchArticle = async () => {
+    const checkAuth = async () => {
       try {
         const token = await getAuthToken()
-        const response = await fetch(`/api/share/${params.id}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        })
+        console.log("Token:", token)
+        setIsAuthenticated(!!token)
+      } catch (err) {
+        setIsAuthenticated(false)
+      }
+    }
+    checkAuth()
+  }, [])
 
+  useEffect(() => {
+    const fetchArticle = async () => {
+      try {
+        const response = await fetch(`/api/share/${params.id}`)
+        // const response = await fetch(`/api/share/${params.id}`, {
+        //   headers: {
+        //     'Authorization': `Bearer ${token}`
+        //   }
+        // })
         if (!response.ok) {
           throw new Error('Failed to fetch article')
         }
@@ -165,12 +178,14 @@ export default function SharedArticlePage() {
     <div className="prose max-w-none" style={{ margin: '2rem 5rem 1rem' }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography variant="h5">Article Details</Typography>
-        <FormControlLabel
-          control={<Switch checked={editMode} onChange={handleEditToggle} />}
-          label={editMode ? "Edit Mode" : "View Mode"}
-        />
+        {isAuthenticated && (
+          <FormControlLabel
+            control={<Switch checked={editMode} onChange={handleEditToggle} />}
+            label={editMode ? "Edit Mode" : "View Mode"}
+          />
+        )}
       </Box>
-      {editMode ? (
+      {(isAuthenticated && editMode) ? (
         <>
           <TextField
             label="Client"
@@ -228,7 +243,7 @@ export default function SharedArticlePage() {
         </>
       )}
       <Divider sx={{ my: 3, borderWidth: '1px' }} />
-      {editMode ? (
+      {(isAuthenticated && editMode) ? (
         <div className="mb-4" style={{ marginTop: "1rem"}}>
           <Editor
             data={editedContent}
